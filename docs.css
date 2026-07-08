@@ -55,6 +55,28 @@ body { margin: 0; }
 .vt-panel { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2lh; view-transition-name: vt-demo; }
 .vt-big { --type: 6; font-weight: 800; letter-spacing: -0.02em; }
 
+/* "Try it" — point the root direction keyframes at the panel's OWN group so each
+   direction is visible inside the box. In a real app you set data-vt and the whole
+   page (root) animates; here the same keyframes are scoped to one name so you can
+   watch them. (fade is the default group animation, so it needs no rule.) */
+:root[data-vt="slide-left"]::view-transition-old(vt-demo)  { animation-name: vt-out-left; }
+:root[data-vt="slide-left"]::view-transition-new(vt-demo)  { animation-name: vt-in-right; }
+:root[data-vt="slide-right"]::view-transition-old(vt-demo) { animation-name: vt-out-right; }
+:root[data-vt="slide-right"]::view-transition-new(vt-demo) { animation-name: vt-in-left; }
+:root[data-vt="scale"]::view-transition-old(vt-demo)       { animation-name: vt-out-scale; }
+:root[data-vt="scale"]::view-transition-new(vt-demo)       { animation-name: vt-in-scale; }
+:root[data-vt="zoom"]::view-transition-old(vt-demo)        { animation-name: vt-out-zoom; }
+:root[data-vt="zoom"]::view-transition-new(vt-demo)        { animation-name: vt-in-zoom; }
+
+/* grow morph — one element, stable name, box changes → the browser tweens it */
+.growbox { display: grid; place-items: center; inline-size: 9rem; block-size: 4lh; border-radius: var(--cfg-radius); --bg: 0.12; background-color: var(--_bg); cursor: pointer; view-transition-name: growbox; user-select: none; }
+.growbox.big { inline-size: 100%; block-size: 11lh; --bg: 0.06; }
+
+/* poof — scale an element down as it leaves, up as it enters (its own group) */
+:root::view-transition-old(poof) { animation-name: vt-out-zoom; }
+:root::view-transition-new(poof) { animation-name: vt-in-zoom; }
+.poofbox { display: grid; place-items: center; min-block-size: 4lh; padding: 0.4lh 0.8em; border-radius: var(--cfg-radius); --bg: 0.14; background-color: var(--_bg); view-transition-name: poof; }
+
 /* ============ components ============ */
 .comp { display: flex; flex-direction: column; gap: 0.45lh; padding-block: 0.8lh 1.1lh; border-block-end: 1px solid var(--border); scroll-margin-top: 0.5lh; }
 .comp-demo { display: flex; flex-wrap: wrap; gap: 0.7em; align-items: center; padding: 0.8lh 0.9em; border: 1px dashed var(--border); border-radius: var(--cfg-radius); }
