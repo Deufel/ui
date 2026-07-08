@@ -1,15 +1,15 @@
-<main class="pg-main" id="main" data-init="afterNav('transitions'); $vtsupport = !!document.startViewTransition" data-signals="{vtn: 1, vtdir: 'slide-left', vtsupport: true}">
+<main class="pg-main" id="main" data-init="afterNav('transitions'); $vtsupport = !!document.startViewTransition" data-signals="{vtn: 1, vtdir: 'slide-left', vtsupport: true, tab: 'list', pick: 1}">
   <div class="doc">
 
     <header class="column" style="gap: 0.4lh">
       <span class="tag inf" style="align-self:start">layout · motion</span>
       <h1 style="--type: 6">View transitions</h1>
-      <p style="--type:1; --fg:-0.7; max-inline-size: 54ch">A plain CSS <code>transition</code> animates one property on one element that stays put. The <strong>View Transitions API</strong> generalizes that to a whole DOM change — elements that appear, move, or leave — by snapshotting before &amp; after and animating between them. <code>system.css</code> wraps it in four direction helpers, gated by your motion switch.</p>
+      <p style="--type:1; --fg:-0.7; max-inline-size: 56ch">A plain CSS <code>transition</code> animates one property on one element that stays put. The <strong>View Transitions API</strong> generalizes that to a whole DOM change — elements that appear, move, or leave — by snapshotting the page before &amp; after and animating between the two frames. You don't write the animation; you make the change, and the browser tweens. <code>system.css</code> adds the direction helpers, a <strong>scoped</strong> mode, and the wiring so <strong>Datastar</strong> drives it.</p>
     </header>
 
     <section class="Card column" style="--bg:0.05; gap:0.5lh; padding:0.7lh 0.8em">
-      <div class="spread"><h2 style="--type:3">Try it</h2><span data-attr:class="$vtsupport ? 'tag suc' : 'tag wrn'" data-text="$vtsupport ? 'supported in this browser' : 'not supported — swaps instantly'"></span></div>
-      <p style="--fg:-0.6; --type:-0.5">Pick a direction, then swap the panel. Set the header's motion to <strong>Debug</strong> to watch it in slow motion — the duration rides <code>--cfg-motion</code>.</p>
+      <div class="spread"><h2 style="--type:3">Try it</h2><span data-attr:class="$vtsupport ? 'tag suc' : 'tag wrn'" data-text="$vtsupport ? 'supported here' : 'not supported — swaps instantly'"></span></div>
+      <p style="--fg:-0.6; --type:-0.5">Pick a direction, then swap the panel. Set the header's motion to <strong>Debug</strong> to watch it in slow motion — duration rides <code>--cfg-motion</code>.</p>
       <div class="vt-stage" style="--bg:0">
         <div class="vt-panel" data-style="{'--hue': $vtn === 1 ? 255 : $vtn === 2 ? 25 : $vtn === 3 ? 150 : 285}" style="--bg:0.12; background-color: var(--_bg)">
           <span class="vt-big" data-text="$vtn"></span>
@@ -22,25 +22,40 @@
           <button data-attr:aria-pressed="$vtdir === 'slide-left' ? 'true' : 'false'" data-on:click="$vtdir = 'slide-left'">slide-left</button>
           <button data-attr:aria-pressed="$vtdir === 'slide-right' ? 'true' : 'false'" data-on:click="$vtdir = 'slide-right'">slide-right</button>
           <button data-attr:aria-pressed="$vtdir === 'scale' ? 'true' : 'false'" data-on:click="$vtdir = 'scale'">scale</button>
+          <button data-attr:aria-pressed="$vtdir === 'zoom' ? 'true' : 'false'" data-on:click="$vtdir = 'zoom'">zoom</button>
         </div>
         <button class="pri nowrap" data-on:click__viewtransition="document.documentElement.dataset.vt = $vtdir; $vtn = ($vtn % 4) + 1">Swap panel →</button>
       </div>
     </section>
 
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">One call — that's the whole API</h2>
+      <p style="--fg:-0.6; max-inline-size:62ch">Wrap any DOM change in <code>startViewTransition</code>. The browser freezes the old frame, runs your callback, then crossfades to the new frame. No library, no manual FLIP math. Unsupported browsers just run the callback with no animation — safe to ship today.</p>
+      <div class="split" style="gap:0.7lh; align-items:start">
+        <div class="column" style="gap:0.4lh">
+          <strong style="--type:0">Raw JS</strong>
+          <pre><code class="js">document.documentElement.dataset.vt = "slide-left";
+document.startViewTransition(() =&gt; {
+  render(nextState);   // any DOM mutation
+});</code></pre>
+        </div>
+        <div class="column" style="gap:0.4lh">
+          <strong style="--type:0">Datastar — the same thing, declaratively</strong>
+          <pre><code class="html">&lt;button
+  data-on:click__viewtransition="
+    document.documentElement.dataset.vt = 'slide-left';
+    $panel = next"&gt;
+  Next
+&lt;/button&gt;</code></pre>
+        </div>
+      </div>
+      <p style="--fg:-0.6; --type:-0.5">The <code>__viewtransition</code> modifier wraps the expression's DOM changes in a transition for you — this is what the <strong>Swap panel</strong> button above uses.</p>
+    </section>
+
     <section class="split" style="gap:0.7lh; align-items:start">
       <div class="column" style="gap:0.4lh">
-        <h2 style="--type:3">The whole API is one call</h2>
-        <p style="--fg:-0.6">Wrap any state change. The browser freezes the old frame, runs your callback, then crossfades to the new frame. No library, no manual FLIP math.</p>
-        <pre><code class="js">document.documentElement.dataset.vt = "slide-left";
-document.startViewTransition(() =&gt; {
-  // any DOM mutation — swap a route, re-render a list…
-  render(nextState);
-});</code></pre>
-        <p style="--fg:-0.6; --type:-0.5">Unsupported browsers just run the callback with no animation — so it's safe to ship today.</p>
-      </div>
-      <div class="column" style="gap:0.4lh">
         <h2 style="--type:3">Directions ship as helpers</h2>
-        <p style="--fg:-0.6">Set <code>data-vt</code> on <code>&lt;html&gt;</code> before you start; <code>system.css</code> keys the keyframes off it.</p>
+        <p style="--fg:-0.6">Set <code>data-vt</code> on <code>&lt;html&gt;</code> before you start; <code>system.css</code> keys the root keyframes off it.</p>
         <div class="table-scroll" style="--bg:0">
           <table>
             <thead><tr><th><code>data-vt</code></th><th>motion</th></tr></thead>
@@ -49,30 +64,120 @@ document.startViewTransition(() =&gt; {
               <tr><td><code>slide-left</code></td><td>New content enters from the right</td></tr>
               <tr><td><code>slide-right</code></td><td>New content enters from the left</td></tr>
               <tr><td><code>scale</code></td><td>Subtle zoom crossfade</td></tr>
+              <tr><td><code>zoom</code></td><td>Pronounced zoom crossfade</td></tr>
+              <tr><td><code>isolate</code></td><td>Hold the page still — only <em>named</em> regions move</td></tr>
             </tbody>
           </table>
         </div>
       </div>
+      <div class="column" style="gap:0.4lh">
+        <h2 style="--type:3">It obeys the motion switch — free</h2>
+        <p style="--fg:-0.6">Duration is <code>calc(var(--cfg-motion) * 0.28s)</code>, so <code>data-ui-motion</code> off → instant swap, debug → slow, and <code>prefers-reduced-motion</code> zeroes it.</p>
+        <div class="alert inf" role="note" style="margin-block-start:0.2lh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+          <small style="--fg:-0.75">The transition pseudo-elements live on <code>:root</code>, so set <code>data-ui-motion</code> and <code>data-vt</code> on <code>&lt;html&gt;</code> — not an inner wrapper — so the value reaches them.</small>
+        </div>
+      </div>
     </section>
 
-    <section class="alert inf" role="note">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
-      <div class="column" style="gap:0.15lh">
-        <strong>It obeys the motion switch — for free.</strong>
-        <small style="--fg:-0.75">Duration is <code>calc(var(--cfg-motion) * 0.28s)</code>, so <code>data-ui-motion</code> off → instant swap, debug → 10× slow, and <code>prefers-reduced-motion</code> zeroes it. Because the transition pseudo-elements live on <code>:root</code>, set <code>data-ui-motion</code> on <code>&lt;html&gt;</code> (not just an inner wrapper) so the value reaches them.</small>
+    <!-- ═══ the part that matters: scope to what changes ═══ -->
+    <section class="column" style="gap:0.5lh">
+      <div class="spread"><h2 style="--type:3">Animate only what changes</h2><span class="tag suc">the pattern to reach for</span></div>
+      <p style="--fg:-0.6; max-inline-size:64ch">By default a transition captures the <strong>whole viewport</strong> as one group called <code>root</code> and crossfades it — so even a one-word change flashes the entire page. To scope the motion to the regions that actually change, do two things:</p>
+      <div class="grid" style="--grid-min:15rem; gap:0.6lh">
+        <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag inf">1</span><strong>Name the movers</strong></div><small style="--fg:-0.7">Give each region that should animate its own <code>view-transition-name</code> — the <code>.vt</code> helper reads it from <code>--vt</code>. A named element becomes its own group and tweens between frames.</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag inf">2</span><strong>Hold the rest</strong></div><small style="--fg:-0.7">Set <code>data-vt="isolate"</code> so <code>root</code> — everything you didn't name — swaps with <em>no</em> animation. No whole-page crossfade; only your named regions move.</small></div>
       </div>
+      <pre><code class="html">&lt;html data-vt="isolate"&gt;                &lt;!-- root holds still --&gt;
+
+&lt;aside class="pg-navigation"&gt;…&lt;/aside&gt;   &lt;!-- unnamed → instant, no flash --&gt;
+&lt;main&gt;
+  &lt;article class="vt card" style="--vt: detail"&gt;   &lt;!-- named → morphs --&gt;
+    …content that changes…
+  &lt;/article&gt;
+&lt;/main&gt;</code></pre>
+      <p style="--fg:-0.6; --type:-0.5">A name must be <strong>unique per snapshot</strong>; keeping the <em>same</em> name on an element across the change is what links its old and new frame so it tweens instead of crossfading. Reuse a name on two visible elements and the browser skips the transition.</p>
+    </section>
+
+    <section class="Card column" style="--bg:0.05; gap:0.5lh; padding:0.7lh 0.8em">
+      <div class="spread"><h2 style="--type:3">Scoped morph — live</h2><span class="tag inf">isolate + a named region</span></div>
+      <p style="--fg:-0.6; --type:-0.5">The title bar and tabs are <em>unnamed</em>, so they hold. Only the body carries <code>--vt: scoped-body</code>, so only it morphs when you switch. Swap under <strong>Debug</strong> motion to see the chrome stay put.</p>
+      <div class="card column" style="--bg:0; gap:0; padding:0; overflow:hidden">
+        <div class="spread" style="--bg:-0.4; background-color:var(--_bg); padding:0.35lh 0.6em">
+          <strong style="--type:0">Orbit</strong>
+          <div class="button-group" role="group" aria-label="View">
+            <button data-attr:aria-pressed="$tab === 'list' ? 'true' : 'false'" data-on:click__viewtransition="document.documentElement.dataset.vt = 'isolate'; $tab = 'list'">List</button>
+            <button data-attr:aria-pressed="$tab === 'detail' ? 'true' : 'false'" data-on:click__viewtransition="document.documentElement.dataset.vt = 'isolate'; $tab = 'detail'">Detail</button>
+          </div>
+        </div>
+        <div class="vt" style="--vt: scoped-body; padding:0.7lh 0.8em; min-block-size:9lh">
+          <div class="column" data-show="$tab === 'list'" style="gap:0.3lh">
+            <div class="flank card" style="--bg:0.03; padding:0.35lh 0.5em"><span class="avatar" style="--type:-1">A</span><span>Aurora — <small style="--fg:-0.6">shipped</small></span></div>
+            <div class="flank card" style="--bg:0.03; padding:0.35lh 0.5em"><span class="avatar" style="--type:-1">B</span><span>Basalt — <small style="--fg:-0.6">in review</small></span></div>
+            <div class="flank card" style="--bg:0.03; padding:0.35lh 0.5em"><span class="avatar" style="--type:-1">C</span><span>Cobalt — <small style="--fg:-0.6">draft</small></span></div>
+          </div>
+          <div class="column" data-show="$tab === 'detail'" style="gap:0.3lh">
+            <div class="row" style="gap:0.5em"><span class="avatar" style="--type:2">A</span><div class="column" style="gap:0"><strong style="--type:1">Aurora</strong><small style="--fg:-0.6">shipped · 3 collaborators</small></div></div>
+            <p style="--fg:-0.7; --type:-0.5">A single record expanded in place. Only this body snapshot animated — the title bar above never flinched, because it isn't a named group.</p>
+          </div>
+        </div>
+      </div>
+      <pre><code class="html">&lt;header class="spread"&gt;…&lt;/header&gt;              &lt;!-- unnamed: holds --&gt;
+&lt;div class="vt" style="--vt: scoped-body"&gt;…&lt;/div&gt;
+
+&lt;button data-on:click__viewtransition="
+  document.documentElement.dataset.vt = 'isolate';
+  $tab = 'detail'"&gt;Detail&lt;/button&gt;</code></pre>
+    </section>
+
+    <!-- ═══ full-page morphs from the backend ═══ -->
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Full-page morphs, from the server</h2>
+      <p style="--fg:-0.6; max-inline-size:64ch">When Datastar patches the DOM from a backend <code>datastar-patch-elements</code> event it uses <strong>idiomorph</strong> — it walks the incoming HTML against the live DOM and mutates only the nodes that differ, leaving everything else untouched. Ask it to wrap that morph in a view transition and you get the same scoping for free: unchanged nodes don't re-render, and the regions you named animate.</p>
+      <div class="table-scroll" style="--bg:0">
+        <table>
+          <thead><tr><th>SSE option</th><th>on <code>datastar-patch-elements</code></th></tr></thead>
+          <tbody>
+            <tr><td><code>useViewTransition</code></td><td>Boolean. <code>true</code> wraps the patch in <code>startViewTransition</code> (when the browser supports it). Default <code>false</code>.</td></tr>
+            <tr><td><code>viewTransitionSelector</code></td><td>A CSS selector naming the element the transition should center on — the scope hint for the patch.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="split" style="gap:0.7lh; align-items:start">
+        <div class="column" style="gap:0.4lh">
+          <strong style="--type:0">Server sends (SSE)</strong>
+          <pre><code class="txt">event: datastar-patch-elements
+data: useViewTransition true
+data: viewTransitionSelector #board
+data: mode inner
+data: selector #board
+data: elements &lt;div id="board"&gt;…new cards…&lt;/div&gt;</code></pre>
+        </div>
+        <div class="column" style="gap:0.4lh">
+          <strong style="--type:0">Client already scoped it</strong>
+          <pre><code class="html">&lt;html data-vt="isolate"&gt;
+&lt;div id="board" class="vt" style="--vt: board"&gt;
+  &lt;!-- idiomorph swaps only the cards that changed;
+       #board is a named group, so just it morphs --&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+      <p style="--fg:-0.6; --type:-0.5">So the two halves meet: the <em>server</em> decides a morph should transition (<code>useViewTransition</code>); the <em>stylesheet</em> decides what actually moves (a name + <code>isolate</code>). You can fat-morph a whole page and still animate a single card.</p>
     </section>
 
     <section class="split" style="gap:0.7lh; align-items:start">
       <div class="column" style="gap:0.4lh">
-        <h2 style="--type:3">Morph a shared element</h2>
-        <p style="--fg:-0.6">Give an element a unique <code>view-transition-name</code> and it becomes its own group — the browser tweens its old and new size/position, so a list card grows into a detail view. This page's demo panel is named <code>vt-demo</code>; the docs shell names its header/nav/footer so they stay put while the content slides.</p>
-        <pre><code class="css">.card-hero { view-transition-name: hero; }
-/* must be UNIQUE per snapshot */</code></pre>
+        <h2 style="--type:3">Persistent app shell</h2>
+        <p style="--fg:-0.6">Add <code>data-vt-shell</code> to a <code>.page</code> and every chrome slot gets a stable name, so on any navigation the header/nav/aside/footer are their own groups and hold while only <code>.pg-main</code> morphs — the app-shell form of <code>isolate</code>, named once.</p>
+        <pre><code class="html">&lt;div class="page" data-vt-shell&gt;
+  &lt;header class="pg-header"&gt;…&lt;/header&gt;   &lt;!-- holds --&gt;
+  &lt;nav class="pg-navigation"&gt;…&lt;/nav&gt;    &lt;!-- holds --&gt;
+  &lt;main class="pg-main"&gt;…&lt;/main&gt;        &lt;!-- morphs --&gt;
+&lt;/div&gt;</code></pre>
       </div>
       <div class="column" style="gap:0.4lh">
         <h2 style="--type:3">Across separate pages, zero JS</h2>
-        <p style="--fg:-0.6">For multi-page sites, one at-rule opts every same-origin navigation into a transition — no script at all. Style it with the same pseudo-elements.</p>
+        <p style="--fg:-0.6">For real multi-page navigations, one at-rule opts every same-origin load into a transition — no script. Pair it with <code>data-vt-shell</code> and the shell persists across page loads.</p>
         <pre><code class="css">@view-transition { navigation: auto; }</code></pre>
         <p style="--fg:-0.6; --type:-0.5">Left off by default in <code>system.css</code> so multi-page sites opt in deliberately.</p>
       </div>
@@ -80,20 +185,22 @@ document.startViewTransition(() =&gt; {
 
     <section class="column" style="gap:0.4lh">
       <h2 style="--type:3">What the stylesheet defines</h2>
-      <p style="--fg:-0.6">The helper block at the end of <code>system.css</code> — pseudo-elements on the document root, keyframes keyed to <code>data-vt</code>:</p>
-      <pre><code class="css">::view-transition-group(*) {
-  animation-duration: calc(var(--cfg-motion) * 0.28s);
-}
-::view-transition-old(root) { animation-name: vt-fade-out; }  /* default */
+      <p style="--fg:-0.6">Root pseudo-elements + keyframes keyed to <code>data-vt</code>, the <code>.vt</code> name hook, and the shell opt-in:</p>
+      <pre><code class="css">::view-transition-group(*) { animation-duration: calc(var(--cfg-motion) * 0.28s); }
+::view-transition-old(root) { animation-name: vt-fade-out; }   /* default */
 ::view-transition-new(root) { animation-name: vt-fade-in; }
 :root[data-vt="slide-left"]::view-transition-old(root) { animation-name: vt-out-left; }
-:root[data-vt="slide-left"]::view-transition-new(root) { animation-name: vt-in-right; }
-/* …slide-right, scale… */</code></pre>
+/* …slide-right, scale, zoom… */
+:root[data-vt="isolate"]::view-transition-old(root),
+:root[data-vt="isolate"]::view-transition-new(root) { animation: none; }  /* hold root */
+
+.vt { view-transition-name: var(--vt, none); }                 /* name a mover */
+.page[data-vt-shell] > .pg-main { view-transition-name: pg-main; }  /* + each slot */</code></pre>
     </section>
 
     <footer class="column" style="gap:0.3lh; --fg:-0.6">
       <hr>
-      <p style="--type:-0.5">Support: Chromium (same- &amp; cross-document), Safari (recent), Firefox (partial) — and a graceful instant swap everywhere else. Only one transition runs at a time.</p>
+      <p style="--type:-0.5">Support: Chromium (same- &amp; cross-document), Safari (recent), Firefox (partial) — and a graceful instant swap everywhere else. Only one transition runs at a time. Element-scoped <code>element.startViewTransition()</code> is Chromium-only for now, so <code>isolate</code> + names is the portable way to scope today.</p>
     </footer>
 
   </div>

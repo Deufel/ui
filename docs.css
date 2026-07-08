@@ -85,6 +85,12 @@ body { margin: 0; }
 .matrix .mh { font-family: var(--font-mono); --type: -2; --fg: -0.55; }
 @media (max-width: 640px) { .tagmatrix { grid-template-columns: 1fr; } }
 
+/* ============ reference (front-door) ============ */
+.mono { font-family: var(--font-mono); }
+.apicard { display: flex; flex-direction: column; gap: 0.4lh; padding: 0.6lh 0.7em; }
+.apicard pre { margin: 0; }
+.apicard .tag { --fg: -0.6; }
+
 /* ============ demos gallery ============ */
 .demogrid { display: flex; flex-wrap: wrap; gap: 1lh; }
 .democard { inline-size: 20rem; flex: 1 1 18rem; max-inline-size: 24rem; }

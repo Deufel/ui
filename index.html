@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"
-  data-signals="{hue: 255, theme: 'light', size: 'md', skin: '', motion: 'on', width: 'centered', color: '2', radius: '', font: '', invert: '', section: 'type', zoom: 100}"
+  data-signals="{hue: 255, theme: 'light', size: 'md', skin: '', motion: 'on', width: 'centered', color: '2', radius: '', font: '', invert: '', section: 'reference', zoom: 100}"
   data-attr:data-ui-theme="$theme"
   data-attr:data-ui-size="$size"
   data-attr:data-ui-skin="$skin"
@@ -10,6 +10,8 @@
   data-attr:data-ui-font="$font"
   data-attr:data-ui-invert="$invert"
   data-style="{'--hue': $hue}">
+<!-- $section defaults to 'reference' — the one-page API front-door (sections/reference.html);
+     the sidebar sections are the deep-dives, fetched + morphed into #main on click. -->
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -70,7 +72,9 @@
   </header>
 
   <nav class="pg-navigation column" style="gap: 0.1lh; padding: 0.4lh 0.35em; --scale:1">
-    <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block-end:0.2lh">TYPE</small>
+    <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block-end:0.2lh">START</small>
+    <a class="nav-item clickable" data-attr:aria-current="$section === 'reference' ? 'page' : 'false'" data-on:click="$section = 'reference'; @get('sections/reference.html')"><span>API reference</span></a>
+    <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block: 0.4lh 0.2lh">TYPE</small>
     <a class="nav-item clickable" data-attr:aria-current="$section === 'type' ? 'page' : 'false'" data-on:click="$section = 'type'; @get('sections/type.html')"><span>How type works</span></a>
     <a class="nav-item clickable" data-attr:aria-current="$section === 'controls' ? 'page' : 'false'" data-on:click="$section = 'controls'; @get('sections/controls.html')"><span>Control heights</span></a>
     <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block: 0.4lh 0.2lh">COLOR</small>
@@ -91,67 +95,120 @@
     <a class="nav-item clickable" data-attr:aria-current="$section === 'demos' ? 'page' : 'false'" data-on:click="$section = 'demos'; @get('sections/demos.html')"><span>Full pages</span></a>
   </nav>
 
-  <main class="pg-main" id="main" data-init="afterNav('type')">
+  <main class="pg-main" id="main" data-init="afterNav('reference')">
     <div class="doc">
 
       <header class="column" style="gap: 0.4lh">
-        <span class="tag inf" style="align-self:start">type</span>
-        <h1 style="--type: 6">Type is the system</h1>
-        <p style="--type:1; --fg:-0.7; max-inline-size: 52ch">One number per element — <code>--type</code> — sets its size, and from that same number the engine derives its leading, tracking, and weight. Spacing is a fraction of the line, so <em>everything</em> scales together. There are no pixel values to keep in sync.</p>
+        <span class="tag inf" style="align-self:start">reference</span>
+        <h1 style="--type: 6">system.css</h1>
+        <p style="--type:1; --fg:-0.7; max-inline-size: 54ch">The whole API on one page. Link the stylesheet, write plain HTML, and set a few signed custom properties instead of picking colors or spacing. Everything below is live in this doc — pick a topic in the sidebar for the long version.</p>
       </header>
 
       <section class="column" style="gap:0.5lh">
-        <h2 style="--type:3">One step, four outputs</h2>
-        <div class="four">
-          <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag suc">size</span><strong>fluid</strong></div><small style="--fg:-0.7">A modular ratio to the power of the step, fluidly interpolated between a phone and a desktop base. One <code>--cfg-ratio</code> for the whole scale.</small></div>
-          <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag">leading</span><strong>line-height</strong></div><small style="--fg:-0.7">Tightens as type grows, so display sizes don't sit on loose lines.</small></div>
-          <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag">tracking</span><strong>letter-spacing</strong></div><small style="--fg:-0.7">Negative at display sizes, a touch positive for small caps of text.</small></div>
-          <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag">weight</span><strong>optical</strong></div><small style="--fg:-0.7">Climbs above step 0, so headings carry more weight without a second knob.</small></div>
+        <h2 style="--type:3">1 · Setup</h2>
+        <pre><code class="html">&lt;link rel="stylesheet" href="system.css"&gt;
+&lt;html data-ui-theme="dark" style="--hue: 255"&gt;   &lt;!-- theme + brand hue --&gt;</code></pre>
+        <p style="--fg:-0.6; --type:-0.5">Load the theme webfonts (default Roboto + Roboto Mono). Then write bare HTML — a <code>&lt;button&gt;</code>, <code>&lt;table&gt;</code>, or a <code>&lt;label&gt;</code> in a <code>&lt;form&gt;</code> is already the styled component. Reach for a class only to <em>vary</em> an element.</p>
+      </section>
+
+      <section class="column" style="gap:0.6lh">
+        <h2 style="--type:3">2 · API</h2>
+
+        <div class="apicard card" style="--bg:0.02">
+          <div class="spread"><strong class="mono">Color</strong><span class="tag" style="--type:-2">declare a position — the engine solves the OKLCH</span></div>
+          <pre><code class="css">--bg:  0    /* [-1..0..1]  surface depth — 0 base, − recedes, + advances */
+--fg:  0    /* [-1..0..1]  ink — − neutral/max-contrast, + chromatic     */
+--hue: 255  /* [0..360]    one number rotates the whole system           */
+--hue-shift: 0    /* ±deg   rotate every non-locked descendant           */
+--hue-lock:  —    /* pin hue against a shift (the semantic helpers set it)*/</code></pre>
+          <small style="--fg:-0.7"><code>--border</code> / <code>--focus</code> are derived from the surface — never set them.</small>
+        </div>
+
+        <div class="apicard card" style="--bg:0.02">
+          <div class="spread"><strong class="mono">Type &amp; space</strong><span class="tag" style="--type:-2">type is the spacing system</span></div>
+          <pre><code class="css">--type:  0    /* signed step; sets size → leading, tracking, weight derive.
+                 h1..h5 = 5..1 · body/controls = 0 · small = −1 · micro = −2
+                 sizes ONE element (does not inherit)                       */
+--scale: 1    /* zooms a whole region (inherits) — for a mini preview       */
+
+gap: calc(0.25 * 1lh)   /* every layout primitive; spacing = a fraction of the line */
+padding: 0 0.8em        /* controls pad in em → tracks --type. Never hand-set px.    */</code></pre>
+        </div>
+
+        <div class="apicard card" style="--bg:0.02">
+          <div class="spread"><strong class="mono">Surfaces</strong><span class="tag" style="--type:-2">nest by lifting, not by picking darker values</span></div>
+          <pre><code class="css">.bg                 /* paints its --bg; publishes lightness for child ink */
+.card  / .Card      /* bordered panel — quiet line / vibrant line          */
+.surface / .Surface /* a --lift step, no line — group inside a card        */
+--lift: n           /* sit n above the host surface (what controls use)    */</code></pre>
+        </div>
+
+        <div class="apicard card" style="--bg:0.02">
+          <div class="spread"><strong class="mono">Layout primitives</strong><span class="tag" style="--type:-2">specificity 0 · compose freely</span></div>
+          <pre><code class="css">.row  .column          /* horizontal (wraps) · vertical stack          */
+.split .spread .lcr    /* 1fr 1fr · space-between · left·center·right   */
+.flank .flank-end      /* fixed leader + fluid rest (icon · text)      */
+.grid  --grid-min      /* auto-fit tracks   .ngrid --cols --rows       */
+.stack .track .frame   /* overlay · scroll row · fixed aspect box      */
+.hero                  /* t/l/main/r/b app region (scrolls in main)    */
+.vt   --vt: name       /* name a view-transition group (a "mover")     */</code></pre>
+        </div>
+
+        <div class="apicard card" style="--bg:0.02">
+          <div class="spread"><strong class="mono">Page shell &amp; overlays</strong><span class="tag" style="--type:-2">add a slot child, it appears; empty tracks collapse</span></div>
+          <pre><code class="css">.page  data-vt-shell   /* 10-slot app grid; only nav/main/aside scroll */
+  .pg-banner .pg-header .pg-subheader .pg-navigation .pg-toolbar
+  .pg-main-header .pg-main .pg-main-footer .pg-aside .pg-footer
+
+.modal  .drawer .left/.right/.top/.bottom   /* native &lt;dialog&gt; — no z-index */
+.menu   /* anchored popover */   .hud  .tl…​.br   /* 9-slot overlay (toasts, FABs) */</code></pre>
+        </div>
+
+        <div class="apicard card" style="--bg:0.02">
+          <div class="spread"><strong class="mono">Responsive gates</strong><span class="tag" style="--type:-2">layer-order magic — none on by default</span></div>
+          <pre><code class="css">.mobile .tablet .desktop   /* viewport   &lt;768 · 768–1024 · ≥1024px */
+.small  .medium .large     /* container  needs a container-type ancestor */
+.fine   .coarse            /* pointer    mouse · touch */</code></pre>
+          <small style="--fg:-0.7">Each defaults to <code>display:none</code>; the matching query flips it back. They compose (<code>class="mobile desktop"</code> = phone + desktop).</small>
+        </div>
+
+        <div class="apicard card" style="--bg:0.02">
+          <div class="spread"><strong class="mono">View transitions</strong><span class="tag" style="--type:-2">inert until you opt in</span></div>
+          <pre><code class="css">data-vt on &lt;html&gt;:  fade · slide-left · slide-right · scale · zoom
+                    isolate   /* hold root — only NAMED regions move */
+.vt style="--vt: x"          /* a mover: its own snapshot group      */
+.page[data-vt-shell]         /* chrome holds, only .pg-main morphs    */</code></pre>
+          <pre><code class="html">&lt;button data-on:click__viewtransition="$state = next"&gt;…&lt;/button&gt;
+&lt;!-- backend: SSE `useViewTransition true` + `viewTransitionSelector #x` --&gt;</code></pre>
+        </div>
+
+        <div class="apicard card" style="--bg:0.02">
+          <div class="spread"><strong class="mono">Components</strong><span class="tag" style="--type:-2">bare-first · one height per --type</span></div>
+          <pre><code class="css">&lt;button&gt; .pri .sec        &lt;button aria-label&gt;&lt;svg&gt; = square icon
+.button-group             &lt;form&gt;›&lt;label&gt; = field   &lt;fieldset&gt; = field row
+&lt;table&gt; &lt;select&gt; &lt;details&gt; &lt;progress&gt; &lt;meter&gt; &lt;blockquote&gt; &lt;code&gt; &lt;kbd&gt;  /* bare */
+.tag .alert .avatar .badge .count      .tabs .crumbs .nav-item .fab-1/2/3</code></pre>
+        </div>
+
+        <div class="apicard card" style="--bg:0.02">
+          <div class="spread"><strong class="mono">Runtime switches</strong><span class="tag" style="--type:-2">set on &lt;html&gt; or any subtree — everything re-resolves</span></div>
+          <pre><code class="css">data-ui-theme  light · dark            data-ui-motion  off · on · debug
+data-ui-size   sm · md · lg · xl       data-ui-skin    material · carbon · vivid
+style="--hue:n"                        data-ui-state   on · off   (+ ARIA drives state)</code></pre>
         </div>
       </section>
 
-      <section class="Card column" style="--bg:0.05; gap:0.5lh; padding:0.7lh 0.8em">
-        <div class="spread"><h2 style="--type:3">The live scale</h2><span class="tag inf">measured from the DOM · try S/M/L above</span></div>
-        <p style="--fg:-0.6; --type:-0.5">Each row is a real element at that <code>--type</code>. The readout is its <em>computed</em> size / line-height / weight — so it reflects the shipped engine and the current <code>data-ui-size</code>, not a formula copy.</p>
-        <div class="column" style="gap:0">
-          <div class="spec-row"><code style="--type:-1; --fg:-0.6">h1</code><div class="spec-samp" style="--type:5">Grumpy wizards</div><span class="spec-out">…</span></div>
-          <div class="spec-row"><code style="--type:-1; --fg:-0.6">h2</code><div class="spec-samp" style="--type:4">Grumpy wizards</div><span class="spec-out">…</span></div>
-          <div class="spec-row"><code style="--type:-1; --fg:-0.6">h3</code><div class="spec-samp" style="--type:3">Grumpy wizards</div><span class="spec-out">…</span></div>
-          <div class="spec-row"><code style="--type:-1; --fg:-0.6">h4</code><div class="spec-samp" style="--type:2">Grumpy wizards</div><span class="spec-out">…</span></div>
-          <div class="spec-row"><code style="--type:-1; --fg:-0.6">h5</code><div class="spec-samp" style="--type:1">Grumpy wizards</div><span class="spec-out">…</span></div>
-          <div class="spec-row"><code style="--type:-1; --fg:-0.6">body</code><div class="spec-samp" style="--type:0">Grumpy wizards</div><span class="spec-out">…</span></div>
-          <div class="spec-row"><code style="--type:-1; --fg:-0.6">small</code><div class="spec-samp" style="--type:-1">Grumpy wizards</div><span class="spec-out">…</span></div>
-          <div class="spec-row"><code style="--type:-1; --fg:-0.6">micro</code><div class="spec-samp" style="--type:-2">Grumpy wizards</div><span class="spec-out">…</span></div>
-        </div>
-      </section>
-
-      <section class="split" style="gap:0.7lh; align-items:start">
-        <div class="column" style="gap:0.4lh">
-          <h2 style="--type:3">Spacing is a fraction of the line</h2>
-          <p style="--fg:-0.6">Layout gaps are <code>calc(0.25 · 1lh)</code> and control padding is in <code>em</code> — both relative to the type around them. Bump a region's <code>--type</code> (or the header's S/M/L) and its rhythm grows with it. No spacing scale to maintain.</p>
-          <pre><code class="css">:where(.row, .column) { gap: calc(0.25 * 1lh); }
-:where(button)        { padding: 0 0.8em; }   /* em → scales with --type */</code></pre>
-        </div>
-        <div class="column" style="gap:0.4lh">
-          <h2 style="--type:3">Set a step, or zoom a region</h2>
-          <p style="--fg:-0.6"><code>--type</code> is per-element (non-inheriting) — set it on one thing. <code>--scale</code> inherits, so it zooms a whole region (handy for a mini preview). <code>data-ui-size</code> reconfigures the base + ratio for the whole app.</p>
-          <pre><code class="html">&lt;h2 style="--type:4"&gt;Heading&lt;/h2&gt;
-&lt;small style="--type:-2"&gt;Micro caption&lt;/small&gt;
-&lt;div style="--scale:0.6"&gt;…mini version…&lt;/div&gt;</code></pre>
-        </div>
-      </section>
-
-      <section class="alert suc" role="note">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      <section class="alert inf" role="note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"/></svg>
         <div class="column" style="gap:0.15lh">
-          <strong>Because controls read the same scale, they stay one height.</strong>
-          <small style="--fg:-0.75">A field, button, select, and avatar all resolve to a single height at each <code>--type</code> — see <strong>Control heights</strong> for the live proof, and the <strong>Demos</strong> for the scale dressed up as three different products.</small>
+          <strong>The laws</strong>
+          <small style="--fg:-0.75">1 · Bare HTML is the component; add a class only to vary it. &nbsp;2 · Never name a color — declare a position and let the engine solve it. &nbsp;3 · Shape follows content; height is shared; spacing is a fraction of the line. &nbsp;4 · State rides ARIA; meaning rides <code>.suc .inf .wrn .dgr</code>. &nbsp;5 · Everything you author wins — the system ships at specificity 0.</small>
         </div>
       </section>
 
       <footer class="column" style="gap:0.3lh; --fg:-0.6">
         <hr>
-        <p style="--type:-0.5">Steps in use: <code>h1..h6</code> → <code>--type 5..0</code>, <code>small</code> → <code>-1</code>, plus <code>-2</code> for micro text (tags, icon-button captions).</p>
+        <p style="--type:-0.5">This page is the map. The sidebar sections are the territory — each is live and dogfooded: <strong>How type works</strong>, <strong>The engine</strong>, <strong>Page &amp; helpers</strong>, <strong>View transitions</strong>, <strong>Components</strong>, and the full-page <strong>Demos</strong>.</p>
       </footer>
 
     </div>

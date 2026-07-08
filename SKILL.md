@@ -115,12 +115,17 @@ State rides ARIA — do not invent state classes.
 ## Layout
 
 Zero-specificity primitives (gap in `lh`) — anything you author beats them without a fight.
+These are also the **wireframing kit**: rough a screen outside-in — pick the frame
+(`.page` slots or `.hero`), fill each region by composing `.column`/`.row`/`.grid`/…
+(never hand-set padding), greybox content with `.card` + a `--bg` step, adapt with the
+gate classes below, and name anything that will animate with `.vt`.
 
 | Class | Shape |
 |---|---|
 | `.row` · `.column` | Horizontal (wraps) · vertical. |
 | `.split` · `.spread` · `.spread-column` · `.lcr` | Two equal · space-between row / column · left·center·right. |
 | `.flank` · `.grid` · `.stack` · `.track` | Fixed leader + fluid rest · auto-fit (`--grid-min`) · overlay · scroll row. |
+| `.vt` | Names a view-transition group via `--vt` (see View transitions). Inert until a transition runs. |
 | `.scroll-x` · `.scroll-y` | Scroll containers with contained overscroll. |
 | `.page` + `.pg-*` | Ten-slot app shell: `.pg-banner .pg-header .pg-subheader .pg-navigation .pg-toolbar .pg-main-header .pg-main .pg-main-footer .pg-aside .pg-footer`. Add a child, its slot appears; only nav/main/aside scroll. |
 | `.modal` · `.drawer .left/.right/.top/.bottom` · `.menu` · `.hud` | Native `<dialog>`/popover overlays — no z-index. `.hud` has nine slots `.tl .tc .tr · .cl .cc .cr · .bl .bc .br` (a `.card` in `.hud .tr` = toast; a `.fab-3` in `.br` = primary action). |
@@ -159,16 +164,32 @@ Set on `<html>` or any subtree; everything below re-resolves. Hue is separate fr
 
 ## View transitions
 
-Inert until you opt in. Set `data-vt` on `<html>`, then wrap a DOM change:
+Inert until you opt in. The browser snapshots the page before & after a DOM change and
+tweens between them — you make the change, it animates. Set `data-vt` on `<html>`, then
+wrap the change:
 
 ```js
-document.documentElement.dataset.vt = "slide-left"; // fade | slide-left | slide-right | scale | zoom
+document.documentElement.dataset.vt = "slide-left"; // fade|slide-left|slide-right|scale|zoom|isolate
 document.startViewTransition(() => render(next));
 ```
 
-Duration rides `--cfg-motion`, so `data-ui-motion` and `prefers-reduced-motion` govern
-it. Unique `view-transition-name` morphs a shared element. Cross-document (zero JS):
-`@view-transition { navigation: auto; }`.
+Duration rides `--cfg-motion`, so `data-ui-motion` and `prefers-reduced-motion` govern it.
+
+**Scope it to what changes** — don't crossfade the whole viewport for a one-word change:
+
+| Hook | Effect |
+|---|---|
+| `.vt` + `style="--vt:name"` | Names an element as its own snapshot group so it morphs across the change. Name must be unique per snapshot; keep it stable old→new to link the frames. |
+| `data-vt="isolate"` | Holds `root` (everything unnamed) still — only named regions animate. The portable way to scope today. |
+| `.page[data-vt-shell]` | Names every chrome slot; on any navigation the header/nav/aside/footer hold and only `.pg-main` morphs. |
+
+**With Datastar** (the intended runtime): the `__viewtransition` action modifier wraps a
+frontend swap — `data-on:click__viewtransition="$state = next"`. A backend
+`datastar-patch-elements` SSE frame with `useViewTransition true` (optionally
+`viewTransitionSelector <css>`) wraps a morph; its idiomorph patch mutates only changed
+nodes, so a named region tweens and the rest is untouched.
+
+Cross-document (zero JS): `@view-transition { navigation: auto; }`.
 
 ## The laws
 

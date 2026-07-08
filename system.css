@@ -643,6 +643,26 @@
     & > :where(.pg-footer)      { grid-area: f  }
   }
 
+  /* persistent shell for view transitions — opt in with data-vt-shell on the .page.
+     Each chrome slot gets a stable view-transition-name, so across ANY transition (a
+     Datastar morph, a route swap, cross-document navigation) the header/nav/aside/footer
+     are their own groups and hold their position while only .pg-main morphs. Because
+     every slot is now a NAMED group, `root` is left near-empty — so the rest of the app
+     never does a whole-page crossfade. This is the app-shell counterpart to data-vt=
+     "isolate": name the frame once and every navigation is automatically scoped to the
+     content region. Opt-in (not on by default) so a page with two shells, or one that
+     wants a plain whole-page fade, is unaffected. Names must be unique in the document. */
+  :where(.page[data-vt-shell]) {
+    & > :where(.pg-banner)      { view-transition-name: pg-banner }
+    & > :where(.pg-header)      { view-transition-name: pg-header }
+    & > :where(.pg-subheader)   { view-transition-name: pg-subheader }
+    & > :where(.pg-navigation)  { view-transition-name: pg-navigation }
+    & > :where(.pg-toolbar)     { view-transition-name: pg-toolbar }
+    & > :where(.pg-main)        { view-transition-name: pg-main }
+    & > :where(.pg-aside)       { view-transition-name: pg-aside }
+    & > :where(.pg-footer)      { view-transition-name: pg-footer }
+  }
+
   /* .drawer — edge-anchored overlay (<dialog> or popover), composite-only slide */
   :where(.drawer) {
     --_dur: calc(var(--cfg-motion) * 0.25s);
@@ -789,6 +809,18 @@
   :where(.ngrid) { display: grid; gap: calc(0.25 * 1lh); grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); grid-auto-rows: auto; }
   :where(.stack) { display: grid; grid-template-areas: "stack"; & > * { grid-area: stack } }
   :where(.track) { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(var(--track-min, 6rem), max-content); gap: calc(0.25 * 1lh); overflow-x: auto; }
+
+  /* .vt — name an element so it becomes its OWN view-transition group: the browser
+     morphs it (position/size/content) between the old and new frame while the rest of
+     the page is captured as `root`. This is how you scope a transition to the parts
+     that actually change — give each changing region a UNIQUE name and pair it with
+     data-vt="isolate" on <html> so the untouched chrome holds still. The name comes
+     from --vt (a <custom-ident>), so you compose it inline like every other position:
+       <article class="vt card" style="--vt: detail"> … </article>
+     A name must be unique per snapshot; keeping it stable across the old→new frame is
+     what links the two frames of the SAME element so it tweens instead of crossfading.
+     Inert until a transition is running. */
+  :where(.vt) { view-transition-name: var(--vt, none); }
 
   :where(.hero) {
     display: grid;
@@ -2311,10 +2343,23 @@
    document.startViewTransition(update) (same-document) — nothing here runs
    otherwise, so it's inert until you opt in. Direction is chosen by setting
    data-vt on <html> right before starting: "fade" (default) · "slide-left" ·
-   "slide-right" · "scale" (subtle) · "zoom" (pronounced). Duration rides --cfg-motion, so data-ui-motion
-   (off/on/debug) and prefers-reduced-motion already govern it — at motion 0
-   the animation is 0s (an instant swap). @keyframes live outside @layer (they
-   are global by name); the pseudos are on the document root.
+   "slide-right" · "scale" (subtle) · "zoom" (pronounced) · "isolate" (hold the whole
+   page still so ONLY named regions move — the scoped/targeted mode). Duration rides
+   --cfg-motion, so data-ui-motion (off/on/debug) and prefers-reduced-motion already
+   govern it — at motion 0 the animation is 0s (an instant swap). @keyframes live
+   outside @layer (they are global by name); the pseudos are on the document root.
+
+   Two ways to SCOPE a transition to the parts that actually change (rather than
+   crossfading the whole viewport):
+     · name the changing region(s) with `.vt` / a view-transition-name AND set
+       data-vt="isolate" so `root` (everything else) does not animate; or
+     · put data-vt-shell on a .page — every chrome slot becomes a named group that
+       holds still, so only .pg-main morphs on any navigation.
+   Datastar drives the DOM change: the `__viewtransition` action modifier wraps a
+   frontend swap, and a `datastar-patch-elements` SSE frame with `useViewTransition
+   true` (optionally `viewTransitionSelector <css>`) wraps a backend morph — its
+   idiomorph patch only mutates changed nodes, so a named region tweens and the rest
+   is untouched.
 
    Cross-DOCUMENT transitions (between same-origin page loads, zero JS) are one
    line away — add `@view-transition { navigation: auto; }` — left off by
@@ -2347,3 +2392,11 @@
 :root[data-vt="scale"]::view-transition-new(root)       { animation-name: vt-in-scale; }
 :root[data-vt="zoom"]::view-transition-old(root)        { animation-name: vt-out-zoom; }
 :root[data-vt="zoom"]::view-transition-new(root)        { animation-name: vt-in-zoom; }
+/* isolate — hold the whole page still so ONLY named regions (a `.vt` element, a named
+   .pg-* shell slot, or anything with its own view-transition-name) animate. This is the
+   recommended pairing for a SCOPED transition — a Datastar fat morph, or any swap, where
+   just one region visibly changes: set data-vt="isolate" on <html>, name the region(s)
+   that should move, and the untouched chrome swaps with no whole-page crossfade flash.
+   `root` still captures the rest; killing its animation is what makes the swap targeted. */
+:root[data-vt="isolate"]::view-transition-old(root),
+:root[data-vt="isolate"]::view-transition-new(root)     { animation: none; }

@@ -1,0 +1,121 @@
+<main class="pg-main" id="main" data-init="afterNav('reference')">
+  <div class="doc">
+
+    <header class="column" style="gap: 0.4lh">
+      <span class="tag inf" style="align-self:start">reference</span>
+      <h1 style="--type: 6">system.css</h1>
+      <p style="--type:1; --fg:-0.7; max-inline-size: 54ch">The whole API on one page. Link the stylesheet, write plain HTML, and set a few signed custom properties instead of picking colors or spacing. Everything below is live in this doc — pick a topic in the sidebar for the long version.</p>
+    </header>
+
+    <!-- 1 · SETUP ─────────────────────────────────────────────── -->
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">1 · Setup</h2>
+      <pre><code class="html">&lt;link rel="stylesheet" href="system.css"&gt;
+&lt;html data-ui-theme="dark" style="--hue: 255"&gt;   &lt;!-- theme + brand hue --&gt;</code></pre>
+      <p style="--fg:-0.6; --type:-0.5">Load the theme webfonts (default Roboto + Roboto Mono). Then write bare HTML — a <code>&lt;button&gt;</code>, <code>&lt;table&gt;</code>, or a <code>&lt;label&gt;</code> in a <code>&lt;form&gt;</code> is already the styled component. Reach for a class only to <em>vary</em> an element.</p>
+    </section>
+
+    <!-- 2 · API ──────────────────────────────────────────────── -->
+    <section class="column" style="gap:0.6lh">
+      <h2 style="--type:3">2 · API</h2>
+
+      <div class="apicard card" style="--bg:0.02">
+        <div class="spread"><strong class="mono">Color</strong><span class="tag" style="--type:-2">declare a position — the engine solves the OKLCH</span></div>
+        <pre><code class="css">--bg:  0    /* [-1..0..1]  surface depth — 0 base, − recedes, + advances */
+--fg:  0    /* [-1..0..1]  ink — − neutral/max-contrast, + chromatic     */
+--hue: 255  /* [0..360]    one number rotates the whole system           */
+--hue-shift: 0    /* ±deg   rotate every non-locked descendant           */
+--hue-lock:  —    /* pin hue against a shift (the semantic helpers set it)*/</code></pre>
+        <small style="--fg:-0.7"><code>--border</code> / <code>--focus</code> are derived from the surface — never set them.</small>
+      </div>
+
+      <div class="apicard card" style="--bg:0.02">
+        <div class="spread"><strong class="mono">Type &amp; space</strong><span class="tag" style="--type:-2">type is the spacing system</span></div>
+        <pre><code class="css">--type:  0    /* signed step; sets size → leading, tracking, weight derive.
+                 h1..h5 = 5..1 · body/controls = 0 · small = −1 · micro = −2
+                 sizes ONE element (does not inherit)                       */
+--scale: 1    /* zooms a whole region (inherits) — for a mini preview       */
+
+gap: calc(0.25 * 1lh)   /* every layout primitive; spacing = a fraction of the line */
+padding: 0 0.8em        /* controls pad in em → tracks --type. Never hand-set px.    */</code></pre>
+      </div>
+
+      <div class="apicard card" style="--bg:0.02">
+        <div class="spread"><strong class="mono">Surfaces</strong><span class="tag" style="--type:-2">nest by lifting, not by picking darker values</span></div>
+        <pre><code class="css">.bg                 /* paints its --bg; publishes lightness for child ink */
+.card  / .Card      /* bordered panel — quiet line / vibrant line          */
+.surface / .Surface /* a --lift step, no line — group inside a card        */
+--lift: n           /* sit n above the host surface (what controls use)    */</code></pre>
+      </div>
+
+      <div class="apicard card" style="--bg:0.02">
+        <div class="spread"><strong class="mono">Layout primitives</strong><span class="tag" style="--type:-2">specificity 0 · compose freely</span></div>
+        <pre><code class="css">.row  .column          /* horizontal (wraps) · vertical stack          */
+.split .spread .lcr    /* 1fr 1fr · space-between · left·center·right   */
+.flank .flank-end      /* fixed leader + fluid rest (icon · text)      */
+.grid  --grid-min      /* auto-fit tracks   .ngrid --cols --rows       */
+.stack .track .frame   /* overlay · scroll row · fixed aspect box      */
+.hero                  /* t/l/main/r/b app region (scrolls in main)    */
+.vt   --vt: name       /* name a view-transition group (a "mover")     */</code></pre>
+      </div>
+
+      <div class="apicard card" style="--bg:0.02">
+        <div class="spread"><strong class="mono">Page shell &amp; overlays</strong><span class="tag" style="--type:-2">add a slot child, it appears; empty tracks collapse</span></div>
+        <pre><code class="css">.page  data-vt-shell   /* 10-slot app grid; only nav/main/aside scroll */
+  .pg-banner .pg-header .pg-subheader .pg-navigation .pg-toolbar
+  .pg-main-header .pg-main .pg-main-footer .pg-aside .pg-footer
+
+.modal  .drawer .left/.right/.top/.bottom   /* native &lt;dialog&gt; — no z-index */
+.menu   /* anchored popover */   .hud  .tl…​.br   /* 9-slot overlay (toasts, FABs) */</code></pre>
+      </div>
+
+      <div class="apicard card" style="--bg:0.02">
+        <div class="spread"><strong class="mono">Responsive gates</strong><span class="tag" style="--type:-2">layer-order magic — none on by default</span></div>
+        <pre><code class="css">.mobile .tablet .desktop   /* viewport   &lt;768 · 768–1024 · ≥1024px */
+.small  .medium .large     /* container  needs a container-type ancestor */
+.fine   .coarse            /* pointer    mouse · touch */</code></pre>
+        <small style="--fg:-0.7">Each defaults to <code>display:none</code>; the matching query flips it back. They compose (<code>class="mobile desktop"</code> = phone + desktop).</small>
+      </div>
+
+      <div class="apicard card" style="--bg:0.02">
+        <div class="spread"><strong class="mono">View transitions</strong><span class="tag" style="--type:-2">inert until you opt in</span></div>
+        <pre><code class="css">data-vt on &lt;html&gt;:  fade · slide-left · slide-right · scale · zoom
+                    isolate   /* hold root — only NAMED regions move */
+.vt style="--vt: x"          /* a mover: its own snapshot group      */
+.page[data-vt-shell]         /* chrome holds, only .pg-main morphs    */</code></pre>
+        <pre><code class="html">&lt;button data-on:click__viewtransition="$state = next"&gt;…&lt;/button&gt;
+&lt;!-- backend: SSE `useViewTransition true` + `viewTransitionSelector #x` --&gt;</code></pre>
+      </div>
+
+      <div class="apicard card" style="--bg:0.02">
+        <div class="spread"><strong class="mono">Components</strong><span class="tag" style="--type:-2">bare-first · one height per --type</span></div>
+        <pre><code class="css">&lt;button&gt; .pri .sec        &lt;button aria-label&gt;&lt;svg&gt; = square icon
+.button-group             &lt;form&gt;›&lt;label&gt; = field   &lt;fieldset&gt; = field row
+&lt;table&gt; &lt;select&gt; &lt;details&gt; &lt;progress&gt; &lt;meter&gt; &lt;blockquote&gt; &lt;code&gt; &lt;kbd&gt;  /* bare */
+.tag .alert .avatar .badge .count      .tabs .crumbs .nav-item .fab-1/2/3</code></pre>
+      </div>
+
+      <div class="apicard card" style="--bg:0.02">
+        <div class="spread"><strong class="mono">Runtime switches</strong><span class="tag" style="--type:-2">set on &lt;html&gt; or any subtree — everything re-resolves</span></div>
+        <pre><code class="css">data-ui-theme  light · dark            data-ui-motion  off · on · debug
+data-ui-size   sm · md · lg · xl       data-ui-skin    material · carbon · vivid
+style="--hue:n"                        data-ui-state   on · off   (+ ARIA drives state)</code></pre>
+      </div>
+    </section>
+
+    <!-- 3 · LAWS ─────────────────────────────────────────────── -->
+    <section class="alert inf" role="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"/></svg>
+      <div class="column" style="gap:0.15lh">
+        <strong>The laws</strong>
+        <small style="--fg:-0.75">1 · Bare HTML is the component; add a class only to vary it. &nbsp;2 · Never name a color — declare a position and let the engine solve it. &nbsp;3 · Shape follows content; height is shared; spacing is a fraction of the line. &nbsp;4 · State rides ARIA; meaning rides <code>.suc .inf .wrn .dgr</code>. &nbsp;5 · Everything you author wins — the system ships at specificity 0.</small>
+      </div>
+    </section>
+
+    <footer class="column" style="gap:0.3lh; --fg:-0.6">
+      <hr>
+      <p style="--type:-0.5">This page is the map. The sidebar sections are the territory — each is live and dogfooded: <strong>How type works</strong>, <strong>The engine</strong>, <strong>Page &amp; helpers</strong>, <strong>View transitions</strong>, <strong>Components</strong>, and the full-page <strong>Demos</strong>.</p>
+    </footer>
+
+  </div>
+</main>

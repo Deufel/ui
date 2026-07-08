@@ -3,9 +3,32 @@
 
     <header class="column" style="gap: 0.4lh">
       <span class="tag inf" style="align-self:start">layout</span>
-      <h1 style="--type: 6">Page, primitives &amp; overlays</h1>
-      <p style="--type:1; --fg:-0.7; max-inline-size: 52ch">Structure without a single hand-set pixel. The <code>.page</code> shell is a ten-slot application grid; the layout primitives are zero-specificity composition helpers whose gap derives from line-height; the overlays are native <code>&lt;dialog&gt;</code> / popover with the engine's paint. All spacing is <code>em</code>/<code>lh</code>, so it tracks type.</p>
+      <h1 style="--type: 6">Compose &amp; wireframe a screen</h1>
+      <p style="--type:1; --fg:-0.7; max-inline-size: 52ch">Structure without a single hand-set pixel. The <code>.page</code> shell is a ten-slot application grid; the layout primitives are zero-specificity composition helpers whose gap derives from line-height; the overlays are native <code>&lt;dialog&gt;</code> / popover with the engine's paint. All spacing is <code>em</code>/<code>lh</code>, so it tracks type. Together they are the wireframing kit — rough a whole screen out of them before you style a thing.</p>
     </header>
+
+    <section class="Card column" style="--bg:0.05; gap:0.5lh; padding:0.7lh 0.8em">
+      <div class="spread"><h2 style="--type:3">The recommended path</h2><span class="tag suc">calcified</span></div>
+      <p style="--fg:-0.6; --type:-0.5">Five moves, outside-in. Follow them and a screen composes itself — no spacing scale, no media-query bookkeeping, no z-index.</p>
+      <div class="column" style="gap:0.4lh">
+        <div class="flank" style="gap:0.6em; align-items:start"><span class="tag inf" style="--type:-1">1</span><div class="column" style="gap:0.05lh"><strong>Pick the frame.</strong><small style="--fg:-0.7">A whole app → <code>.page</code> + the <code>pg-*</code> slots you need. A sub-view that owns its scroll → <code>.hero</code> (top / left / main / right / bottom). Leave a slot out and its track collapses.</small></div></div>
+        <div class="flank" style="gap:0.6em; align-items:start"><span class="tag inf" style="--type:-1">2</span><div class="column" style="gap:0.05lh"><strong>Fill each region by composing primitives.</strong><small style="--fg:-0.7">Reach for <code>.column</code> and <code>.row</code> first; <code>.grid</code> for cards, <code>.split</code> for two panes, <code>.spread</code>/<code>.lcr</code> for bars, <code>.flank</code> for icon·text. Nest them freely — they gap at <code>0.25lh</code>, so rhythm is automatic. <strong>Never hand-set padding.</strong></small></div></div>
+        <div class="flank" style="gap:0.6em; align-items:start"><span class="tag inf" style="--type:-1">3</span><div class="column" style="gap:0.05lh"><strong>Rough content in as bare boxes.</strong><small style="--fg:-0.7">A <code>.card</code> with a <code>--bg</code> step is a placeholder; a bare element at a <code>--type</code> is a label. You're wireframing in the real engine, so the greybox already has the right rhythm and color — it just gets replaced, never re-laid-out.</small></div></div>
+        <div class="flank" style="gap:0.6em; align-items:start"><span class="tag inf" style="--type:-1">4</span><div class="column" style="gap:0.05lh"><strong>Adapt with the gate classes, not new CSS.</strong><small style="--fg:-0.7">Show a sidebar only on <code>.desktop</code>, a bottom bar only on <code>.mobile</code>, a fatter target only on <code>.coarse</code>; let a component react to its own box with <code>.small</code>/<code>.medium</code>/<code>.large</code>. They compose and cost nothing — see below.</small></div></div>
+        <div class="flank" style="gap:0.6em; align-items:start"><span class="tag inf" style="--type:-1">5</span><div class="column" style="gap:0.05lh"><strong>Name what will move.</strong><small style="--fg:-0.7">If a region animates between states, give it <code>.vt style="--vt:name"</code> now — the wireframe becomes the transition storyboard for free. See <strong>View transitions</strong>.</small></div></div>
+      </div>
+      <pre><code class="html">&lt;div class="page"&gt;
+  &lt;header class="pg-header spread"&gt; brand · actions &lt;/header&gt;
+  &lt;nav class="pg-navigation desktop column"&gt; …links… &lt;/nav&gt;   &lt;!-- ≥1024 only --&gt;
+  &lt;main class="pg-main"&gt;
+    &lt;div class="grid" style="--grid-min:16rem"&gt;               &lt;!-- card wall --&gt;
+      &lt;div class="card column" style="--bg:0.02"&gt; placeholder &lt;/div&gt;
+      &lt;div class="card column" style="--bg:0.02"&gt; placeholder &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/main&gt;
+  &lt;nav class="pg-footer mobile spread"&gt; …tabs… &lt;/nav&gt;         &lt;!-- &lt;768 only --&gt;
+&lt;/div&gt;</code></pre>
+    </section>
 
     <section class="column" style="gap:0.5lh">
       <h2 style="--type:3">The <code>.page</code> shell</h2>
@@ -84,6 +107,11 @@
           <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.track</span></div>
           <small style="--fg:-0.7">Horizontal scroll row of min-width cells.</small>
           <div class="demo"><div class="track" style="--track-min:3.5rem"><div class="box bg" style="--bg:0.3">1</div><div class="box bg" style="--bg:0.3">2</div><div class="box bg" style="--bg:0.3">3</div><div class="box bg" style="--bg:0.3">4</div><div class="box bg" style="--bg:0.3">5</div><div class="box bg" style="--bg:0.3">6</div></div></div>
+        </div>
+        <div class="card helper-card" style="--bg:0.02; padding:0.5lh 0.6em">
+          <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.vt</span><span class="tag" style="--type:-2">motion</span></div>
+          <small style="--fg:-0.7">Names a view-transition group via <code>--vt</code> — the element the browser morphs across a state change. Inert until a transition runs.</small>
+          <div class="demo"><div class="row" style="gap:0.5em"><div class="box bg" style="--bg:0.3">card</div><div class="box bg inf" style="--bg:0.4; --type:-2">--vt: hero</div></div></div>
         </div>
       </div>
     </section>
