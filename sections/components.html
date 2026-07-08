@@ -1,0 +1,572 @@
+<main class="pg-main" id="main" data-init="afterNav('components')">
+<div class="doc">
+
+      <header class="column" style="gap: 0.4lh; padding-block-end: 0.4lh">
+        <span class="tag inf" style="align-self:start">components</span>
+        <h1 style="--type: 6">Components</h1>
+        <p style="--type:1; --fg:-0.7; max-inline-size: 52ch">Each entry the same way: the component <strong>live</strong>, a quick <strong>API</strong> table, and <strong>usage</strong>. Most are bare elements — no class needed (Law 1). Everything reads the engine, so it re-hues and re-themes with the header controls.</p>
+      </header>
+
+      <!-- BUTTON -->
+      <section class="comp" id="button">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Button</h2><code>&lt;button&gt;</code></div>
+        <p style="--fg:-0.6">Bare <code>&lt;button&gt;</code> is the component; it matches field height at every <code>--type</code>. Emphasis via <code>.pri</code> / <code>.sec</code>; shape auto-detects from content. Need real link semantics (middle-click, open-in-new-tab)? Put <code>.btn</code> on an <code>&lt;a href&gt;</code> — same surface, ink, height and shapes.</p>
+        <div class="comp-demo">
+          <button>Default</button>
+          <button class="pri">Primary</button>
+          <button class="sec">Secondary</button>
+          <a class="btn" href="#button">Link as button</a>
+          <a class="btn pri" href="#button">Primary link</a>
+          <button aria-label="More"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          <button aria-pressed="true">Toggle</button>
+          <div class="button-group" role="group" aria-label="View">
+            <button aria-pressed="true">List</button>
+            <button aria-pressed="false">Grid</button>
+          </div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>class / attr</th><th>effect</th></tr></thead>
+            <tbody>
+              <tr><td><code>.pri</code></td><td>Primary — full-blast surface + max ink</td></tr>
+              <tr><td><code>.sec</code></td><td>Secondary — frosted glass</td></tr>
+              <tr><td><code>.btn</code> on <code>&lt;a&gt;</code></td><td>Button surface with true link semantics</td></tr>
+              <tr><td><code>[aria-pressed]</code></td><td>Toggle on/off paint</td></tr>
+              <tr><td><code>[aria-label]</code> + <code>svg</code></td><td>Square icon button</td></tr>
+              <tr><td><code>.btn-touch</code></td><td>44px finger target</td></tr>
+              <tr><td><code>.button-group</code></td><td>Connected toggle row</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;button&gt;Default&lt;/button&gt;
+&lt;button class="pri"&gt;Primary&lt;/button&gt;
+&lt;button class="sec"&gt;Secondary&lt;/button&gt;
+&lt;button aria-label="More"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;/button&gt;
+&lt;button aria-pressed="true"&gt;Toggle&lt;/button&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- TAG -->
+      <section class="comp" id="tag">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Tag</h2><code>.tag</code></div>
+        <p style="--fg:-0.6">A dense label at <code>--type:-2</code> (updated). Semantic hues + a server-rendered state; optional leading/trailing <code>svg</code>. The <code>data-ui-state</code> accents shown here are <em>general</em> — see the note below.</p>
+        <div class="comp-demo">
+          <span class="tag">Default</span>
+          <span class="tag suc" data-ui-state="on">Live</span>
+          <span class="tag inf">Info</span>
+          <span class="tag wrn">Warning</span>
+          <span class="tag dgr">Danger</span>
+          <span class="tag" data-ui-state="off">Offline</span>
+        </div>
+        <div class="tagmatrix" style="margin-block-start:0.2lh">
+          <div class="bg tagmatrix-panel" data-ui-theme="light" style="--bg:-0.4">
+            <small class="mh">LIGHT</small>
+            <div class="matrix"><span></span><span class="mh">base</span><span class="mh">on</span><span class="mh">off</span><span class="mh">disabled</span><span class="mh">.tag</span><span class="tag">Default</span><span class="tag" data-ui-state="on">Default</span><span class="tag" data-ui-state="off">Default</span><span class="tag" aria-disabled="true">Default</span><span class="mh">.suc</span><span class="tag suc">Success</span><span class="tag suc" data-ui-state="on">Success</span><span class="tag suc" data-ui-state="off">Success</span><span class="tag suc" aria-disabled="true">Success</span><span class="mh">.inf</span><span class="tag inf">Info</span><span class="tag inf" data-ui-state="on">Info</span><span class="tag inf" data-ui-state="off">Info</span><span class="tag inf" aria-disabled="true">Info</span><span class="mh">.wrn</span><span class="tag wrn">Warning</span><span class="tag wrn" data-ui-state="on">Warning</span><span class="tag wrn" data-ui-state="off">Warning</span><span class="tag wrn" aria-disabled="true">Warning</span><span class="mh">.dgr</span><span class="tag dgr">Danger</span><span class="tag dgr" data-ui-state="on">Danger</span><span class="tag dgr" data-ui-state="off">Danger</span><span class="tag dgr" aria-disabled="true">Danger</span></div>
+          </div>
+          <div class="bg tagmatrix-panel" data-ui-theme="dark" style="--bg:-0.4">
+            <small class="mh">DARK</small>
+            <div class="matrix"><span></span><span class="mh">base</span><span class="mh">on</span><span class="mh">off</span><span class="mh">disabled</span><span class="mh">.tag</span><span class="tag">Default</span><span class="tag" data-ui-state="on">Default</span><span class="tag" data-ui-state="off">Default</span><span class="tag" aria-disabled="true">Default</span><span class="mh">.suc</span><span class="tag suc">Success</span><span class="tag suc" data-ui-state="on">Success</span><span class="tag suc" data-ui-state="off">Success</span><span class="tag suc" aria-disabled="true">Success</span><span class="mh">.inf</span><span class="tag inf">Info</span><span class="tag inf" data-ui-state="on">Info</span><span class="tag inf" data-ui-state="off">Info</span><span class="tag inf" aria-disabled="true">Info</span><span class="mh">.wrn</span><span class="tag wrn">Warning</span><span class="tag wrn" data-ui-state="on">Warning</span><span class="tag wrn" data-ui-state="off">Warning</span><span class="tag wrn" aria-disabled="true">Warning</span><span class="mh">.dgr</span><span class="tag dgr">Danger</span><span class="tag dgr" data-ui-state="on">Danger</span><span class="tag dgr" data-ui-state="off">Danger</span><span class="tag dgr" aria-disabled="true">Danger</span></div>
+          </div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>class / attr</th><th>effect</th></tr></thead>
+            <tbody>
+              <tr><td><code>.tag</code></td><td>Dense label, quiet surface (<code>--type:-2</code>)</td></tr>
+              <tr><td><code>.suc/.inf/.wrn/.dgr</code></td><td>Semantic hue + committed ink</td></tr>
+              <tr><td><code>data-ui-state="on"</code></td><td>Live — max ink + focus ring</td></tr>
+              <tr><td><code>data-ui-state="off"</code></td><td>Greyed, neutral</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;span class="tag"&gt;Label&lt;/span&gt;
+&lt;span class="tag suc" data-ui-state="on"&gt;Live&lt;/span&gt;
+&lt;span class="tag" data-ui-state="off"&gt;Offline&lt;/span&gt;</code></pre>
+        </div>
+        <div class="note" style="--bg:-0.4; padding:0.5lh 0.8em; border-radius:var(--radius); margin-block-start:0.4lh">
+          <p style="--fg:-0.6; --type:-1"><strong style="--fg:0.2">Generalized (recent).</strong> <code>data-ui-state="on"/"off"</code> are no longer tag-only — they now apply to <em>any</em> element. <code>on</code> paints the focus-ring accent (a live-in-a-set marker); <code>off</code> desaturates <em>and</em> dims (<code>grayscale(1) opacity(0.5)</code>) so a whole region can recede while its neighbours stay lit. <code>.tag</code> keeps its own bespoke <code>off</code> recipe (neutral fill, no filter). Drive both from one server signal to build a “spotlight” edit mode — mark editable regions <code>on</code>, everything else <code>off</code>. Note a CSS <code>filter</code> traps its subtree, so tag each sibling region rather than filtering one shared ancestor.</p>
+        </div>
+      </section>
+
+      <!-- CODE -->
+      <section class="comp" id="code">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Code</h2><code>&lt;code&gt; · &lt;pre&gt;</code></div>
+        <p style="--fg:-0.6">Inline <code>&lt;code&gt;</code> is a quiet monospace chip; <code>&lt;pre&gt;&lt;code&gt;</code> is the full listing (syntax-highlit by the docs' highlight pass). Both paint from the engine surface, so they tint with the theme.</p>
+        <div class="comp-demo" style="flex-direction:column; align-items:stretch; gap:0.6lh">
+          <p style="--fg:-0.7">Give a panel a surface with <code>--bg</code> and ink with <code>--fg</code>.</p>
+          <pre><code class="css">.panel { --bg: -0.3; }
+:where(.tag) { --bg: 0.16; --fg: var(--_sem-ink, -0.85); }</code></pre>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>element</th><th>use</th></tr></thead>
+            <tbody>
+              <tr><td><code>&lt;code&gt;</code></td><td>Inline token — quiet mono chip</td></tr>
+              <tr><td><code>&lt;pre&gt;&lt;code&gt;</code></td><td>Block listing; <code>class="css/html/js"</code> hints the highlighter</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">Use &lt;code&gt;--bg&lt;/code&gt; inline.
+&lt;pre&gt;&lt;code class="css"&gt;.x { --bg: 0; }&lt;/code&gt;&lt;/pre&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- KBD -->
+      <section class="comp" id="kbd">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Keyboard</h2><code>&lt;kbd&gt;</code></div>
+        <p style="--fg:-0.6">A <code>&lt;kbd&gt;</code> renders a physical keycap — a lifted surface with a hint of depth on its bottom edge. Chain them for combos, or drop one beside a nav item / menu row to advertise its shortcut.</p>
+        <div class="comp-demo">
+          <div class="row" style="gap:0.5em; align-items:center"><kbd>⌘</kbd><kbd>K</kbd><small style="--fg:-0.6">command palette</small></div>
+          <div class="row" style="gap:0.5em; align-items:center"><kbd>Ctrl</kbd>+<kbd>S</kbd><small style="--fg:-0.6">save</small></div>
+          <div class="row" style="gap:0.5em; align-items:center"><kbd>G</kbd><small style="--fg:-0.6">then</small><kbd>D</kbd><small style="--fg:-0.6">go to dashboard</small></div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>&lt;kbd&gt;</code></td><td>One keycap; a hint of <code>border-block-end</code> depth</td></tr>
+              <tr><td>chained</td><td>Combos — <code>⌘</code> <code>K</code>, or “G then D” sequences</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;kbd&gt;⌘&lt;/kbd&gt;&lt;kbd&gt;K&lt;/kbd&gt;
+&lt;a class="nav-item"&gt;…&lt;span&gt;Search&lt;/span&gt;&lt;kbd&gt;/&lt;/kbd&gt;&lt;/a&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- ALERT -->
+      <section class="comp" id="alert">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Alert</h2><code>.alert</code></div>
+        <p style="--fg:-0.6">A standing message carrying a semantic hue. Pair with a semantic helper; set the ARIA role per urgency.</p>
+        <div class="comp-demo" style="flex-direction:column; align-items:stretch">
+          <div class="alert suc" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><div>Saved — everything is in sync.</div></div>
+          <div class="alert wrn" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><div>Check your input before continuing.</div></div>
+          <div class="alert dgr" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div>Couldn't save — connection lost.</div></div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>effect</th></tr></thead>
+            <tbody>
+              <tr><td><code>.alert</code> + semantic</td><td>Tinted fill in the hue</td></tr>
+              <tr><td><code>svg:first-child</code></td><td>Chromatic leading icon</td></tr>
+              <tr><td><code>role=status/alert</code></td><td>Announce politely / assertively</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;div class="alert dgr" role="alert"&gt;
+  &lt;svg&gt;…&lt;/svg&gt;
+  &lt;div&gt;Couldn't save.&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- CARD / SURFACE -->
+      <section class="comp" id="card">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Card &amp; Surface</h2><code>.card · .surface</code></div>
+        <p style="--fg:-0.6">A painted surface. <code>.card</code> carries a quiet border; <code>.Card</code> a vibrant one. <code>.surface</code> separates by a <code>--lift</code> step instead of a line — use it to group inside a card.</p>
+        <div class="comp-demo">
+          <div class="card" style="flex:1 1 8em; padding:0.6lh 0.7em">.card</div>
+          <div class="Card" style="flex:1 1 8em; padding:0.6lh 0.7em">.Card</div>
+          <div class="card" style="flex:2 1 12em; --bg:0; padding:0.6lh 0.7em; display:flex; gap:0.5em">
+            <div class="surface" style="flex:1">.surface</div>
+            <div class="Surface" style="flex:1">.Surface</div>
+          </div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>class</th><th>separation</th></tr></thead>
+            <tbody>
+              <tr><td><code>.card</code></td><td>Quiet <code>--border</code> line</td></tr>
+              <tr><td><code>.Card</code></td><td>Vibrant <code>--focus</code> line</td></tr>
+              <tr><td><code>.surface / .Surface</code></td><td><code>--lift</code> step, no border (nests)</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;div class="card"&gt;
+  &lt;div class="surface"&gt;metric&lt;/div&gt;
+  &lt;div class="surface"&gt;metric&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- BADGE + AVATAR -->
+      <section class="comp" id="badge">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Badge &amp; Avatar</h2><code>.badge · .avatar</code></div>
+        <p style="--fg:-0.6">A <code>.badge</code> straddles its parent's corner (empty = dot). An <code>.avatar</code> is a square monogram / image chip at control height.</p>
+        <div class="comp-demo">
+          <button aria-label="Inbox" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.5 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.5A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.5Z"/></svg><span class="badge">3</span></button>
+          <span class="avatar" style="position:relative">AL<span class="badge"></span></span>
+          <span class="avatar" style="--hue:145">GH</span>
+          <span class="avatar" style="--bg:0.4; --hue:25">MK</span>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>class</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>.badge</code></td><td>Corner count; empty = dot; danger hue by default</td></tr>
+              <tr><td><code>.avatar</code></td><td>Monogram / <code>img</code> / <code>svg</code>; colour via <code>--bg</code>/<code>--hue</code></td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;button aria-label="Inbox"&gt;
+  &lt;svg&gt;…&lt;/svg&gt; &lt;span class="badge"&gt;3&lt;/span&gt;
+&lt;/button&gt;
+&lt;span class="avatar" style="--hue:145"&gt;GH&lt;/span&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- FIELDS -->
+      <section class="comp" id="fields">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Fields</h2><code>form &gt; label</code></div>
+        <p style="--fg:-0.6">A <code>&lt;label&gt;</code> inside a <code>&lt;form&gt;</code> is a field — no class. A fixed <code>&lt;small&gt;</code> feedback slot means validation causes zero layout shift. State rides <code>aria-invalid</code>.</p>
+        <div class="comp-demo" style="align-items:stretch">
+          <form style="flex:1 1 100%; display:grid; grid-template-columns:1fr 1fr; gap:0.5lh">
+            <label><span>Name</span><small>&nbsp;</small><input placeholder="Ada Lovelace"></label>
+            <label><span>Email</span><small class="dgr">Invalid address</small><input aria-invalid="true" value="ada@"></label>
+            <label style="grid-column:1/-1"><span>Password</span><small>Required</small><input type="password" required></label>
+          </form>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>behaviour</th></tr></thead>
+            <tbody>
+              <tr><td><code>label &gt; span</code></td><td>Field label</td></tr>
+              <tr><td><code>label &gt; small</code></td><td>Fixed-height feedback slot (no shift)</td></tr>
+              <tr><td><code>[aria-invalid]</code></td><td>Danger hue on control + feedback</td></tr>
+              <tr><td><code>[required]</code></td><td>Danger asterisk on the label</td></tr>
+              <tr><td><code>&lt;fieldset&gt;</code></td><td>Packs child fields onto one row</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;form&gt;
+  &lt;label&gt;
+    &lt;span&gt;Email&lt;/span&gt;
+    &lt;small&gt;Invalid address&lt;/small&gt;
+    &lt;input aria-invalid="true"&gt;
+  &lt;/label&gt;
+&lt;/form&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- FIELD GROUPS -->
+      <section class="comp" id="fieldgroups">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Dense field rows</h2><code>fieldset · --row-width</code></div>
+        <p style="--fg:-0.6">A <code>&lt;fieldset&gt;</code> packs its child fields onto one wrapping row; each field's <code>--row-width</code> sets its share (default 1). Address and payment are the classic dense forms — a lot of information, tightly.</p>
+        <div class="comp-demo" style="align-items:stretch">
+          <form style="flex:1 1 100%; display:flex; flex-direction:column; gap:0.5lh">
+            <fieldset>
+              <label style="--row-width:3"><span>Street</span><small>&nbsp;</small><input placeholder="1600 Amphitheatre Pkwy"></label>
+              <label style="--row-width:2"><span>City</span><small>&nbsp;</small><input placeholder="Mountain View"></label>
+              <label><span>State</span><small>&nbsp;</small><input placeholder="CA"></label>
+              <label><span>ZIP</span><small>&nbsp;</small><input placeholder="94043"></label>
+            </fieldset>
+            <fieldset>
+              <label style="--row-width:3"><span>Card number</span><small>&nbsp;</small><input placeholder="4242 4242 4242 4242"></label>
+              <label><span>Exp</span><small>&nbsp;</small><input placeholder="04/28"></label>
+              <label><span>CVC</span><small>&nbsp;</small><input placeholder="123"></label>
+            </fieldset>
+          </form>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>token</th><th>effect</th></tr></thead>
+            <tbody>
+              <tr><td><code>&lt;fieldset&gt;</code></td><td>Forces child fields onto one wrapping row</td></tr>
+              <tr><td><code>--row-width</code></td><td>A field's flex share of the row (default 1)</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;fieldset&gt;
+  &lt;label style="--row-width:3"&gt;&lt;span&gt;Street&lt;/span&gt;…&lt;input&gt;&lt;/label&gt;
+  &lt;label style="--row-width:2"&gt;&lt;span&gt;City&lt;/span&gt;…&lt;input&gt;&lt;/label&gt;
+  &lt;label&gt;&lt;span&gt;State&lt;/span&gt;…&lt;input&gt;&lt;/label&gt;
+  &lt;label&gt;&lt;span&gt;ZIP&lt;/span&gt;…&lt;input&gt;&lt;/label&gt;
+&lt;/fieldset&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- TABS -->
+      <section class="comp" id="tabs">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Segmented radio</h2><code>.tabs</code></div>
+        <p style="--fg:-0.6">Real native radios rendered as a segmented control — keyboard &amp; form intact. Best for 2–5 short options.</p>
+        <div class="comp-demo">
+          <div role="group" class="tabs" aria-labelledby="tb1" style="flex:1 1 100%; max-inline-size:24em">
+            <span class="legend" id="tb1">Plan</span>
+            <label><input type="radio" name="plan" checked><span>Free</span></label>
+            <label><input type="radio" name="plan"><span>Pro</span></label>
+            <label><input type="radio" name="plan"><span>Team</span></label>
+          </div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>.tabs</code></td><td>Recessed track; tiles fill its height</td></tr>
+              <tr><td><code>.legend</code></td><td>Optional label, breaks out above</td></tr>
+              <tr><td><code>:checked</code></td><td>Selected tile lifts + chromatic label</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;div role="group" class="tabs" aria-labelledby="l"&gt;
+  &lt;span class="legend" id="l"&gt;Plan&lt;/span&gt;
+  &lt;label&gt;&lt;input type="radio" name="p" checked&gt;&lt;span&gt;Free&lt;/span&gt;&lt;/label&gt;
+  &lt;label&gt;&lt;input type="radio" name="p"&gt;&lt;span&gt;Pro&lt;/span&gt;&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- TABS UNDERLINE -->
+      <section class="comp" id="tabs-underline">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Underline tabs</h2><code>.tabs-underline</code></div>
+        <p style="--fg:-0.6">A nav strip sitting on a bottom line; the active tab rides a <code>--focus</code> underline continuous with it. Counts are engine pills.</p>
+        <div class="comp-demo" style="align-items:stretch">
+          <nav class="tabs-underline" style="flex:1 1 100%">
+            <a aria-current="page">Overview</a>
+            <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>Activity <span class="count">12</span></a>
+            <a>Settings</a>
+          </nav>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>[aria-current="page"]</code></td><td>Active tab + underline (navigation)</td></tr>
+              <tr><td><code>[aria-selected]</code></td><td>Active for in-page tab panels</td></tr>
+              <tr><td><code>.count</code></td><td>Trailing quiet pill</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;nav class="tabs-underline"&gt;
+  &lt;a aria-current="page"&gt;Overview&lt;/a&gt;
+  &lt;a&gt;Activity &lt;span class="count"&gt;12&lt;/span&gt;&lt;/a&gt;
+&lt;/nav&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- DISCLOSURE -->
+      <section class="comp" id="disclosure">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Disclosure</h2><code>&lt;details&gt;</code></div>
+        <p style="--fg:-0.6">Bare <code>&lt;details&gt;</code> — native open/close, no JS. Card-framed, chevron rotates, height animates when motion is on.</p>
+        <div class="comp-demo" style="flex-direction:column; align-items:stretch">
+          <details><summary>What is a surface position?</summary><p style="padding-block:0.3lh">A <code>--bg</code> value on the signed depth axis — not a named colour.</p></details>
+          <details open><summary>Starts expanded</summary><p style="padding-block:0.3lh">Add the <code>open</code> attribute.</p></details>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>&lt;summary&gt;</code></td><td>Clickable header — hover/active from the engine</td></tr>
+              <tr><td><code>[open]</code></td><td>Start expanded</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;details&gt;
+  &lt;summary&gt;More detail&lt;/summary&gt;
+  &lt;p&gt;Hidden until opened…&lt;/p&gt;
+&lt;/details&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- READOUTS -->
+      <section class="comp" id="readouts">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Progress · Meter · Range</h2><code>&lt;progress&gt; &lt;meter&gt;</code></div>
+        <p style="--fg:-0.6">The track + fill family — one visual language, three native elements, all engine-painted. Fill follows <code>--hue</code>.</p>
+        <div class="comp-demo" style="flex-direction:column; align-items:stretch; gap:0.6lh">
+          <progress value="0.6"></progress>
+          <meter class="smart" value="284" min="0" max="320" high="300" optimum="160"></meter>
+          <input type="range" min="0" max="100" value="40">
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>element</th><th>use</th></tr></thead>
+            <tbody>
+              <tr><td><code>&lt;progress&gt;</code></td><td>Task filling (0–1); empty = indeterminate</td></tr>
+              <tr><td><code>&lt;meter&gt;</code></td><td>A measurement; <code>.smart</code> colours by band</td></tr>
+              <tr><td><code>input[type=range]</code></td><td>User-set slider</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;progress value="0.6"&gt;&lt;/progress&gt;
+&lt;meter class="smart" value="284" max="320" high="300"&gt;&lt;/meter&gt;
+&lt;input type="range" min="0" max="100" value="40"&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- CRUMBS -->
+      <section class="comp" id="crumbs">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Breadcrumbs</h2><code>.crumbs</code></div>
+        <p style="--fg:-0.6">A trail of links ending in the current page; masked-chevron separators are generated, not in the markup.</p>
+        <div class="comp-demo">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a>Home</a>
+            <a>Docs</a>
+            <a>Components</a>
+            <span aria-current="page">Breadcrumbs</span>
+          </nav>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>a</code></td><td>Chromatic link, brightens on hover</td></tr>
+              <tr><td><code>[aria-current="page"]</code></td><td>Current — emphasized, not a link</td></tr>
+              <tr><td><code>--crumb-sep</code></td><td>Override the separator glyph</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;nav class="crumbs" aria-label="Breadcrumb"&gt;
+  &lt;a&gt;Home&lt;/a&gt; &lt;a&gt;Docs&lt;/a&gt;
+  &lt;span aria-current="page"&gt;Components&lt;/span&gt;
+&lt;/nav&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- TABLE -->
+      <section class="comp" id="table">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Table</h2><code>&lt;table&gt;</code></div>
+        <p style="--fg:-0.6">Bare <code>&lt;table&gt;</code> — booktabs aesthetic: no body rules, two vibrant lines (under head, at foot). Add <code>.num</code> to numeric cells. Cells default to <code>--type:-1</code> — the table owns its density, so you never set type per-cell. Every API table on this page is one.</p>
+        <div class="comp-demo" style="align-items:stretch">
+          <table style="flex:1 1 100%">
+            <caption>Benchmark accuracy</caption>
+            <thead><tr><th>Method</th><th class="num">Accuracy</th></tr></thead>
+            <tbody>
+              <tr><td>Baseline</td><td class="num">71.4</td></tr>
+              <tr><td>Ours</td><td class="num">92.8</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>.num</code></td><td>Right-align + tabular figures</td></tr>
+              <tr><td><code>&lt;caption&gt;</code></td><td>Small figure label above</td></tr>
+              <tr><td><code>.table-scroll</code></td><td>Height-capped viewport, sticky head</td></tr>
+              <tr><td><code>--table-type</code></td><td>Shifts the whole table's density (default <code>-1</code>); inherits to cells — no per-cell type</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;table&gt;
+  &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Method&lt;/th&gt;&lt;th class="num"&gt;Acc&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+  &lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Ours&lt;/td&gt;&lt;td class="num"&gt;92.8&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- NAV ITEMS -->
+      <section class="comp" id="navitems">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Nav items</h2><code>.nav-item · .nav-icon</code></div>
+        <p style="--fg:-0.6">Two shapes on an <code>&lt;a&gt;</code> or <code>&lt;button&gt;</code>: an inline row (icon · label · trailing tag) and a square icon-over-caption. State rides ARIA — <code>aria-current="page"</code> or <code>aria-pressed</code>.</p>
+        <div class="comp-demo" style="gap:1em">
+          <div class="column" style="gap:0.1lh; inline-size:14em; --bg:0; padding:0.3lh; border:1px solid var(--border); border-radius:var(--cfg-radius)">
+            <a class="nav-item" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span><kbd style="margin-inline-start:auto">D</kbd></a>
+            <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.5 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.5"/></svg><span>Inbox</span><span class="tag">12</span></a>
+            <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.9 1.5V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9"/></svg><span>Settings</span><kbd style="margin-inline-start:auto">S</kbd></a>
+          </div>
+          <div class="row" style="gap:0.4em; --bg:0; padding:0.3lh; border:1px solid var(--border); border-radius:var(--cfg-radius); align-self:start">
+            <a class="nav-icon" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><small>Home</small></a>
+            <a class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><small>Search</small></a>
+            <a class="nav-icon" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg><small>Alerts</small><span class="badge">3</span></a>
+          </div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>shape</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>.nav-item</code></td><td>Inline: icon · label · trailing <code>.tag</code></td></tr>
+              <tr><td><code>.nav-icon</code></td><td>Square icon over an optional <code>&lt;small&gt;</code> caption</td></tr>
+              <tr><td><code>[aria-current="page"]</code></td><td>Live destination — lifts + emphasizes</td></tr>
+              <tr><td><code>[aria-pressed]</code></td><td>Toggle variant (on a <code>&lt;button&gt;</code>)</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;a class="nav-item" aria-current="page"&gt;
+  &lt;svg&gt;…&lt;/svg&gt;&lt;span&gt;Dashboard&lt;/span&gt;
+&lt;/a&gt;
+&lt;a class="nav-item"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;span&gt;Inbox&lt;/span&gt;&lt;span class="tag"&gt;12&lt;/span&gt;&lt;/a&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- SELECT -->
+      <section class="comp" id="select">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Select</h2><code>&lt;select&gt;</code></div>
+        <p style="--fg:-0.6">Plain native <code>&lt;select&gt;</code> + <code>&lt;option&gt;</code>. Where the browser supports it, the picker + options theme from the engine; elsewhere it falls back to the native control. Matches field height.</p>
+        <div class="comp-demo">
+          <label class="column" style="gap:0.1lh"><small style="--fg:-0.7">Assignee</small>
+            <select style="min-inline-size:12em">
+              <option>Rina Kato</option>
+              <option>Jonah Meyer</option>
+              <option>Sasha Dey</option>
+              <option>Unassigned</option>
+            </select>
+          </label>
+          <label class="column" style="gap:0.1lh"><small style="--fg:-0.7">Priority</small>
+            <select style="min-inline-size:9em">
+              <option>Low</option>
+              <option>Medium</option>
+              <option>High</option>
+            </select>
+          </label>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>&lt;select&gt;</code></td><td>Closed control keeps input styling + height</td></tr>
+              <tr><td><code>::picker(select)</code></td><td>Themed dropdown where <code>appearance: base-select</code> is supported</td></tr>
+              <tr><td><code>option:checked</code></td><td>Brightest ink + checkmark</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;select&gt;
+  &lt;option&gt;Rina Kato&lt;/option&gt;
+  &lt;option&gt;Jonah Meyer&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- BLOCKQUOTE -->
+      <section class="comp" id="blockquote">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Blockquote</h2><code>&lt;blockquote&gt;</code></div>
+        <p style="--fg:-0.6">Bare <code>&lt;blockquote&gt;</code> — a tinted surface with chromatic italic quote ink, accent quote marks that flow inline with the words, and a trailing <code>&lt;cite&gt;</code> for attribution.</p>
+        <div class="comp-demo" style="align-items:stretch">
+          <blockquote style="flex:1 1 100%">
+            <p>We deleted three thousand lines of CSS and shipped a full redesign in a weekend.</p>
+            <cite>Priya Nadar, <cite>Head of Design at Northwind</cite></cite>
+          </blockquote>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>&lt;p&gt;</code></td><td>Quote body — inline so the marks wrap the words</td></tr>
+              <tr><td><code>&lt;cite&gt;</code></td><td>Attribution; a nested <code>&lt;cite&gt;</code> is the work title</td></tr>
+              <tr><td>semantic helper</td><td>Recolour with <code>.suc/.inf/…</code> or <code>--hue</code></td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;blockquote&gt;
+  &lt;p&gt;The quoted sentence.&lt;/p&gt;
+  &lt;cite&gt;Author, &lt;cite&gt;Work&lt;/cite&gt;&lt;/cite&gt;
+&lt;/blockquote&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- FAB -->
+      <section class="comp" id="fab">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Floating actions</h2><code>.fab-1 · .fab-2 · .fab-3</code></div>
+        <p style="--fg:-0.6; max-inline-size:60ch">Glass action buttons in ascending prominence — content behind reads through. Place them as a sibling of the scrolling content in a <code>.stack</code> or <code>.hud</code>, so they corner themselves and never scroll away. Hover to watch the backing thicken.</p>
+        <div class="comp-demo" style="align-items:stretch">
+          <div class="stack" style="flex:1 1 100%; block-size:9lh; border:1px solid var(--border); border-radius:var(--cfg-radius)">
+            <div style="padding:0.6lh 0.8em; --fg:-0.6; --type:-0.5">Content sits behind the glass — the frost lets this type show through, more so as you reach for it. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+            <div class="row" style="place-self:end; gap:0.7em; padding:0.7lh 0.8em">
+              <button class="fab-1" aria-label="Search" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>
+              <button class="fab-2" style="margin:0">Filters</button>
+              <button class="fab-3" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> New</button>
+            </div>
+          </div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>class</th><th>prominence</th></tr></thead>
+            <tbody>
+              <tr><td><code>.fab-1</code></td><td>Content-first — backing fades in only on hover</td></tr>
+              <tr><td><code>.fab-2</code></td><td>Frost pill — persistent glass + a neutral shadow</td></tr>
+              <tr><td><code>.fab-3</code></td><td>Beacon — glass + a soft hue glow (the loudest)</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;div class="stack"&gt;
+  &lt;main class="pg-main"&gt;…&lt;/main&gt;
+  &lt;button class="fab-3" aria-label="New"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </section>
+
+      <footer class="column" style="gap:0.3lh; --fg:-0.6; padding-block-start:0.6lh">
+        <p style="--type:-0.5">Standardized: live · API · usage. That's the full component set — overlays (drawer · modal · menu · hud) live in the <strong>Layout</strong> section; the carousel is <strong>experimental</strong> (gated, intentionally undocumented).</p>
+      </footer>
+
+    </div>
+</main>

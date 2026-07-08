@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dashboard — system.css demo</title>
+<link rel="stylesheet" href="system.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; }
+  .metric { display: flex; flex-direction: column; gap: 0.15lh; }
+  .metric .n { --type: 4; font-weight: 700; letter-spacing: -0.02em; }
+  .spark { display: flex; align-items: flex-end; gap: 2px; block-size: 2.2lh; }
+  .spark > i { flex: 1; background: oklch(var(--l-color) var(--c-peak) var(--hue)); border-radius: 2px 2px 0 0; opacity: 0.85; }
+  .row-hover:hover { --bg: 0.05; background-color: var(--_bg); }
+</style>
+</head>
+<body>
+<div class="page" data-ui-skin="tw" style="--hue: 262">
+
+  <header class="pg-header flank" style="gap: 0.7em; padding-inline: 0.6em">
+    <div class="brand row" style="gap:0.5em; --type:1; font-weight:700"><span style="inline-size:1.1em; block-size:1.1em; border-radius:5px; background:oklch(var(--l-color) var(--c-peak) var(--hue))"></span> Orbit</div>
+    <div class="spread" style="flex:1; gap:0.7em">
+      <input type="search" placeholder="Search projects, people…" style="inline-size:min(30em, 42vw)">
+      <div class="row" style="gap:0.5em">
+        <button aria-label="Notifications" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="badge">4</span></button>
+        <button class="pri nowrap">New project</button>
+        <span class="avatar" style="--hue:150">AL</span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="pg-navigation column" style="gap:0.15lh; padding:0.5lh 0.4em">
+    <a class="nav-item" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Overview</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg><span>Analytics</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg><span>Customers</span><span class="tag">128</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4zM4 9h16M9 20V9"/></svg><span>Projects</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.9 0l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9"/></svg><span>Settings</span></a>
+    <div style="flex:1"></div>
+    <div class="surface column" style="--bg:0.06; gap:0.2lh; margin:0.3lh"><small style="--fg:-0.6; --type:-2">STORAGE</small><meter class="smart" value="72" min="0" max="100" high="90" optimum="40"></meter><small style="--fg:-0.6; --type:-2">72% of 100 GB</small></div>
+  </nav>
+
+  <div class="pg-main-header spread">
+    <div class="column" style="gap:0.05lh"><h1 style="--type:3">Overview</h1><small style="--fg:-0.6">Welcome back — here's this week.</small></div>
+    <div class="button-group" role="group" aria-label="Range"><button aria-pressed="false">Day</button><button aria-pressed="true">Week</button><button aria-pressed="false">Month</button></div>
+  </div>
+
+  <main class="pg-main column" style="gap:0.6lh; padding:0.5lh 0.6em">
+    <div class="grid" style="--grid-min:12rem; gap:0.6lh">
+      <div class="card metric" style="--bg:0"><div class="spread"><small style="--fg:-0.6">Revenue</small><span class="tag suc">+12.4%</span></div><span class="n">$48.2k</span><div class="spark"><i style="height:40%"></i><i style="height:55%"></i><i style="height:48%"></i><i style="height:70%"></i><i style="height:62%"></i><i style="height:85%"></i><i style="height:100%"></i></div></div>
+      <div class="card metric" style="--bg:0"><div class="spread"><small style="--fg:-0.6">Active users</small><span class="tag suc">+3.1%</span></div><span class="n">9,214</span><div class="spark"><i style="height:60%"></i><i style="height:52%"></i><i style="height:66%"></i><i style="height:58%"></i><i style="height:72%"></i><i style="height:68%"></i><i style="height:80%"></i></div></div>
+      <div class="card metric" style="--bg:0"><div class="spread"><small style="--fg:-0.6">Churn</small><span class="tag dgr">+0.4%</span></div><span class="n">2.1%</span><div class="spark"><i style="height:30%"></i><i style="height:35%"></i><i style="height:28%"></i><i style="height:40%"></i><i style="height:38%"></i><i style="height:46%"></i><i style="height:52%"></i></div></div>
+      <div class="card metric" style="--bg:0"><div class="spread"><small style="--fg:-0.6">MRR</small><span class="tag" style="--fg:-0.6">steady</span></div><span class="n">$21.9k</span><div class="spark"><i style="height:70%"></i><i style="height:72%"></i><i style="height:69%"></i><i style="height:74%"></i><i style="height:73%"></i><i style="height:76%"></i><i style="height:78%"></i></div></div>
+    </div>
+
+    <div class="split" style="gap:0.6lh; align-items:start; grid-template-columns: 1.6fr 1fr">
+      <div class="card column" style="--bg:0; gap:0.4lh">
+        <div class="spread"><strong>Recent signups</strong><a class="nav-item" style="--type:-1; padding:0.1lh 0.5em"><span>View all</span></a></div>
+        <table>
+          <thead><tr><th>Customer</th><th>Plan</th><th class="num">MRR</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr class="row-hover"><td class="flank" style="gap:0.5em"><span class="avatar" style="--hue:20; --type:-1">RK</span> Rina Kato</td><td>Pro</td><td class="num">$49</td><td><span class="tag suc">Active</span></td></tr>
+            <tr class="row-hover"><td class="flank" style="gap:0.5em"><span class="avatar" style="--hue:150; --type:-1">JM</span> Jonah Meyer</td><td>Team</td><td class="num">$199</td><td><span class="tag suc">Active</span></td></tr>
+            <tr class="row-hover"><td class="flank" style="gap:0.5em"><span class="avatar" style="--hue:280; --type:-1">SD</span> Sasha Dey</td><td>Free</td><td class="num">$0</td><td><span class="tag wrn">Trial</span></td></tr>
+            <tr class="row-hover"><td class="flank" style="gap:0.5em"><span class="avatar" style="--hue:80; --type:-1">OB</span> Omar Bassi</td><td>Pro</td><td class="num">$49</td><td><span class="tag" data-ui-state="off">Churned</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card column" style="--bg:0; gap:0.4lh">
+        <strong>Goal · Q3 revenue</strong>
+        <div class="column" style="gap:0.1lh"><div class="spread"><small style="--fg:-0.6">$48.2k of $60k</small><small style="--fg:-0.6">80%</small></div><progress value="0.8"></progress></div>
+        <hr>
+        <strong>Tasks</strong>
+        <label class="row" style="gap:0.5em; --type:-0.5"><input type="checkbox" checked> <span>Ship billing v2</span></label>
+        <label class="row" style="gap:0.5em; --type:-0.5"><input type="checkbox"> <span>Migrate analytics</span></label>
+        <label class="row" style="gap:0.5em; --type:-0.5"><input type="checkbox"> <span>Onboard 3 design partners</span></label>
+      </div>
+    </div>
+  </main>
+
+  <aside class="pg-aside column" style="gap:0.4lh; padding:0.5lh 0.5em; inline-size:16rem">
+    <strong style="--type:0">Activity</strong>
+    <div class="column" style="gap:0.5lh; --type:-1">
+      <div class="flank" style="gap:0.5em; align-items:flex-start"><span class="avatar" style="--hue:150; --type:-1">JM</span><div class="column" style="gap:0"><span>Jonah upgraded to <strong>Team</strong></span><small style="--fg:-0.55">12m ago</small></div></div>
+      <div class="flank" style="gap:0.5em; align-items:flex-start"><span class="avatar" style="--hue:20; --type:-1">RK</span><div class="column" style="gap:0"><span>Rina invited 2 members</span><small style="--fg:-0.55">1h ago</small></div></div>
+      <div class="flank" style="gap:0.5em; align-items:flex-start"><span class="avatar" style="--hue:280; --type:-1">SD</span><div class="column" style="gap:0"><span>Sasha started a trial</span><small style="--fg:-0.55">3h ago</small></div></div>
+      <div class="flank" style="gap:0.5em; align-items:flex-start"><span class="avatar" style="--hue:200; --type:-1">TN</span><div class="column" style="gap:0"><span>Tess closed <strong>#4821</strong></span><small style="--fg:-0.55">5h ago</small></div></div>
+    </div>
+    <div class="alert inf" role="note" style="margin-block-start:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><small>Usage resets in 6 days.</small></div>
+  </aside>
+
+</div>
+</body>
+</html>

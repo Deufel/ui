@@ -1,0 +1,115 @@
+<main class="pg-main" id="main" data-init="afterNav('popover-lab')">
+<div class="doc">
+
+      <header class="column" style="gap: 0.4lh; padding-block-end: 0.4lh">
+        <span class="tag inf" style="align-self:start">lab</span>
+        <h1 style="--type: 6">Popover composition lab</h1>
+        <p style="--type:1; --fg:-0.7; max-inline-size: 56ch">A regression harness for one rule: a closed <code>.menu[popover]</code> must collapse to <code>display:none</code> no matter which composition classes it carries — otherwise the invisible panel stays laid out and eats the click that should open it.</p>
+      </header>
+
+      <section class="comp" id="the-guard">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">The guard</h2><code>classAPI.media</code></div>
+        <p style="--fg:-0.6; max-inline-size:70ch">The browser already collapses closed popovers via the UA sheet — but author <code>display</code> (from <code>.menu</code> itself, or a stacked <code>.column</code>/<code>.row</code>/<code>.grid</code>…) outranks it. One central guard in the last layer re-asserts the collapse, so it wins over the layout layer for <em>every</em> popover — no per-class guards, no bare-wrapper rule.</p>
+        <pre><code class="css">@layer classAPI.media {
+  :where(.menu[popover]):not(:popover-open) { display: none }
+}</code></pre>
+      </section>
+
+      <section class="column" style="gap:0.6lh">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Stress test</h2><span class="tag inf">on load, every closed popover reads <code>none ✓</code></span></div>
+        <p style="--fg:-0.6; max-inline-size:72ch">Each trigger opens a <code>.menu[popover]</code> carrying a different — and increasingly absurd — stack of composition classes. On load every popover is at rest and closed, and its badge reads its closed computed <code>display</code>: <strong>all say <code>none ✓</code></strong> — the guard collapses each one whatever layout classes it stacks. Open any to watch it lay out; the trigger stays clickable and it closes cleanly. <small style="--fg:-0.7">(The badge only reads on load: <code>display</code> here rides an <code>allow-discrete</code> fade, and live-re-reading it mid-transition <em>holds</em> the transition open — the measurement is what sticks, not the popover. The at-rest load check is the real regression test; functionally the fix is that the closed panel no longer blocks its trigger.)</small></p>
+
+        <div class="grid" style="--grid-min:15rem; gap:0.6lh">
+
+          <div class="card column" style="--bg:0.02; gap:0.4lh; padding:0.55lh 0.65em">
+            <div class="spread" style="align-items:center"><code style="--type:-1">.menu .column</code><span class="tag" data-pop-check="pl-col">…</span></div>
+            <button popovertarget="pl-col" style="align-self:start">Open ▾</button>
+            <menu id="pl-col" popover class="menu column" style="gap:0.35lh; padding:0.5lh 0.55em">
+              <strong style="--type:1">Column</strong>
+              <button>Rename</button><button>Duplicate</button><button class="dgr">Delete</button>
+            </menu>
+          </div>
+
+          <div class="card column" style="--bg:0.02; gap:0.4lh; padding:0.55lh 0.65em">
+            <div class="spread" style="align-items:center"><code style="--type:-1">.menu .row</code><span class="tag" data-pop-check="pl-row">…</span></div>
+            <button popovertarget="pl-row" style="align-self:start">Open ▾</button>
+            <menu id="pl-row" popover class="menu row" style="gap:0.4em; padding:0.5lh 0.55em; min-inline-size:auto">
+              <span class="tag suc">A</span><span class="tag inf">B</span><span class="tag wrn">C</span><span class="tag dgr">D</span>
+            </menu>
+          </div>
+
+          <div class="card column" style="--bg:0.02; gap:0.4lh; padding:0.55lh 0.65em">
+            <div class="spread" style="align-items:center"><code style="--type:-1">.menu .grid</code><span class="tag" data-pop-check="pl-grid">…</span></div>
+            <button popovertarget="pl-grid" style="align-self:start">Open ▾</button>
+            <menu id="pl-grid" popover class="menu grid" style="--grid-min:4rem; gap:0.4em; padding:0.5lh 0.55em; min-inline-size:14rem">
+              <button aria-label="Bold" style="aspect-ratio:1"><strong>B</strong></button>
+              <button aria-label="Italic" style="aspect-ratio:1"><em>I</em></button>
+              <button aria-label="Underline" style="aspect-ratio:1"><span style="text-decoration:underline">U</span></button>
+              <button aria-label="Strike" style="aspect-ratio:1"><s>S</s></button>
+              <button aria-label="Code" style="aspect-ratio:1"><code>&lt;&gt;</code></button>
+              <button aria-label="Link" style="aspect-ratio:1">↗</button>
+            </menu>
+          </div>
+
+          <div class="card column" style="--bg:0.02; gap:0.4lh; padding:0.55lh 0.65em">
+            <div class="spread" style="align-items:center"><code style="--type:-1">.menu .glass .column</code><span class="tag" data-pop-check="pl-glass">…</span></div>
+            <button popovertarget="pl-glass" style="align-self:start">Open ▾</button>
+            <form id="pl-glass" popover class="menu glass column" style="gap:0.5lh; padding:0.5lh 0.55em; --glass-alpha:0.62; --glass-blur:1lh; --bg:0.06">
+              <div class="spread" style="align-items:center"><strong style="--type:1">Rename</strong><button type="button" aria-label="Close" class="sec" popovertarget="pl-glass" popovertargetaction="hide" style="--bg:0.04">✕</button></div>
+              <label><span>Name</span><small></small><input value="Orbit"></label>
+              <fieldset><button type="button" class="sec" popovertarget="pl-glass" popovertargetaction="hide">Cancel</button><button type="button" class="pri suc">Save</button></fieldset>
+            </form>
+          </div>
+
+          <div class="card column" style="--bg:0.02; gap:0.4lh; padding:0.55lh 0.65em">
+            <div class="spread" style="align-items:center"><code style="--type:-1">.menu .split</code><span class="tag" data-pop-check="pl-split">…</span></div>
+            <button popovertarget="pl-split" style="align-self:start">Open ▾</button>
+            <menu id="pl-split" popover class="menu split" style="gap:0.4em; padding:0.5lh 0.55em; min-inline-size:14rem">
+              <button class="sec">Decline</button><button class="pri suc">Accept</button>
+            </menu>
+          </div>
+
+          <div class="card column" style="--bg:0.02; gap:0.4lh; padding:0.55lh 0.65em">
+            <div class="spread" style="align-items:center"><code style="--type:-1">.menu .flank</code><span class="tag" data-pop-check="pl-flank">…</span></div>
+            <button popovertarget="pl-flank" style="align-self:start">Open ▾</button>
+            <menu id="pl-flank" popover class="menu flank" style="gap:0.5em; padding:0.5lh 0.55em; min-inline-size:15rem; align-items:center">
+              <span class="avatar" style="--hue:200">AL</span>
+              <div class="column" style="gap:0.05lh"><strong>Ada Lovelace</strong><small style="--fg:-0.7">ada@analytical.engine</small></div>
+            </menu>
+          </div>
+
+          <div class="card column" style="--bg:0.02; gap:0.4lh; padding:0.55lh 0.65em">
+            <div class="spread" style="align-items:center"><code style="--type:-1">.menu .spread</code><span class="tag" data-pop-check="pl-spread">…</span></div>
+            <button popovertarget="pl-spread" style="align-self:start">Open ▾</button>
+            <menu id="pl-spread" popover class="menu spread" style="padding:0.5lh 0.55em; min-inline-size:14rem; align-items:center">
+              <strong>Zoom</strong><div class="button-group" role="group" aria-label="Zoom"><button>−</button><button>100%</button><button>+</button></div>
+            </menu>
+          </div>
+
+          <div class="card column" style="--bg:0.02; gap:0.4lh; padding:0.55lh 0.65em">
+            <div class="spread" style="align-items:center"><code style="--type:-1">.menu .stack</code><span class="tag" data-pop-check="pl-stack">…</span></div>
+            <button popovertarget="pl-stack" style="align-self:start">Open ▾</button>
+            <menu id="pl-stack" popover class="menu stack" style="padding:0; min-inline-size:12rem; block-size:6lh; border-radius:var(--cfg-radius); overflow:hidden">
+              <div class="bg" style="--bg:0.2; display:grid; place-items:center; --type:2; font-weight:700">STACK</div>
+              <span class="tag suc" style="place-self:end; margin:0.4em">overlaid</span>
+            </menu>
+          </div>
+
+          <div class="card column" style="--bg:0.02; gap:0.4lh; padding:0.55lh 0.65em">
+            <div class="spread" style="align-items:center"><code style="--type:-1">.menu .glass .row .grid .column</code><span class="tag" data-pop-check="pl-absurd">…</span></div>
+            <button popovertarget="pl-absurd" style="align-self:start">Open ▾</button>
+            <menu id="pl-absurd" popover class="menu glass row grid column" style="--grid-min:4rem; gap:0.4em; padding:0.5lh 0.55em; min-inline-size:14rem; --glass-alpha:0.6">
+              <button>1</button><button>2</button><button>3</button><button>4</button>
+            </menu>
+          </div>
+
+        </div>
+      </section>
+
+      <footer class="column" style="gap:0.3lh; --fg:-0.6; padding-block-start:0.6lh">
+        <hr>
+        <p style="--type:-0.5">All badges green on load means the single media-layer rule holds across every composition — a closed popover collapses to <code>display:none</code> no matter what layout classes it carries, so it can never sit over its trigger and eat the click.</p>
+      </footer>
+
+</div>
+</main>

@@ -1,0 +1,95 @@
+<main class="pg-main" id="main" data-init="afterNav('layers')">
+  <div class="doc">
+
+    <header class="column" style="gap: 0.4lh">
+      <span class="tag inf" style="align-self:start">architecture</span>
+      <h1 style="--type: 6">One ordered spine. Later layers win.</h1>
+      <p style="--type:1; --fg:-0.7; max-inline-size: 52ch">Every rule in <code>system.css</code> lives inside a named <code>@layer</code>, declared once in priority order. Cascade layers beat specificity: a rule in a later layer wins over an earlier one <em>regardless</em> of selector weight. That's why the whole system can ship at specificity 0 (<code>:where()</code> everywhere) and still be predictable — and why your <code>project</code> layer always has the final say.</p>
+    </header>
+
+    <section class="column" style="gap:0.4lh">
+      <h2 style="--type:3">The declaration</h2>
+      <p style="--fg:-0.6">This single statement at the top of the file fixes the order. Everything below just fills these layers in.</p>
+      <pre><code class="css">@layer reset, styleAPI.color, styleAPI.type, theme, base,
+       classAPI.page, classAPI.layout, classAPI.components,
+       classAPI.pseudo, classAPI.utility, classAPI.media, project;</code></pre>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Reading the spine</h2>
+      <p style="--fg:-0.6; max-inline-size:58ch">Twelve layers in three movements: the <strong>engine</strong> (tokens → color + type), the <strong>substrate</strong> (theme values, bare elements), and the <strong>class API</strong> (opt-in components + utilities). Your <code>project</code> layer sits last.</p>
+
+      <div class="column" style="gap:0.3lh; margin-block-start:0.3lh">
+        <div class="row" style="gap:0.5em"><span class="tag" data-ui-state="on">foundation</span><small style="--fg:-0.6">kill UA defaults</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.35lh; padding:0.55lh 0.7em">
+          <div class="layer-row"><span class="layer-n">1</span><div class="column" style="gap:0.1lh"><span class="layer-name">reset</span><small style="--fg:-0.7">Minimal, modern-only reset. No font-size or spacing — the style APIs own those.</small></div></div>
+        </div>
+      </div>
+
+      <div class="column" style="gap:0.3lh; margin-block-start:0.3lh">
+        <div class="row" style="gap:0.5em"><span class="tag inf" data-ui-state="on">the engine</span><small style="--fg:-0.6">token math — tune via theme</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.35lh; padding:0.55lh 0.7em">
+          <div class="layer-row"><span class="layer-n">2</span><div class="column" style="gap:0.1lh"><span class="layer-name">styleAPI.color</span><small style="--fg:-0.7">Surface (--bg) + ink (--fg) + hue + state → OKLCH. Derives --border / --focus.</small></div></div>
+          <div class="layer-row"><span class="layer-n">3</span><div class="column" style="gap:0.1lh"><span class="layer-name">styleAPI.type</span><small style="--fg:-0.7">Type IS the spacing system: one --type step → size, leading, weight; em/lh downstream.</small></div></div>
+        </div>
+      </div>
+
+      <div class="column" style="gap:0.3lh; margin-block-start:0.3lh">
+        <div class="row" style="gap:0.5em"><span class="tag suc" data-ui-state="on">the substrate</span><small style="--fg:-0.6">values + bare elements</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.35lh; padding:0.55lh 0.7em">
+          <div class="layer-row"><span class="layer-n">4</span><div class="column" style="gap:0.1lh"><span class="layer-name">theme</span><small style="--fg:-0.7">Values only — light/dark banks, sizes, semantic hues, fonts, skins. The knobs.</small></div></div>
+          <div class="layer-row"><span class="layer-n">5</span><div class="column" style="gap:0.1lh"><span class="layer-name">base</span><small style="--fg:-0.7">Bare elements consume the engine, so unclassed HTML already looks right.</small></div></div>
+        </div>
+      </div>
+
+      <div class="column" style="gap:0.3lh; margin-block-start:0.3lh">
+        <div class="row" style="gap:0.5em"><span class="tag wrn" data-ui-state="on">the class API</span><small style="--fg:-0.6">opt-in components + utilities</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.35lh; padding:0.55lh 0.7em">
+          <div class="layer-row"><span class="layer-n">6</span><div class="column" style="gap:0.1lh"><span class="layer-name">classAPI.page</span><small style="--fg:-0.7">App shells: the .page grid, .drawer, .modal, .menu, .hud.</small></div></div>
+          <div class="layer-row"><span class="layer-n">7</span><div class="column" style="gap:0.1lh"><span class="layer-name">classAPI.layout</span><small style="--fg:-0.7">Composition primitives: .row / .column / .split / .grid / .stack / .hero…</small></div></div>
+          <div class="layer-row"><span class="layer-n">8</span><div class="column" style="gap:0.1lh"><span class="layer-name">classAPI.components</span><small style="--fg:-0.7">Buttons, cards, fields, tables, tags, alerts, tabs, carousel…</small></div></div>
+          <div class="layer-row"><span class="layer-n">9</span><div class="column" style="gap:0.1lh"><span class="layer-name">classAPI.pseudo</span><small style="--fg:-0.7">::highlight() syntax tokens — pairs with highlight.js.</small></div></div>
+          <div class="layer-row"><span class="layer-n">10</span><div class="column" style="gap:0.1lh"><span class="layer-name">classAPI.utility</span><small style="--fg:-0.7">Single-purpose overrides: .truncate, .glass, .read, semantic .suc/.inf/.wrn/.dgr.</small></div></div>
+          <div class="layer-row"><span class="layer-n">11</span><div class="column" style="gap:0.1lh"><span class="layer-name">classAPI.media</span><small style="--fg:-0.7">Responsive + pointer gates via revert-layer (.mobile/.desktop, .fine/.coarse).</small></div></div>
+        </div>
+      </div>
+
+      <div class="column" style="gap:0.3lh; margin-block-start:0.3lh">
+        <div class="row" style="gap:0.5em"><span class="tag dgr" data-ui-state="on">yours</span><small style="--fg:-0.6">final say — always wins</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.35lh; padding:0.55lh 0.7em">
+          <div class="layer-row"><span class="layer-n">12</span><div class="column" style="gap:0.1lh"><span class="layer-name">project</span><small style="--fg:-0.7">Your conveniences over the primitives: .pri/.sec, .pg-* fills, skins. Declared last.</small></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="split" style="gap:0.7lh; align-items:start">
+      <div class="column" style="gap:0.4lh">
+        <h2 style="--type:3">Why <code>:where()</code> everywhere</h2>
+        <p style="--fg:-0.6">Because layer order already decides conflicts, selectors don't need specificity to win. Wrapping every selector in <code>:where()</code> pins it to <strong>0,0,0</strong>. The payoff: <em>any</em> plain class or inline style you write beats the system without a fight — no <code>!important</code>, no specificity wars.</p>
+      </div>
+      <div class="column" style="gap:0.4lh">
+        <h2 style="--type:3">The project layer wins</h2>
+        <p style="--fg:-0.6">It's declared last, so it out-ranks every <code>classAPI</code> rule at equal specificity. Your overrides live in one findable place.</p>
+        <pre><code class="css">@layer project {
+  /* final say over classAPI.components */
+  .pri { --bg: 1; --fg: -1; }
+  .pg-header { --bg: -0.8; }
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="alert inf" role="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+      <div class="column" style="gap:0.15lh">
+        <strong>Two tiers, one rule of thumb.</strong>
+        <small style="--fg:-0.8">The <code>styleAPI.*</code> layers are the <em>engine</em> — token math you tune through <code>theme</code>. The <code>classAPI.*</code> layers are <em>opt-in components</em>. Author against classes; reach into the engine only to retune. This code block, like the ones above, is coloured live by your <code>highlight.js</code> through the <code>classAPI.pseudo</code> layer.</small>
+      </div>
+    </section>
+
+    <footer class="column" style="gap:0.3lh; --fg:-0.6">
+      <hr>
+      <p style="--type:-0.5">Next in the nav: <strong>Page &amp; helpers</strong> — the <code>.page</code> shell, the layout primitives, and the overlays (drawer / modal / menu / hud).</p>
+    </footer>
+
+  </div>
+</main>

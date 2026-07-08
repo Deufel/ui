@@ -1,0 +1,158 @@
+<main class="pg-main" id="main" data-init="afterNav('layout')">
+  <div class="doc">
+
+    <header class="column" style="gap: 0.4lh">
+      <span class="tag inf" style="align-self:start">layout</span>
+      <h1 style="--type: 6">Page, primitives &amp; overlays</h1>
+      <p style="--type:1; --fg:-0.7; max-inline-size: 52ch">Structure without a single hand-set pixel. The <code>.page</code> shell is a ten-slot application grid; the layout primitives are zero-specificity composition helpers whose gap derives from line-height; the overlays are native <code>&lt;dialog&gt;</code> / popover with the engine's paint. All spacing is <code>em</code>/<code>lh</code>, so it tracks type.</p>
+    </header>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">The <code>.page</code> shell</h2>
+      <p style="--fg:-0.6; max-inline-size:60ch">Ten named slots. Add a <code>pg-*</code> child and it appears; leave it out and the track collapses. Only <code>nav</code>, <code>main</code> and <code>aside</code> scroll — the shell itself never does. This whole docs site <em>is</em> a <code>.page</code>.</p>
+      <div class="split" style="gap:0.7lh; align-items:start">
+        <div class="pagemap">
+          <div class="bg" style="--bg:0.4; grid-area:b">banner</div>
+          <div class="bg" style="--bg:-0.8; grid-area:h">header</div>
+          <div class="bg" style="--bg:-0.8; grid-area:s">subheader</div>
+          <div class="bg" style="--bg:-0.8; grid-area:n">nav</div>
+          <div class="bg" style="--bg:-0.3; grid-area:t">toolbar</div>
+          <div class="bg" style="--bg:-0.3; grid-area:mh">main-header</div>
+          <div class="bg" style="--bg:0; grid-area:m; --fg:-0.6">main<br>(scrolls)</div>
+          <div class="bg" style="--bg:-0.3; grid-area:mf">main-footer</div>
+          <div class="bg" style="--bg:-0.3; grid-area:a">aside</div>
+          <div class="bg" style="--bg:0.03; grid-area:f">footer</div>
+        </div>
+        <div class="column" style="gap:0.4lh">
+          <p style="--fg:-0.7; --type:-0.5">Author it as flat children — the grid places each by class:</p>
+          <pre><code class="html">&lt;div class="page"&gt;
+  &lt;header class="pg-header"&gt;…&lt;/header&gt;
+  &lt;nav class="pg-navigation"&gt;…&lt;/nav&gt;
+  &lt;main class="pg-main"&gt;…&lt;/main&gt;
+  &lt;aside class="pg-aside"&gt;…&lt;/aside&gt;
+  &lt;footer class="pg-footer"&gt;…&lt;/footer&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Layout primitives</h2>
+      <p style="--fg:-0.6; max-inline-size:60ch">Pure geometry, specificity 0. Every one gaps at <code>calc(0.25 · 1lh)</code>, so spacing scales with the type around it. Compose them freely.</p>
+      <div class="grid" style="--grid-min:15rem; gap:0.6lh">
+        <div class="card helper-card" style="--bg:0.02; padding:0.5lh 0.6em">
+          <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.row</span></div>
+          <small style="--fg:-0.7">Horizontal, wraps, centered. The workhorse.</small>
+          <div class="demo"><div class="row"><div class="box bg" style="--bg:0.3">1</div><div class="box bg" style="--bg:0.3">2</div><div class="box bg" style="--bg:0.3">3</div><div class="box bg" style="--bg:0.3">4</div></div></div>
+        </div>
+        <div class="card helper-card" style="--bg:0.02; padding:0.5lh 0.6em">
+          <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.column</span></div>
+          <small style="--fg:-0.7">Vertical stack.</small>
+          <div class="demo"><div class="column"><div class="box bg" style="--bg:0.3">1</div><div class="box bg" style="--bg:0.3">2</div><div class="box bg" style="--bg:0.3">3</div></div></div>
+        </div>
+        <div class="card helper-card" style="--bg:0.02; padding:0.5lh 0.6em">
+          <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.split</span></div>
+          <small style="--fg:-0.7">Two equal columns (1fr 1fr).</small>
+          <div class="demo"><div class="split"><div class="box bg" style="--bg:0.3">A</div><div class="box bg" style="--bg:0.3">B</div></div></div>
+        </div>
+        <div class="card helper-card" style="--bg:0.02; padding:0.5lh 0.6em">
+          <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.spread</span></div>
+          <small style="--fg:-0.7">Row pushed to the edges (space-between).</small>
+          <div class="demo"><div class="spread"><div class="box bg" style="--bg:0.3">left</div><div class="box bg" style="--bg:0.3">right</div></div></div>
+        </div>
+        <div class="card helper-card" style="--bg:0.02; padding:0.5lh 0.6em">
+          <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.lcr</span></div>
+          <small style="--fg:-0.7">Left · centered · right (auto 1fr auto).</small>
+          <div class="demo"><div class="lcr"><div class="box bg" style="--bg:0.3">L</div><div class="box bg" style="--bg:0.3">C</div><div class="box bg" style="--bg:0.3">R</div></div></div>
+        </div>
+        <div class="card helper-card" style="--bg:0.02; padding:0.5lh 0.6em">
+          <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.flank</span></div>
+          <small style="--fg:-0.7">Fixed leader + fluid rest (icon · text).</small>
+          <div class="demo"><div class="flank"><div class="box bg" style="--bg:0.5">◆</div><div class="box bg" style="--bg:0.2">grows to fill</div></div></div>
+        </div>
+        <div class="card helper-card" style="--bg:0.02; padding:0.5lh 0.6em">
+          <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.grid</span></div>
+          <small style="--fg:-0.7">Auto-fit tracks, min via --grid-min.</small>
+          <div class="demo"><div class="grid" style="--grid-min:4rem"><div class="box bg" style="--bg:0.3">1</div><div class="box bg" style="--bg:0.3">2</div><div class="box bg" style="--bg:0.3">3</div><div class="box bg" style="--bg:0.3">4</div></div></div>
+        </div>
+        <div class="card helper-card" style="--bg:0.02; padding:0.5lh 0.6em">
+          <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.stack</span></div>
+          <small style="--fg:-0.7">All children share one cell (overlay).</small>
+          <div class="demo"><div class="stack"><div class="box bg" style="--bg:0.2">base</div><div class="box bg suc" style="--bg:0.5; place-self:end; --type:-2">badge</div></div></div>
+        </div>
+        <div class="card helper-card" style="--bg:0.02; padding:0.5lh 0.6em">
+          <div class="spread"><span class="layer-name" style="font-family:var(--font-mono); font-weight:600">.track</span></div>
+          <small style="--fg:-0.7">Horizontal scroll row of min-width cells.</small>
+          <div class="demo"><div class="track" style="--track-min:3.5rem"><div class="box bg" style="--bg:0.3">1</div><div class="box bg" style="--bg:0.3">2</div><div class="box bg" style="--bg:0.3">3</div><div class="box bg" style="--bg:0.3">4</div><div class="box bg" style="--bg:0.3">5</div><div class="box bg" style="--bg:0.3">6</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Responsive &amp; pointer</h2>
+      <p style="--fg:-0.6; max-inline-size:60ch">Show or hide by breakpoint or input device via <code>display: revert-layer</code> in the last layer. Because everything is layered, these just win — no specificity fights, and the hidden copy leaves the tab order + a11y tree entirely. Resize the window to watch the viewport tags swap.</p>
+      <div class="grid" style="--grid-min:15rem; gap:0.6lh">
+        <div class="card column" style="--bg:0.02; gap:0.35lh">
+          <strong style="font-family:var(--font-mono); --type:-1">.mobile · .tablet · .desktop</strong>
+          <small style="--fg:-0.7">Viewport width — <code>&lt;768</code> · <code>768–1024</code> · <code>≥1024</code>. One shows at a time:</small>
+          <div class="demo row" style="gap:0.5em"><span class="tag mobile" data-ui-state="on">mobile</span><span class="tag tablet" data-ui-state="on">tablet</span><span class="tag desktop" data-ui-state="on">desktop</span><small style="--fg:-0.6">← your viewport</small></div>
+        </div>
+        <div class="card column" style="--bg:0.02; gap:0.35lh">
+          <strong style="font-family:var(--font-mono); --type:-1">.fine · .coarse</strong>
+          <small style="--fg:-0.7">Pointer type — mouse vs touch:</small>
+          <div class="demo row" style="gap:0.5em"><span class="tag fine" data-ui-state="on">fine (mouse)</span><span class="tag coarse" data-ui-state="on">coarse (touch)</span></div>
+        </div>
+      </div>
+      <p style="--fg:-0.6; --type:-0.5"><code>.small · .medium · .large</code> do the same against a <strong>container</strong> (with a <code>container-type</code> ancestor), so a component adapts to the space it's <em>in</em>, not the viewport. Because we can depend on the layer order, it just works.</p>
+      <pre><code class="html">&lt;aside class="desktop"&gt;Sidebar&lt;/aside&gt;   &lt;!-- ≥1024px only --&gt;
+&lt;button class="coarse"&gt;Tap&lt;/button&gt;      &lt;!-- touch pointers only --&gt;
+&lt;div class="large"&gt;Wide layout&lt;/div&gt;     &lt;!-- container ≥560px --&gt;</code></pre>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Overlays</h2>
+      <p style="--fg:-0.6; max-inline-size:60ch">Native top-layer surfaces — no z-index, no JS positioning. A <code>&lt;dialog&gt;</code> gives focus-trap, Esc-close and an inert background for free; a popover light-dismisses and anchors to its trigger. They paint from the engine, so they theme automatically.</p>
+      <div class="row" style="gap:0.6em">
+        <button class="pri" data-on:click="document.getElementById('demo-modal').showModal()">Open modal</button>
+        <button data-on:click="document.getElementById('demo-drawer').showModal()">Open drawer</button>
+        <button popovertarget="demo-menu">Menu ▾</button>
+      </div>
+      <menu id="demo-menu" popover class="menu">
+        <button>Rename</button>
+        <button>Duplicate</button>
+        <button class="dgr">Delete</button>
+      </menu>
+
+      <dialog id="demo-modal" class="modal">
+        <div class="column" style="gap:0.5lh; padding:0.3lh 0.2em">
+          <strong style="--type:2">Rename project</strong>
+          <small style="--fg:-0.7">A centered card in the top layer — focus-trapped, Esc closes.</small>
+          <label><span>Name</span><small>&nbsp;</small><input value="Orbit"></label>
+          <div class="row" style="gap:0.5em; justify-content:flex-end"><button data-on:click="document.getElementById('demo-modal').close()">Cancel</button><button class="pri" data-on:click="document.getElementById('demo-modal').close()">Save</button></div>
+        </div>
+      </dialog>
+
+      <dialog id="demo-drawer" class="drawer left">
+        <div class="column" style="gap:0.5lh; padding:0.3lh 0.2em; min-inline-size:15rem">
+          <strong style="--type:2">Filters</strong>
+          <label class="row" style="gap:0.5em"><input type="checkbox" checked> <span>Active</span></label>
+          <label class="row" style="gap:0.5em"><input type="checkbox"> <span>Archived</span></label>
+          <button class="pri" data-on:click="document.getElementById('demo-drawer').close()" style="margin-block-start:auto">Done</button>
+        </div>
+      </dialog>
+
+      <div class="grid" style="--grid-min:14rem; gap:0.5lh">
+        <div class="card column" style="--bg:0.02; gap:0.2lh"><strong style="font-family:var(--font-mono); --type:-1">.modal</strong><small style="--fg:-0.7">Centered card. Open with <code>showModal()</code>; add <code>closedby="any"</code> for click-outside.</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.2lh"><strong style="font-family:var(--font-mono); --type:-1">.drawer .left</strong><small style="--fg:-0.7">Edge-anchored panel. <code>.left/.right/.top/.bottom</code> pick the edge; slides on composite only.</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.2lh"><strong style="font-family:var(--font-mono); --type:-1">.menu</strong><small style="--fg:-0.7">Anchored popover — the trigger is its implicit anchor, flips to stay on-screen.</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.2lh"><strong style="font-family:var(--font-mono); --type:-1">.hud</strong><small style="--fg:-0.7">Full-viewport click-through overlay; nine slot positions (<code>.tl…​.br</code>) for toasts &amp; FABs.</small></div>
+      </div>
+    </section>
+
+    <footer class="column" style="gap:0.3lh; --fg:-0.6">
+      <hr>
+      <p style="--type:-0.5">Next: <strong>Components</strong> — buttons, fields, tables, tags, alerts, and the rest of <code>classAPI.components</code>, each live and dogfooded.</p>
+    </footer>
+
+  </div>
+</main>

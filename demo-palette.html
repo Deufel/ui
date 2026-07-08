@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" data-ui-theme="dark" style="--hue:255">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Command palette — system.css</title>
+<link rel="stylesheet" href="system.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+<style>
+  /* page backdrop only — the palette itself is pure system.css classes */
+  body { margin: 0; min-block-size: 100vh; }
+  .stage { min-block-size: 100vh; display: grid; place-items: start center; padding-block-start: 8vh; }
+
+  /* the palette: a .card standing on the .hud, sized and scoped. Nothing here
+     invents colour — every surface reads --bg / --fg from the engine. */
+  .palette { inline-size: min(680px, 92vw); max-block-size: 82vh; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+  .p-search { display: flex; align-items: center; gap: 0.6em; padding: 0.55lh 0.7em; border-block-end: 1px solid var(--border); }
+  .p-search input { flex: 1; border: 0; background: transparent; --type: 1; padding: 0; block-size: auto; }
+  .p-search input:focus { outline: 0; box-shadow: none; }
+  .p-scopes { display: flex; gap: 0.4em; flex-wrap: wrap; padding: 0.45lh 0.7em; border-block-end: 1px solid var(--border); }
+  .p-results { overflow-y: auto; overscroll-behavior: contain; padding: 0.35lh 0.4em 0.5lh; display: flex; flex-direction: column; gap: 0.1lh; }
+  .p-group { --fg: -0.55; --type: -2; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.5lh 0.6em 0.2lh; }
+  .p-row { display: flex; align-items: center; gap: 0.7em; padding: 0.4lh 0.6em; border-radius: var(--cfg-radius); cursor: pointer; }
+  .p-row svg { inline-size: 1.15em; block-size: 1.15em; --fg: -0.55; flex: 0 0 auto; }
+  .p-row .p-body { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 0.05lh; }
+  .p-row .p-title { --type: 0.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .p-row .p-sub { --fg: -0.6; --type: -1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .p-row .p-ret { --fg: -0.5; opacity: 0; }
+  .p-row[aria-selected="true"] { --lift: 0.14; background-color: var(--_bg); --surf-l: var(--_bg-l); }
+  .p-row[aria-selected="true"] .p-ret { opacity: 1; }
+  .p-row mark { background: transparent; --fg: 1; --hue-shift: -22; font-weight: 700; }
+  kbd { white-space: nowrap; }
+  .p-foot { display: flex; gap: 1.1em; flex-wrap: wrap; padding: 0.4lh 0.8em; border-block-start: 1px solid var(--border); --fg: -0.55; --type: -1; }
+  .p-foot span { display: inline-flex; align-items: center; gap: 0.4em; }
+  kbd svg { inline-size: 0.95em; block-size: 0.95em; display: block; }
+  .p-foot kbd, .p-ret kbd { display: inline-flex; align-items: center; justify-content: center; --type: -1; line-height: 1; min-block-size: 1.7em; min-inline-size: 1.7em; }
+  kbd svg { inline-size: 0.95em; block-size: 0.95em; display: block; }
+</style>
+</head>
+<body class="bg" style="--bg:-0.4">
+
+  <div class="stage">
+    <div class="Card palette" data-ui-state="off">
+
+      <!-- search -->
+      <div class="p-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="--fg:-0.5; inline-size:1.2em; block-size:1.2em"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input value="bu" aria-label="Search" autofocus>
+        <button aria-label="Clear" style="--lift:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        <kbd>esc</kbd>
+      </div>
+
+      <!-- scopes -->
+      <div class="p-scopes">
+        <button class="tag" data-ui-state="on">All <small style="--fg:-0.5">8</small></button>
+        <button class="tag">Events <small style="--fg:-0.5">0</small></button>
+        <button class="tag">Dates <small style="--fg:-0.5">0</small></button>
+        <button class="tag">Contacts <small style="--fg:-0.5">1</small></button>
+        <button class="tag">Brands <small style="--fg:-0.5">6</small></button>
+        <button class="tag">Venues <small style="--fg:-0.5">1</small></button>
+      </div>
+
+      <!-- results -->
+      <div class="p-results">
+        <div class="p-group">Contacts</div>
+        <div class="p-row" aria-selected="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+          <div class="p-body">
+            <span class="p-title">Robin Ro<mark>bu</mark>stow</span>
+            <span class="p-sub">Operations Lead · Event · Metropolis</span>
+          </div>
+          <span class="tag">contact</span>
+          <span class="p-ret"><kbd><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></kbd></span>
+        </div>
+
+        <div class="p-group">Brands</div>
+        <div class="p-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5 9-5M3 8v8l9 5 9-5V8"/></svg>
+          <div class="p-body"><span class="p-title"><mark>Bu</mark>d Light</span><span class="p-sub">American Lager</span></div>
+          <span class="tag">brand</span><span class="p-ret"><kbd>↵</kbd></span>
+        </div>
+        <div class="p-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5 9-5M3 8v8l9 5 9-5V8"/></svg>
+          <div class="p-body"><span class="p-title"><mark>Bu</mark>d Light Lime</span><span class="p-sub">American Lager</span></div>
+          <span class="tag">brand</span><span class="p-ret"><kbd>↵</kbd></span>
+        </div>
+        <div class="p-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5 9-5M3 8v8l9 5 9-5V8"/></svg>
+          <div class="p-body"><span class="p-title"><mark>Bu</mark>d Light Seltzer</span><span class="p-sub">Seltzer / Malt Based</span></div>
+          <span class="tag">brand</span><span class="p-ret"><kbd>↵</kbd></span>
+        </div>
+        <div class="p-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5 9-5M3 8v8l9 5 9-5V8"/></svg>
+          <div class="p-body"><span class="p-title"><mark>Bu</mark>dweiser</span><span class="p-sub">American Lager</span></div>
+          <span class="tag">brand</span><span class="p-ret"><kbd>↵</kbd></span>
+        </div>
+        <div class="p-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5 9-5M3 8v8l9 5 9-5V8"/></svg>
+          <div class="p-body"><span class="p-title"><mark>Bu</mark>dweiser Zero</span><span class="p-sub">Non-Alcoholic Beer</span></div>
+          <span class="tag">brand</span><span class="p-ret"><kbd>↵</kbd></span>
+        </div>
+
+        <div class="p-group">Venues</div>
+        <div class="p-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <div class="p-body"><span class="p-title"><mark>Bu</mark>rlington Park</span><span class="p-sub">Hinsdale, IL · used by 1 event</span></div>
+          <span class="tag">venue</span><span class="p-ret"><kbd>↵</kbd></span>
+        </div>
+      </div>
+
+      <!-- footer -->
+      <div class="p-foot">
+        <span><kbd><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></kbd><kbd><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></kbd> navigate</span>
+        <span><kbd><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></kbd> open</span>
+        <span><kbd>tab</kbd> change scope</span>
+        <span><kbd>⌘</kbd><kbd>K</kbd> toggle</span>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

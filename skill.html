@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>system.css — user guide</title>
+<link rel="stylesheet" href="system.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; }
+  .guide { max-inline-size: 68rem; margin-inline: auto; padding: 1.4lh 1.2em 5lh; display: flex; flex-direction: column; gap: 1lh; }
+  .guide section { display: flex; flex-direction: column; gap: 0.4lh; }
+  .guide h2 { --type: 3; margin-block-start: 0.6lh; }
+  .guide h3 { --type: 1; }
+  .guide p { --fg: -0.5; max-inline-size: 66ch; }
+  .guide li { --fg: -0.5; }
+  .guide table { inline-size: 100%; }
+  .guide td code, .guide th code { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="guide">
+
+  <header class="column" style="gap:0.4lh">
+    <div class="row" style="gap:0.5em; align-items:center"><span class="brand-dot" style="inline-size:1.1em; block-size:1.1em; border-radius:4px; background:oklch(var(--l-color) var(--c-peak) var(--hue))"></span><h1 style="--type:6">system.css</h1></div>
+    <p style="--type:1; --fg:-0.65; max-inline-size:56ch">One stylesheet. Bare HTML is already the component. Colour and space are computed from a few signed numbers, not chosen from a palette. This is the whole API.</p>
+  </header>
+
+  <section>
+    <h2>The model</h2>
+    <p>Every element resolves its colour from three inherited numbers. You set position; the engine solves the pixels — for the live theme, hue, and whatever surface the element lands on.</p>
+    <table>
+      <thead><tr><th>Var</th><th>Axis</th><th>Range</th><th>Means</th></tr></thead>
+      <tbody>
+        <tr><td><code>--bg</code></td><td>surface depth</td><td>−1 … 0 … +1</td><td>0 = base. Negative recedes (quieter). Positive advances toward the chromatic peak (louder).</td></tr>
+        <tr><td><code>--fg</code></td><td>ink</td><td>−1 … 0 … +1</td><td>Negative → neutral contrast pole (max legibility). Positive → chromatic pole (coloured ink). Contrast is auto-solved against the host surface.</td></tr>
+        <tr><td><code>--hue</code></td><td>hue</td><td>0 … 360</td><td>One number rotates the whole system.</td></tr>
+        <tr><td><code>--hue-shift</code></td><td>subtree hue</td><td>±deg</td><td>Adds into the live hue — rotates every non-locked descendant at once, so a whole panel re-hues with one declaration.</td></tr>
+        <tr><td><code>--hue-lock</code></td><td>pin</td><td>—</td><td>Pins an element's hue against a shift; the four semantic helpers set it so meaning never rotates.</td></tr>
+      </tbody>
+    </table>
+    <pre><code class="html">&lt;div class="card" style="--bg:-0.3"&gt;recessed panel&lt;/div&gt;
+&lt;span style="--fg:0.8"&gt;chromatic text&lt;/span&gt;</code></pre>
+    <div class="alert inf" role="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><small><code>--border</code> and <code>--focus</code> are derived from the surface automatically — never set them; components opt in.</small></div>
+  </section>
+
+  <section>
+    <h2>Surfaces &amp; separation</h2>
+    <p>Paint a surface with <code>.bg</code>, or use a named container. Nest by <em>lifting</em>, not by hand-picking darker values — a lifted child steps off whatever hosts it, so it stays correct on any surface.</p>
+    <table>
+      <thead><tr><th>Class</th><th>Separation</th></tr></thead>
+      <tbody>
+        <tr><td><code>.bg</code></td><td>Paints its <code>--bg</code>; publishes lightness for child ink.</td></tr>
+        <tr><td><code>.card</code> / <code>.Card</code></td><td>Bordered panel — quiet line / vibrant line.</td></tr>
+        <tr><td><code>.surface</code> / <code>.Surface</code></td><td>A <code>--lift</code> step, no line — for grouping <em>inside</em> a card.</td></tr>
+        <tr><td><code>--lift: n</code></td><td>Sit <code>n</code> above the host surface (relative). What every control uses so it reads on any background.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Type is the spacing system</h2>
+    <p>One signed step, <code>--type</code>, sets size — and from it the engine derives leading, tracking, and weight together. Spacing is a fraction of the line (<code>lh</code>), so rhythm scales with type. No pixel grid, no spacing scale.</p>
+    <table>
+      <thead><tr><th>Step</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td><code>5 … 1</code></td><td><code>h1 … h5</code></td></tr>
+        <tr><td><code>0</code></td><td>body · UI · controls</td></tr>
+        <tr><td><code>−1</code></td><td><code>small</code></td></tr>
+        <tr><td><code>−2</code></td><td>micro (tags, captions)</td></tr>
+      </tbody>
+    </table>
+    <pre><code class="html">&lt;h2 style="--type:4"&gt;Heading&lt;/h2&gt;
+&lt;div class="row"&gt;…&lt;/div&gt;   &lt;!-- gap = calc(0.25 * 1lh), scales with type --&gt;</code></pre>
+    <p><code>--scale</code> zooms a whole region (inherits); <code>--type</code> sizes one element (does not).</p>
+  </section>
+
+  <section>
+    <h2>Components — bare-first</h2>
+    <p>Most components are a plain element. Reach for a class only for emphasis or a variant. Height is shared: a <code>button</code>, field, <code>select</code>, and <code>.avatar</code> land on one height at every <code>--type</code>.</p>
+    <table>
+      <thead><tr><th>Write</th><th>Get</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;button&gt;</code> · <code>.pri</code> · <code>.sec</code></td><td>Button — default / primary / secondary. <code>.btn</code> on an <code>&lt;a&gt;</code> for link semantics.</td></tr>
+        <tr><td><code>&lt;button aria-label&gt;&lt;svg&gt;</code></td><td>Square icon button. <code>[aria-pressed]</code> = toggle.</td></tr>
+        <tr><td><code>.button-group</code></td><td>Connected toggle row; the pressed one goes max-chroma.</td></tr>
+        <tr><td><code>&lt;form&gt;&gt;&lt;label&gt;</code></td><td>A label in a form is a field (span · fixed <code>small</code> slot · input). <code>&lt;fieldset&gt;</code> packs fields onto one row (<code>--row-width</code>).</td></tr>
+        <tr><td><code>&lt;table&gt;</code> · <code>&lt;select&gt;</code> · <code>&lt;details&gt;</code> · <code>&lt;progress&gt;</code> · <code>&lt;meter&gt;</code> · <code>&lt;blockquote&gt;</code> · <code>&lt;code&gt;</code> · <code>&lt;kbd&gt;</code></td><td>Bare — styled, no class.</td></tr>
+        <tr><td><code>.tag</code> · <code>.alert</code> · <code>.avatar</code> · <code>.badge</code></td><td>Label chip · standing message · monogram chip · corner count.</td></tr>
+        <tr><td><code>.tabs</code> · <code>.tabs-underline</code> · <code>.crumbs</code> · <code>.nav-item</code> · <code>.nav-icon</code></td><td>Segmented radio · underline tabs · breadcrumbs · nav rows.</td></tr>
+        <tr><td><code>.fab-1/2/3</code></td><td>Glass floating actions, ascending prominence.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Meaning &amp; state</h2>
+    <p>Four semantic helpers lock a hue and commit ink to it — layer-independently, so a tag, an alert, and a button all speak the same meaning. State rides ARIA.</p>
+    <table>
+      <thead><tr><th>Hook</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><code>.suc .inf .wrn .dgr</code></td><td>Success · info · warning · danger — hue-locked, immune to <code>--hue-shift</code>.</td></tr>
+        <tr><td><code>[aria-pressed="true"]</code></td><td>Toggle on (button / nav).</td></tr>
+        <tr><td><code>[aria-current="page"]</code></td><td>Current destination.</td></tr>
+        <tr><td><code>data-ui-state="on" / "off"</code></td><td>Server-rendered "live in a set" accent / greyed.</td></tr>
+        <tr><td><code>[aria-invalid] [required] [disabled]</code></td><td>Field danger · asterisk · drained.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Layout</h2>
+    <p>Zero-specificity primitives — pure geometry, gap in <code>lh</code>. Compose freely; anything you write beats them without a fight.</p>
+    <table>
+      <thead><tr><th>Class</th><th>Shape</th></tr></thead>
+      <tbody>
+        <tr><td><code>.row</code> · <code>.column</code></td><td>Horizontal (wraps) · vertical.</td></tr>
+        <tr><td><code>.split</code> · <code>.spread</code> · <code>.lcr</code></td><td>Two equal · pushed to edges · left·centre·right.</td></tr>
+        <tr><td><code>.flank</code> · <code>.grid</code> · <code>.stack</code> · <code>.track</code></td><td>Fixed leader + fluid rest · auto-fit (<code>--grid-min</code>) · overlay · scroll row.</td></tr>
+        <tr><td><code>.spread-column</code> · <code>.scroll-x</code> · <code>.scroll-y</code></td><td>Vertical space-between · horizontal / vertical scroll containers.</td></tr>
+        <tr><td><code>.page</code> + <code>.pg-*</code></td><td>Ten-slot app shell (header, navigation, toolbar, main, aside, footer…). Add a child, the slot appears; only nav/main/aside scroll.</td></tr>
+        <tr><td><code>.modal</code> · <code>.drawer</code> · <code>.menu</code> · <code>.hud</code></td><td>Native <code>&lt;dialog&gt;</code> / popover overlays — no z-index.</td></tr>
+        <tr><td><code>.mobile .tablet .desktop</code> · <code>.fine .coarse</code></td><td>Show/hide by viewport / pointer.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Runtime switches</h2>
+    <p>Set on <code>&lt;html&gt;</code> or any subtree; everything below re-resolves. Hue is a separate knob from theme.</p>
+    <table>
+      <thead><tr><th>Attribute</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><code>data-ui-theme</code></td><td><code>light</code> · <code>dark</code> (unset → OS)</td></tr>
+        <tr><td><code>data-ui-size</code></td><td><code>sm · md · lg · xl</code></td></tr>
+        <tr><td><code>data-ui-skin</code></td><td><code>(default)</code> · <code>material · carbon · vivid</code></td></tr>
+        <tr><td><code>data-ui-motion</code></td><td><code>off · on · debug</code></td></tr>
+        <tr><td><code>style="--hue: n"</code></td><td>0 … 360</td></tr>
+      </tbody>
+    </table>
+    <pre><code class="html">&lt;html data-ui-theme="dark" data-ui-skin="carbon" style="--hue:210"&gt;</code></pre>
+  </section>
+
+  <section>
+    <h2>Don't hand-set padding</h2>
+    <p>Spacing is the system's job. Compose with <code>.row</code> / <code>.column</code> / <code>.grid</code> and their <code>lh</code>-based <code>gap</code>, and let each component carry its own <code>em</code>-based padding. Padding added by hand fights the type-driven rhythm and breaks alignment the moment <code>--type</code> or <code>data-ui-size</code> changes. If something needs air, reach for a layout primitive, not a pixel.</p>
+  </section>
+
+  <section>
+    <h2>Viewport &amp; pointer gates</h2>
+    <p>Six classes show or hide an element by context — nothing else. Each defaults to <code>display:none</code>; the matching query then flips it to <code>display: revert-layer</code>, which <em>reverts the display to the previous cascade layer</em> — restoring the element's natural display. This works only because these rules live in <code>classAPI.media</code>, the <strong>last</strong> layer: the gate out-ranks every component's <code>display</code>, and reverting lands exactly on the component's own value. Layer order <em>is</em> the mechanism. (Inline <code>display</code> still wins — don't set it on a gated element.)</p>
+    <table>
+      <thead><tr><th>Classes</th><th>Gate</th><th>Breakpoints</th></tr></thead>
+      <tbody>
+        <tr><td><code>.mobile .tablet .desktop</code></td><td>viewport width</td><td>&lt;768 · 768–1024 · ≥1024px</td></tr>
+        <tr><td><code>.small .medium .large</code></td><td>container width (needs a <code>container-type</code> ancestor)</td><td>&lt;320 · 320–560 · ≥560px</td></tr>
+        <tr><td><code>.fine .coarse</code></td><td>pointer</td><td>mouse · touch</td></tr>
+      </tbody>
+    </table>
+    <pre><code class="html">&lt;aside class="desktop"&gt;Sidebar&lt;/aside&gt;   &lt;!-- ≥1024px only --&gt;
+&lt;button class="coarse"&gt;Tap&lt;/button&gt;      &lt;!-- touch pointers only --&gt;
+&lt;div class="large"&gt;Wide layout&lt;/div&gt;     &lt;!-- container ≥560px --&gt;</code></pre>
+    <div class="alert wrn" role="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><small><strong>None is the default.</strong> A plain element shows everywhere — no gate class is ever “on” by default. The moment you add one (say <code>.mobile</code>) it shows <em>only</em> in that range and is hidden in the other two. Gates compose: <code>class="mobile desktop"</code> shows on phone + desktop and hides on tablet.</small></div>
+  </section>
+
+  <section>
+    <h2>App shell — <code>.page</code> slots</h2>
+    <p>A <code>.page</code> is a ten-slot grid. Add a <code>pg-*</code> child and its slot appears; omit it and the track collapses. Only nav, main, and aside scroll — the shell itself never does.</p>
+    <p style="--fg:-0.6; font-family:var(--font-mono); --type:-0.5"><code>.pg-banner · .pg-header · .pg-subheader · .pg-navigation · .pg-toolbar · .pg-main-header · .pg-main · .pg-main-footer · .pg-aside · .pg-footer</code></p>
+  </section>
+
+  <section>
+    <h2>Overlays — native top layer, no z-index</h2>
+    <p>Every overlay is a native element, so the browser gives focus-trap, Esc, an inert background, and stacking for free.</p>
+    <table>
+      <thead><tr><th>Class</th><th>On</th><th>Open &amp; behaviour</th></tr></thead>
+      <tbody>
+        <tr><td><code>.modal</code></td><td><code>&lt;dialog&gt;</code></td><td><code>showModal()</code>; centred card, dimmed inert backdrop; add <code>closedby="any"</code> for click-outside.</td></tr>
+        <tr><td><code>.drawer</code> <code>.left/.right/.top/.bottom</code></td><td><code>&lt;dialog&gt;</code></td><td><code>showModal()</code>; edge-anchored panel that slides in.</td></tr>
+        <tr><td><code>.menu</code></td><td><code>&lt;menu popover&gt;</code></td><td><code>popovertarget</code>; anchors to its trigger, flips to stay on-screen, light-dismisses. Rows are flat full-width <code>&lt;button&gt;</code>/<code>&lt;a&gt;</code>.</td></tr>
+        <tr><td><code>.hud</code></td><td>any</td><td>Full-viewport, click-through overlay; pin a child to one of nine slots — <code>.tl .tc .tr</code> · <code>.cl .cc .cr</code> · <code>.bl .bc .br</code>. <strong>Tip:</strong> a <code>.card</code> in <code>.hud</code> <code>.tr</code> is a toast; a <code>.fab-3</code> in <code>.br</code> is the primary action.</td></tr>
+      </tbody>
+    </table>
+    <p><code>.fab-1/2/3</code> go in a <code>.stack</code> or <code>.hud</code> as a <em>sibling</em> of the scrolling content, so they corner themselves (<code>place-self</code>) and never scroll away.</p>
+  </section>
+
+  <section>
+    <h2>Utilities</h2>
+    <table>
+      <thead><tr><th>Class</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>.glass</code></td><td>Frosted translucent surface built from the engine colour (needs content behind). Knobs: <code>--glass-alpha</code>, <code>--glass-blur</code>.</td></tr>
+        <tr><td><code>.truncate</code> · <code>.nowrap</code></td><td>Ellipsis on one line · never wrap.</td></tr>
+        <tr><td><code>.read</code> · <code>.center</code> · <code>.fill</code></td><td>65ch measure, centred · text-align centre · inline-size 100%.</td></tr>
+        <tr><td><code>.num</code> (on <code>th</code>/<code>td</code>)</td><td>Tabular figures, right-aligned.</td></tr>
+        <tr><td><code>.smart</code> (on <code>&lt;meter&gt;</code>)</td><td>Fill hue by band — in-range / sub-optimum / far = success / warning / danger.</td></tr>
+        <tr><td><code>.count</code> · <code>.badge</code></td><td>Trailing quiet pill · corner count on any host (empty = dot).</td></tr>
+        <tr><td><code>.np</code></td><td>Omit from print (no-print).</td></tr>
+        <tr><td><code>.bw</code></td><td>Black &amp; white — zeroes every chroma source for this subtree (same as <code>data-ui-color="0"</code>).</td></tr>
+        <tr><td><code>.scroll-x</code> · <code>.scroll-y</code></td><td>Scroll containers with contained overscroll.</td></tr>
+        <tr><td><code>.vh</code></td><td>Visually hidden, still in the a11y + tab tree.</td></tr>
+      </tbody>
+    </table>
+    <div class="alert wrn" role="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><small>An icon-only <code>&lt;button&gt;</code> / <code>&lt;a&gt;</code> <strong>must</strong> carry an <code>aria-label</code> — it's the accessible name <em>and</em> the hook that makes the control square: <code>&lt;button aria-label="Search"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;/button&gt;</code></small></div>
+  </section>
+
+  <section>
+    <h2>View transitions</h2>
+    <p>Motion helpers layered on the native View Transitions API. Inert until you opt in: wrap a DOM change in <code>document.startViewTransition(update)</code> and the browser snapshots before/after and animates between them. Set <code>data-vt</code> on <code>&lt;html&gt;</code> <em>before</em> starting to pick the direction.</p>
+    <table>
+      <thead><tr><th><code>data-vt</code></th><th>Motion</th></tr></thead>
+      <tbody>
+        <tr><td><code>fade</code> (default)</td><td>Crossfade.</td></tr>
+        <tr><td><code>slide-left</code> · <code>slide-right</code></td><td>New content enters from the right / left.</td></tr>
+        <tr><td><code>scale</code></td><td>Subtle zoom crossfade.</td></tr>
+        <tr><td><code>zoom</code></td><td>Pronounced zoom crossfade.</td></tr>
+      </tbody>
+    </table>
+    <pre><code class="js">document.documentElement.dataset.vt = "slide-left";
+document.startViewTransition(() =&gt; render(next));</code></pre>
+    <p>Duration rides <code>--cfg-motion</code>, so <code>data-ui-motion</code> (off/on/debug) and <code>prefers-reduced-motion</code> already govern it — at motion 0 the swap is instant. Give a shared element a unique <code>view-transition-name</code> to morph it (position/size tween) across the change. Cross-<em>document</em> transitions (same-origin page loads, zero JS) are one line: <code>@view-transition { navigation: auto; }</code> — left off by default. Unsupported browsers just run the callback with no animation, so it's safe to ship.</p>
+  </section>
+
+  <section>
+    <h2>The laws</h2>
+    <ol style="--fg:-0.5; display:flex; flex-direction:column; gap:0.2lh; padding-inline-start:1.4em">
+      <li>Bare HTML is the component; add a class only to vary it.</li>
+      <li>Never name a colour — declare a position (<code>--bg</code>/<code>--fg</code>) and let the engine solve it.</li>
+      <li>Shape follows content; height is shared; spacing is a fraction of the line.</li>
+      <li>State rides ARIA. Meaning rides the four semantic helpers.</li>
+      <li>Everything you author wins — the system ships at specificity 0.</li>
+    </ol>
+  </section>
+
+  <footer class="column" style="gap:0.3lh; --fg:-0.6">
+    <hr>
+    <p style="--type:-0.5">system.css · link one stylesheet, write plain HTML, set a few signed numbers.</p>
+  </footer>
+
+</div>
+</body>
+</html>

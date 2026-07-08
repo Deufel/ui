@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>calendar — system.css demo</title>
+<link rel="stylesheet" href="system.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--cfg-radius); overflow: hidden; block-size: 100%; }
+  .cal > .dow { --bg: -0.5; background-color: var(--_bg); text-align: center; padding: 0.2lh 0; --type: -2; --fg: -0.55; font-weight: 600; letter-spacing: 0.04em; }
+  .cal > .day { --bg: 0; background-color: var(--_bg); padding: 0.2lh 0.35em; display: flex; flex-direction: column; gap: 0.15lh; min-block-size: 0; overflow: hidden; }
+  .cal > .day:hover { --bg: 0.04; background-color: var(--_bg); }
+  .cal > .day.out { --fg: -0.35; }
+  .cal > .day.today .dn { background: oklch(var(--l-color) var(--c-peak) var(--hue)); color: oklch(var(--l-base) 0 0); border-radius: 999px; }
+  .dn { --type: -1; font-weight: 600; inline-size: 1.7em; block-size: 1.7em; display: inline-flex; align-items: center; justify-content: center; }
+  .ev { --type: -2; font-weight: 600; padding: 0.05lh 0.4em; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mini { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; --type: -2; text-align: center; }
+  .mini > span { padding: 0.15lh 0; border-radius: 4px; }
+  .mini > .t { background: oklch(var(--l-color) var(--c-peak) var(--hue)); color: oklch(var(--l-base) 0 0); font-weight: 600; }
+  .mini > .h { --fg: -0.5; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="page" style="--hue: 190">
+
+  <header class="pg-header lcr" style="padding-inline:0.6em; gap:0.7em">
+    <div class="brand row" style="gap:0.5em; --type:1; font-weight:700"><span style="inline-size:1.1em; block-size:1.1em; border-radius:5px; background:oklch(var(--l-color) var(--c-peak) var(--hue))"></span> Cadence</div>
+    <div class="row" style="gap:0.5em">
+      <button aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+      <h1 style="--type:2; min-inline-size:9em; text-align:center">June 2026</h1>
+      <button aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+    </div>
+    <div class="row" style="gap:0.5em; justify-content:flex-end">
+      <div class="button-group" role="group" aria-label="View"><button aria-pressed="false">Day</button><button aria-pressed="false">Week</button><button aria-pressed="true">Month</button></div>
+      <button class="pri nowrap">New event</button>
+    </div>
+  </header>
+
+  <nav class="pg-navigation column" style="gap:0.5lh; padding:0.5lh 0.5em; inline-size:15rem">
+    <div class="mini">
+      <span class="h">M</span><span class="h">T</span><span class="h">W</span><span class="h">T</span><span class="h">F</span><span class="h">S</span><span class="h">S</span>
+      <span style="--fg:-0.3">26</span><span style="--fg:-0.3">27</span><span style="--fg:-0.3">28</span><span style="--fg:-0.3">29</span><span style="--fg:-0.3">30</span><span style="--fg:-0.3">31</span><span>1</span>
+      <span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span>
+      <span>9</span><span>10</span><span class="t">11</span><span>12</span><span>13</span><span>14</span><span>15</span>
+      <span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span>
+      <span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span>
+    </div>
+    <div class="column" style="gap:0.3lh">
+      <small style="--fg:-0.55; --type:-2">MY CALENDARS</small>
+      <label class="row" style="gap:0.5em; --type:-0.5"><input type="checkbox" checked style="--hue:190"> <span>Work</span></label>
+      <label class="row" style="gap:0.5em; --type:-0.5"><input type="checkbox" checked style="--hue:150"> <span>Personal</span></label>
+      <label class="row" style="gap:0.5em; --type:-0.5"><input type="checkbox" checked style="--hue:25"> <span>Deadlines</span></label>
+      <label class="row" style="gap:0.5em; --type:-0.5"><input type="checkbox" style="--hue:280"> <span>Birthdays</span></label>
+    </div>
+  </nav>
+
+  <main class="pg-main" style="padding:0.4lh 0.5em; min-block-size:0">
+    <div class="cal">
+      <div class="dow">MON</div><div class="dow">TUE</div><div class="dow">WED</div><div class="dow">THU</div><div class="dow">FRI</div><div class="dow">SAT</div><div class="dow">SUN</div>
+
+      <div class="day out"><span class="dn">26</span></div>
+      <div class="day out"><span class="dn">27</span></div>
+      <div class="day out"><span class="dn">28</span></div>
+      <div class="day out"><span class="dn">29</span></div>
+      <div class="day out"><span class="dn">30</span></div>
+      <div class="day out"><span class="dn">31</span></div>
+      <div class="day"><span class="dn">1</span><span class="ev bg" style="--bg:0.45; --hue:190">Standup</span></div>
+
+      <div class="day"><span class="dn">2</span><span class="ev bg" style="--bg:0.45; --hue:150">Gym</span></div>
+      <div class="day"><span class="dn">3</span><span class="ev bg" style="--bg:0.45; --hue:190">Design review</span></div>
+      <div class="day"><span class="dn">4</span></div>
+      <div class="day"><span class="dn">5</span><span class="ev bg" style="--bg:0.45; --hue:25">Ship v2</span></div>
+      <div class="day"><span class="dn">6</span></div>
+      <div class="day"><span class="dn">7</span><span class="ev bg" style="--bg:0.45; --hue:150">Hike</span></div>
+      <div class="day"><span class="dn">8</span><span class="ev bg" style="--bg:0.45; --hue:190">1:1 · Tess</span></div>
+
+      <div class="day"><span class="dn">9</span><span class="ev bg" style="--bg:0.45; --hue:190">Standup</span></div>
+      <div class="day"><span class="dn">10</span><span class="ev bg" style="--bg:0.45; --hue:190">Roadmap</span><span class="ev bg" style="--bg:0.45; --hue:150">Dentist</span></div>
+      <div class="day today"><span class="dn">11</span><span class="ev bg" style="--bg:0.5; --hue:190">Board sync</span><span class="ev bg" style="--bg:0.45; --hue:25">Launch</span></div>
+      <div class="day"><span class="dn">12</span><span class="ev bg" style="--bg:0.45; --hue:150">Lunch · Sam</span></div>
+      <div class="day"><span class="dn">13</span></div>
+      <div class="day"><span class="dn">14</span></div>
+      <div class="day"><span class="dn">15</span><span class="ev bg" style="--bg:0.45; --hue:190">Standup</span></div>
+
+      <div class="day"><span class="dn">16</span><span class="ev bg" style="--bg:0.45; --hue:190">QBR prep</span></div>
+      <div class="day"><span class="dn">17</span></div>
+      <div class="day"><span class="dn">18</span><span class="ev bg" style="--bg:0.45; --hue:25">Invoices due</span></div>
+      <div class="day"><span class="dn">19</span><span class="ev bg" style="--bg:0.45; --hue:190">Offsite</span></div>
+      <div class="day"><span class="dn">20</span><span class="ev bg" style="--bg:0.45; --hue:150">Family</span></div>
+      <div class="day"><span class="dn">21</span></div>
+      <div class="day"><span class="dn">22</span></div>
+    </div>
+  </main>
+
+  <aside class="pg-aside column" style="gap:0.5lh; padding:0.6lh 0.6em; inline-size:16rem">
+    <div class="column" style="gap:0.05lh"><strong style="--type:1">Thursday</strong><small style="--fg:-0.6">June 11 · 3 events</small></div>
+    <div class="column" style="gap:0.4lh">
+      <div class="flank" style="gap:0.6em; align-items:stretch"><div style="inline-size:3px; border-radius:2px; background:oklch(var(--l-color) var(--c-peak) 190)"></div><div class="column" style="gap:0; flex:1"><strong style="--type:-0.5">Board sync</strong><small style="--fg:-0.6">9:00 – 10:30 · Zoom</small></div></div>
+      <div class="flank" style="gap:0.6em; align-items:stretch"><div style="inline-size:3px; border-radius:2px; background:oklch(var(--l-color) var(--c-peak) 25)"></div><div class="column" style="gap:0; flex:1"><strong style="--type:-0.5">Launch · Orbit v2</strong><small style="--fg:-0.6">12:00 · #general</small></div></div>
+      <div class="flank" style="gap:0.6em; align-items:stretch"><div style="inline-size:3px; border-radius:2px; background:oklch(var(--l-color) var(--c-peak) 150)"></div><div class="column" style="gap:0; flex:1"><strong style="--type:-0.5">Dinner · Alex</strong><small style="--fg:-0.6">19:30 · Nopa</small></div></div>
+    </div>
+    <hr>
+    <small style="--fg:-0.55; --type:-2">UP NEXT</small>
+    <div class="surface flank" style="--bg:0.06; gap:0.6em"><span class="avatar" style="--hue:190; --type:-1">BS</span><div class="column" style="gap:0"><strong style="--type:-0.5">Board sync</strong><small style="--fg:-0.6">in 25 minutes</small></div></div>
+  </aside>
+
+</div>
+</body>
+</html>

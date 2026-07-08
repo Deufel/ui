@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="system.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&family=Roboto:wght@400;500;700&family=Roboto+Mono&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #14151a; padding: 18px; display: flex; flex-direction: column; gap: 16px; font-family: system-ui, sans-serif; }
+  .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .rowlbl { color: #8a8d98; font: 600 12px monospace; }
+  .demo-card { padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 11px; }
+  .hd { --fg: 1; --type: 5; letter-spacing: -0.025em; line-height: 1; }
+  .accents { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+</style>
+</head>
+<body>
+  <div class="rowlbl" data-lbl></div>
+  <script>
+    const skins = [['', 'default'], ['material', 'material'], ['carbon', 'carbon'], ['vivid', 'vivid']];
+    const svgPlus = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+    const svgSearch = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
+    function card(theme, skin, name) {
+      return `<div class="Card demo-card" data-ui-theme="${theme}" data-ui-skin="${skin}" style="--bg:0.02">
+        <div class="spread" style="align-items:center">
+          <span class="hd">Aurora</span>
+          <span class="avatar" style="--hue:150">AK</span>
+        </div>
+        <p style="--fg:-0.5; --type:0; margin:0">A calm, coherent surface — type, colour, and shape all reading from one engine.</p>
+        <small style="--fg:-0.7; --type:-1">Muted caption · ${name} · updated just now</small>
+        <div class="accents"><span class="tag suc" data-ui-state="on">Live</span><span class="tag inf">v2.0</span><span class="tag">draft</span></div>
+        <form style="margin:0"><fieldset>
+          <label style="--row-width:3"><span>Email</span><small>&nbsp;</small><input placeholder="ada@site.dev"></label>
+          <button class="pri" style="align-self:end">Join</button>
+        </fieldset></form>
+        <div class="accents">
+          <button class="pri">Primary</button>
+          <button class="sec">Secondary</button>
+          <button>Default</button>
+          <button aria-label="Search">${svgSearch}</button>
+        </div>
+        <div class="accents" style="justify-content:flex-end; gap:10px">
+          <button class="fab-2" style="margin:0">Filter</button>
+          <button class="fab-3" style="margin:0">${svgPlus} New</button>
+        </div>
+      </div>`;
+    }
+    let html = '';
+    for (const theme of ['light', 'dark']) {
+      html += `<div class="rowlbl">${theme.toUpperCase()}</div><div class="row">` +
+        skins.map(([s, n]) => card(theme, s, n)).join('') + `</div>`;
+    }
+    document.querySelector('[data-lbl]').outerHTML = html;
+  </script>
+</body>
+</html>

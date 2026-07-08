@@ -1,0 +1,65 @@
+<main class="pg-main" id="main" data-init="afterNav('type')">
+  <div class="doc">
+
+    <header class="column" style="gap: 0.4lh">
+      <span class="tag inf" style="align-self:start">type</span>
+      <h1 style="--type: 6">Type is the system</h1>
+      <p style="--type:1; --fg:-0.7; max-inline-size: 52ch">One number per element — <code>--type</code> — sets its size, and from that same number the engine derives its leading, tracking, and weight. Spacing is a fraction of the line, so <em>everything</em> scales together. There are no pixel values to keep in sync.</p>
+    </header>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">One step, four outputs</h2>
+      <div class="four">
+        <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag suc">size</span><strong>fluid</strong></div><small style="--fg:-0.7">A modular ratio to the power of the step, fluidly interpolated between a phone and a desktop base. One <code>--cfg-ratio</code> for the whole scale.</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag">leading</span><strong>line-height</strong></div><small style="--fg:-0.7">Tightens as type grows, so display sizes don't sit on loose lines.</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag">tracking</span><strong>letter-spacing</strong></div><small style="--fg:-0.7">Negative at display sizes, a touch positive for small caps of text.</small></div>
+        <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag">weight</span><strong>optical</strong></div><small style="--fg:-0.7">Climbs above step 0, so headings carry more weight without a second knob.</small></div>
+      </div>
+    </section>
+
+    <section class="Card column" style="--bg:0.05; gap:0.5lh; padding:0.7lh 0.8em">
+      <div class="spread"><h2 style="--type:3">The live scale</h2><span class="tag inf">measured from the DOM · try S/M/L above</span></div>
+      <p style="--fg:-0.6; --type:-0.5">Each row is a real element at that <code>--type</code>. The readout is its <em>computed</em> size / line-height / weight — so it reflects the shipped engine and the current <code>data-ui-size</code>, not a formula copy.</p>
+      <div class="column" style="gap:0">
+        <div class="spec-row"><code style="--type:-1; --fg:-0.6">h1</code><div class="spec-samp" style="--type:5">Grumpy wizards</div><span class="spec-out">…</span></div>
+        <div class="spec-row"><code style="--type:-1; --fg:-0.6">h2</code><div class="spec-samp" style="--type:4">Grumpy wizards</div><span class="spec-out">…</span></div>
+        <div class="spec-row"><code style="--type:-1; --fg:-0.6">h3</code><div class="spec-samp" style="--type:3">Grumpy wizards</div><span class="spec-out">…</span></div>
+        <div class="spec-row"><code style="--type:-1; --fg:-0.6">h4</code><div class="spec-samp" style="--type:2">Grumpy wizards</div><span class="spec-out">…</span></div>
+        <div class="spec-row"><code style="--type:-1; --fg:-0.6">h5</code><div class="spec-samp" style="--type:1">Grumpy wizards</div><span class="spec-out">…</span></div>
+        <div class="spec-row"><code style="--type:-1; --fg:-0.6">body</code><div class="spec-samp" style="--type:0">Grumpy wizards</div><span class="spec-out">…</span></div>
+        <div class="spec-row"><code style="--type:-1; --fg:-0.6">small</code><div class="spec-samp" style="--type:-1">Grumpy wizards</div><span class="spec-out">…</span></div>
+        <div class="spec-row"><code style="--type:-1; --fg:-0.6">micro</code><div class="spec-samp" style="--type:-2">Grumpy wizards</div><span class="spec-out">…</span></div>
+      </div>
+    </section>
+
+    <section class="split" style="gap:0.7lh; align-items:start">
+      <div class="column" style="gap:0.4lh">
+        <h2 style="--type:3">Spacing is a fraction of the line</h2>
+        <p style="--fg:-0.6">Layout gaps are <code>calc(0.25 · 1lh)</code> and control padding is in <code>em</code> — both relative to the type around them. Bump a region's <code>--type</code> (or the header's S/M/L) and its rhythm grows with it. No spacing scale to maintain.</p>
+        <pre><code class="css">:where(.row, .column) { gap: calc(0.25 * 1lh); }
+:where(button)        { padding: 0 0.8em; }   /* em → scales with --type */</code></pre>
+      </div>
+      <div class="column" style="gap:0.4lh">
+        <h2 style="--type:3">Set a step, or zoom a region</h2>
+        <p style="--fg:-0.6"><code>--type</code> is per-element (non-inheriting) — set it on one thing. <code>--scale</code> inherits, so it zooms a whole region (handy for a mini preview). <code>data-ui-size</code> reconfigures the base + ratio for the whole app.</p>
+        <pre><code class="html">&lt;h2 style="--type:4"&gt;Heading&lt;/h2&gt;
+&lt;small style="--type:-2"&gt;Micro caption&lt;/small&gt;
+&lt;div style="--scale:0.6"&gt;…mini version…&lt;/div&gt;</code></pre>
+      </div>
+    </section>
+
+    <section class="alert suc" role="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      <div class="column" style="gap:0.15lh">
+        <strong>Because controls read the same scale, they stay one height.</strong>
+        <small style="--fg:-0.75">A field, button, select, and avatar all resolve to a single height at each <code>--type</code> — see <strong>Control heights</strong> for the live proof, and the <strong>Demos</strong> for the scale dressed up as three different products.</small>
+      </div>
+    </section>
+
+    <footer class="column" style="gap:0.3lh; --fg:-0.6">
+      <hr>
+      <p style="--type:-0.5">Steps in use: <code>h1..h6</code> → <code>--type 5..0</code>, <code>small</code> → <code>-1</code>, plus <code>-2</code> for micro text (tags, icon-button captions).</p>
+    </footer>
+
+  </div>
+</main>

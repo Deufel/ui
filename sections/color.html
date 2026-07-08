@@ -1,0 +1,180 @@
+<main class="pg-main" id="main" data-init="afterNav('color')" data-signals="{cbg: 0.6, cfg: 0.9, chue: 255, cshift: 0, cnegc: 0}">
+  <div class="doc-main" style="max-inline-size:62rem; margin-inline:auto; padding:1lh 1em 3lh; display:flex; flex-direction:column; gap:1.2lh">
+
+    <header class="column" style="gap: 0.4lh">
+      <span class="tag inf" style="align-self:start">color engine</span>
+      <h1 style="--type: 6">Color is a position, not a palette</h1>
+      <p style="--type:1; --fg:-0.7; max-inline-size: 48ch">There are no named colors in this system. An element declares <em>where it sits</em> on two signed axes — <code>--bg</code> for its surface, <code>--fg</code> for its ink — and the engine resolves the actual OKLCH lightness, chroma and contrast against whatever surface it lands on, in whatever theme and hue are live. Drag the header hue and flip the theme: everything below re-resolves.</p>
+    </header>
+
+    <section class="split" style="gap: 0.7lh; align-items:start">
+      <div class="card column" style="--bg:0.03; gap:0.35lh">
+        <div class="row spread"><strong>--bg · surface</strong><code class="sw-code" style="--fg:0.7">−1 … 0 … +1</code></div>
+        <small style="--fg:-0.7"><strong>0</strong> is the base surface. <strong>Negative</strong> recedes it (toward the floor — quieter, darker in light / deeper in dark). <strong>Positive</strong> advances it toward the chromatic peak (louder, saturated in the live hue). It's a depth position, not a swatch.</small>
+      </div>
+      <div class="card column" style="--bg:0.03; gap:0.35lh">
+        <div class="row spread"><strong>--fg · ink</strong><code class="sw-code" style="--fg:0.7">−1 … 0 … +1</code></div>
+        <small style="--fg:-0.7"><strong>Negative</strong> pushes ink to the <em>neutral</em> contrast pole (max legibility, either theme). <strong>Positive</strong> pushes it to the <em>chromatic</em> pole (colored ink in the hue). The engine always solves contrast against the host surface's lightness, so ink stays readable as the surface moves.</small>
+      </div>
+    </section>
+
+    <section class="Card column" style="--bg:0.05; gap:0.6lh; padding:0.7lh 0.8em">
+      <div class="spread"><h2 style="--type:3">Engine playground</h2><span class="tag inf">live · reads the DOM</span></div>
+      <div class="grid" style="--grid-min:13rem; gap:0.4lh 1em">
+        <div class="column" style="gap:0.1lh"><div class="spread"><small style="--fg:-0.7">--bg surface</small><code style="display:inline-block;min-inline-size:3.6em;text-align:end;white-space:nowrap;font-variant-numeric:tabular-nums" data-text="$cbg"></code></div><input type="range" min="-1" max="1" step="0.01" data-bind:cbg></div>
+        <div class="column" style="gap:0.1lh"><div class="spread"><small style="--fg:-0.7">--fg ink</small><code style="display:inline-block;min-inline-size:3.6em;text-align:end;white-space:nowrap;font-variant-numeric:tabular-nums" data-text="$cfg"></code></div><input type="range" min="-1" max="1" step="0.01" data-bind:cfg></div>
+        <div class="column" style="gap:0.1lh"><div class="spread"><small style="--fg:-0.7">--hue</small><code style="display:inline-block;min-inline-size:3.6em;text-align:end;white-space:nowrap;font-variant-numeric:tabular-nums" data-text="$chue"></code></div><input type="range" min="0" max="360" step="1" data-bind:chue></div>
+      </div>
+
+      <div class="split" style="gap:0.7lh; align-items:stretch">
+        <div class="bg" id="color-swatch" data-style="{'--bg': $cbg, '--fg': $cfg, '--hue': $chue, '--neg-chroma': $cnegc}" style="border-radius:var(--cfg-radius); border:1px solid var(--border); padding:0.7lh 0.8em; min-block-size:11lh; display:flex; flex-direction:column; gap:0.3lh; justify-content:center">
+          <div style="font-size:2.4em; line-height:1; font-weight:650">Aa</div>
+          <div>Ink resolves its contrast against this surface automatically — no color picked by hand.</div>
+          <div class="row" style="gap:0.5em">
+            <span style="--fg:-1; font-weight:600">max contrast</span>
+            <span style="--fg:0.9">chromatic</span>
+          </div>
+          <div class="row" style="gap:0.5em">
+            <button class="pri">Primary</button>
+            <button class="sec">Secondary</button>
+          </div>
+          <span id="probe-border" style="display:none; background:var(--border)"></span>
+          <span id="probe-focus" style="display:none; background:var(--focus)"></span>
+        </div>
+
+        <div class="surface column" style="--bg:0; gap:0.3lh; justify-content:center">
+          <small style="--fg:-0.6; --type:-1">computed values (read from the live element)</small>
+          <div style="display:flex; align-items:center; gap:0.5em; white-space:nowrap"><span style="--fg:-0.7; flex:0 0 4em">surface</span><span class="res-sw" id="res-bg-sw"></span><code class="sw-code truncate" id="res-bg" style="flex:1 1 0">…</code></div>
+          <div style="display:flex; align-items:center; gap:0.5em; white-space:nowrap"><span style="--fg:-0.7; flex:0 0 4em">ink</span><span class="res-sw" id="res-fg-sw"></span><code class="sw-code truncate" id="res-fg" style="flex:1 1 0">…</code></div>
+          <div style="display:flex; align-items:center; gap:0.5em; white-space:nowrap"><span style="--fg:-0.7; flex:0 0 4em">--border</span><span class="res-sw" id="res-border-sw"></span><code class="sw-code truncate" id="res-border" style="flex:1 1 0">…</code></div>
+          <div style="display:flex; align-items:center; gap:0.5em; white-space:nowrap"><span style="--fg:-0.7; flex:0 0 4em">--focus</span><span class="res-sw" id="res-focus-sw"></span><code class="sw-code truncate" id="res-focus" style="flex:1 1 0">…</code></div>
+          <small style="--fg:-0.65; --type:-1">Both <code>--border</code> and <code>--focus</code> are <em>derived</em> from the surface — you never set them.</small>
+        </div>
+      </div>
+      <div data-effect="$cbg; $cfg; $chue; window.readColor && window.readColor()" style="display:none"></div>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">The surface axis</h2>
+      <p style="--fg:-0.6">Same declaration, seven positions. Each cell is a real <code>.bg</code> element; the number is its <code>--bg</code>. Ink is auto.</p>
+      <div class="ramp">
+        <div class="bg" style="--bg:-1"><span class="sw-code" style="font-weight:600">-1</span></div>
+        <div class="bg" style="--bg:-0.6"><span class="sw-code" style="font-weight:600">-0.6</span></div>
+        <div class="bg" style="--bg:-0.3"><span class="sw-code" style="font-weight:600">-0.3</span></div>
+        <div class="bg" style="--bg:0"><span class="sw-code" style="font-weight:600">0</span></div>
+        <div class="bg" style="--bg:0.3"><span class="sw-code" style="font-weight:600">0.3</span></div>
+        <div class="bg" style="--bg:0.6"><span class="sw-code" style="font-weight:600">0.6</span></div>
+        <div class="bg" style="--bg:1"><span class="sw-code" style="font-weight:600">1</span></div>
+      </div>
+      <div class="axis" style="--fg:-0.6; --type:-1"><span>recede ·  quiet</span><span>base</span><span>advance · loud chroma</span></div>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Neutral chroma — a tint on the recede axis</h2>
+      <p style="--fg:-0.6; max-inline-size:64ch"><code>--neg-chroma</code> adds a tiny hue tint that <em>grows as a surface recedes</em> (negative <code>--bg</code>), giving the neutral ramp a second separation channel beyond lightness. It's strongest exactly where dark surfaces bottom out and lightness alone stops distinguishing them. Each skin sets its own amount as part of its personality; drag it and switch the header theme to <strong>Dark</strong> to feel it.</p>
+      <div class="row" style="gap:0.6em; max-inline-size:28em">
+        <small style="--fg:-0.7; flex:0 0 auto">--neg-chroma</small>
+        <input type="range" min="0" max="0.06" step="0.002" data-bind:cnegc style="flex:1 1 auto">
+        <code style="display:inline-block; min-inline-size:3.6em; text-align:end; white-space:nowrap; font-variant-numeric:tabular-nums; flex:0 0 auto" data-text="$cnegc"></code>
+      </div>
+      <div class="ramp" data-style="{'--neg-chroma': $cnegc}">
+        <div class="bg" style="--bg:0"><span class="sw-code" style="font-weight:600">0</span></div>
+        <div class="bg" style="--bg:-0.2"><span class="sw-code" style="font-weight:600">-0.2</span></div>
+        <div class="bg" style="--bg:-0.4"><span class="sw-code" style="font-weight:600">-0.4</span></div>
+        <div class="bg" style="--bg:-0.6"><span class="sw-code" style="font-weight:600">-0.6</span></div>
+        <div class="bg" style="--bg:-0.8"><span class="sw-code" style="font-weight:600">-0.8</span></div>
+        <div class="bg" style="--bg:-1"><span class="sw-code" style="font-weight:600">-1</span></div>
+      </div>
+      <div class="axis" style="--fg:-0.6; --type:-1"><span>base</span><span>recede →</span><span>deepest · most tint</span></div>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">The ink axis</h2>
+      <p style="--fg:-0.6">One surface (<code>--bg:0</code>), ink stepped from neutral-contrast to full chroma.</p>
+      <div class="card row" style="--bg:0; gap:1em; padding:0.7lh 0.8em; flex-wrap:wrap">
+        <div class="column" style="gap:0.1lh; align-items:center"><span style="--fg:-1; font-size:1.5em; font-weight:600">Aa</span><code class="sw-code" style="--fg:-0.6">-1</code></div>
+        <div class="column" style="gap:0.1lh; align-items:center"><span style="--fg:-0.85; font-size:1.5em; font-weight:600">Aa</span><code class="sw-code" style="--fg:-0.6">-0.85</code></div>
+        <div class="column" style="gap:0.1lh; align-items:center"><span style="--fg:-0.5; font-size:1.5em; font-weight:600">Aa</span><code class="sw-code" style="--fg:-0.6">-0.5</code></div>
+        <div class="column" style="gap:0.1lh; align-items:center"><span style="--fg:0; font-size:1.5em; font-weight:600">Aa</span><code class="sw-code" style="--fg:-0.6">0</code></div>
+        <div class="column" style="gap:0.1lh; align-items:center"><span style="--fg:0.5; font-size:1.5em; font-weight:600">Aa</span><code class="sw-code" style="--fg:-0.6">0.5</code></div>
+        <div class="column" style="gap:0.1lh; align-items:center"><span style="--fg:0.85; font-size:1.5em; font-weight:600">Aa</span><code class="sw-code" style="--fg:-0.6">0.85</code></div>
+        <div class="column" style="gap:0.1lh; align-items:center"><span style="--fg:1; font-size:1.5em; font-weight:600">Aa</span><code class="sw-code" style="--fg:-0.6">1</code></div>
+      </div>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Hue rotates everything</h2>
+      <p style="--fg:-0.6">One loud surface (<code>--bg:0.7</code>), four hues. The named semantic hues live in <code>theme</code> as <code>--hue-suc/-inf/-wrn/-dgr</code>.</p>
+      <div class="row" style="gap:0.5lh">
+        <div class="bg column" style="--bg:0.7; --hue:255; border-radius:var(--cfg-radius); padding:0.6lh 0.7em; gap:0.1lh; min-inline-size:8em; flex:1 1 8em"><strong>info · brand</strong><code class="sw-code" style="--fg:0.85">hue 255</code></div>
+        <div class="bg column" style="--bg:0.7; --hue:145; border-radius:var(--cfg-radius); padding:0.6lh 0.7em; gap:0.1lh; min-inline-size:8em; flex:1 1 8em"><strong>success</strong><code class="sw-code" style="--fg:0.85">hue 145</code></div>
+        <div class="bg column" style="--bg:0.7; --hue:75; border-radius:var(--cfg-radius); padding:0.6lh 0.7em; gap:0.1lh; min-inline-size:8em; flex:1 1 8em"><strong>warning</strong><code class="sw-code" style="--fg:0.85">hue 75</code></div>
+        <div class="bg column" style="--bg:0.7; --hue:25; border-radius:var(--cfg-radius); padding:0.6lh 0.7em; gap:0.1lh; min-inline-size:8em; flex:1 1 8em"><strong>danger</strong><code class="sw-code" style="--fg:0.85">hue 25</code></div>
+      </div>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Shift a subtree's hue — semantics don't budge</h2>
+      <p style="--fg:-0.6; max-inline-size:62ch"><code>--hue-shift</code> adds into <code>--_h</code>, so it rotates every <em>non-locked</em> descendant at once — a whole panel can re-hue with one declaration. Semantic elements pin <code>--hue-lock</code>, which wins the fallback, so <code>.suc/.inf/.wrn/.dgr</code> are immune. Drag it: the generic surfaces sweep, the meaning-carrying chips hold.</p>
+      <div class="row" style="gap:0.6em; max-inline-size:28em">
+        <small style="--fg:-0.7; flex:0 0 auto">--hue-shift</small>
+        <input type="range" min="-180" max="180" step="1" data-bind:cshift style="flex:1 1 auto">
+        <code style="display:inline-block; min-inline-size:3.8em; text-align:end; white-space:nowrap; font-variant-numeric:tabular-nums; flex:0 0 auto" data-text="$cshift"></code>
+      </div>
+      <div class="card column" data-style="{'--hue-shift': $cshift}" style="--bg:0.02; padding:0.7lh 0.8em; gap:0.5lh">
+        <div class="column" style="gap:0.2lh">
+          <small style="--fg:-0.6; --type:-1">generic surfaces — rotate with the shift</small>
+          <div class="row" style="gap:0.5em">
+            <div class="bg" style="--bg:-1; inline-size:2.6em; block-size:2.6em; border-radius:var(--cfg-radius); border:1px solid var(--border)"></div>
+            <div class="bg" style="--bg:-0.6; inline-size:2.6em; block-size:2.6em; border-radius:var(--cfg-radius); border:1px solid var(--border)"></div>
+            <div class="bg" style="--bg:-0.3; inline-size:2.6em; block-size:2.6em; border-radius:var(--cfg-radius); border:1px solid var(--border)"></div>
+            <div class="bg" style="--bg:0; inline-size:2.6em; block-size:2.6em; border-radius:var(--cfg-radius); border:1px solid var(--border)"></div>
+            <div class="bg" style="--bg:0.3; inline-size:2.6em; block-size:2.6em; border-radius:var(--cfg-radius); border:1px solid var(--border)"></div>
+            <div class="bg" style="--bg:0.6; inline-size:2.6em; block-size:2.6em; border-radius:var(--cfg-radius); border:1px solid var(--border)"></div>
+            <div class="bg" style="--bg:1; inline-size:2.6em; block-size:2.6em; border-radius:var(--cfg-radius); border:1px solid var(--border)"></div>
+          </div>
+        </div>
+        <div class="column" style="gap:0.2lh">
+          <small style="--fg:-0.6; --type:-1">semantic locks — hue pinned, immune to the shift</small>
+          <div class="row" style="gap:0.5em">
+            <span class="tag suc" data-ui-state="on">Success</span>
+            <span class="tag inf" data-ui-state="on">Info</span>
+            <span class="tag wrn" data-ui-state="on">Warning</span>
+            <span class="tag dgr" data-ui-state="on">Danger</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Relative lift keeps controls legible anywhere</h2>
+      <p style="--fg:-0.6; max-inline-size:60ch">A default <code>&lt;button&gt;</code> doesn't pin a surface — it sets <code>--lift</code>, sitting a step <em>above whatever hosts it</em>. So the same button reads correctly on every surface below, no variants.</p>
+      <div class="row" style="gap:0.5lh">
+        <div class="bg" style="--bg:-1; padding:0.6lh 0.6em; border-radius:var(--cfg-radius); flex:1 1 7em; display:flex; justify-content:center"><button style="inline-size:100%">Action</button></div>
+        <div class="bg" style="--bg:-0.6; padding:0.6lh 0.6em; border-radius:var(--cfg-radius); flex:1 1 7em; display:flex; justify-content:center"><button style="inline-size:100%">Action</button></div>
+        <div class="bg" style="--bg:-0.3; padding:0.6lh 0.6em; border-radius:var(--cfg-radius); flex:1 1 7em; display:flex; justify-content:center"><button style="inline-size:100%">Action</button></div>
+        <div class="bg" style="--bg:0; padding:0.6lh 0.6em; border-radius:var(--cfg-radius); flex:1 1 7em; display:flex; justify-content:center"><button style="inline-size:100%">Action</button></div>
+        <div class="bg" style="--bg:0.3; padding:0.6lh 0.6em; border-radius:var(--cfg-radius); flex:1 1 7em; display:flex; justify-content:center"><button style="inline-size:100%">Action</button></div>
+        <div class="bg" style="--bg:0.6; padding:0.6lh 0.6em; border-radius:var(--cfg-radius); flex:1 1 7em; display:flex; justify-content:center"><button style="inline-size:100%">Action</button></div>
+        <div class="bg" style="--bg:1; padding:0.6lh 0.6em; border-radius:var(--cfg-radius); flex:1 1 7em; display:flex; justify-content:center"><button style="inline-size:100%">Action</button></div>
+      </div>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Semantic locks</h2>
+      <p style="--fg:-0.6"><code>.suc / .inf / .wrn / .dgr</code> lock the hue <em>and</em> commit ink to the chroma pole (via <code>--_sem-ink</code>) — layer-independently, so a tag, an alert and a button all speak the same meaning.</p>
+      <div class="grid" style="--grid-min:12rem">
+        <div class="alert suc" role="note"><div class="column" style="gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag suc" data-ui-state="on">Success</span></div><small style="--fg:-0.8">Saved. Everything is in sync.</small></div></div>
+        <div class="alert inf" role="note"><div class="column" style="gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag inf" data-ui-state="on">Info</span></div><small style="--fg:-0.8">A new version is available.</small></div></div>
+        <div class="alert wrn" role="note"><div class="column" style="gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag wrn" data-ui-state="on">Warning</span></div><small style="--fg:-0.8">Check your input before continuing.</small></div></div>
+        <div class="alert dgr" role="note"><div class="column" style="gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag dgr" data-ui-state="on">Danger</span></div><small style="--fg:-0.8">Couldn't save — connection lost.</small></div></div>
+      </div>
+    </section>
+
+    <footer class="column" style="gap:0.3lh; --fg:-0.6">
+      <hr>
+      <p style="--type:-0.5">Color is the engine's core: a signed surface axis, a signed ink axis, one rotating hue — every surface below resolves from those three numbers.</p>
+    </footer>
+
+  </div>
+</main>

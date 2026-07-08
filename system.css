@@ -1,0 +1,2349 @@
+/* ════════════════════════════════════════════════════════════════════
+   system.css — a small design system in OKLCH + a type-driven space scale
+
+   Layer spine (authoritative order). Later layers win.
+   ════════════════════════════════════════════════════════════════════ */
+@layer reset, styleAPI.color, styleAPI.type, theme, base,
+       classAPI.page, classAPI.layout, classAPI.components,
+       classAPI.pseudo, classAPI.utility, classAPI.media, 
+       project;
+
+
+/* ════════════════════════════════════════════════════════════════════
+   @property registrations (must sit outside @layer)
+   ════════════════════════════════════════════════════════════════════ */
+/* color — public */
+@property --bg             { syntax: "<number>"; inherits: false; initial-value: 0 }
+@property --fg             { syntax: "<number>"; inherits: true;  initial-value: -0.85 }
+@property --hue            { syntax: "<number>"; inherits: true;  initial-value: 255 }
+@property --hue-shift      { syntax: "<number>"; inherits: true;  initial-value: 0 }
+@property --hue-lock       { syntax: "*";        inherits: true }   /* unset = guaranteed-invalid → enables the fallback */
+@property --surface-chroma { syntax: "<number>"; inherits: true;  initial-value: 0.4 }
+@property --state          { syntax: "<number>"; inherits: true;  initial-value: 0 }
+@property --_sem-ink       { syntax: "*";        inherits: false }   /* GI unset -> the semantic-ink toggle the .suc/.inf/.wrn/.dgr helpers set; components read it to commit ink to chroma when locked */
+@property --cfg-btn-weight { syntax: "<number>"; inherits: true;  initial-value: 500 }   /* button label weight - lighter default; skins may override */
+/* relative-lift engine inputs */
+@property --lift     { syntax: "*";        inherits: false }                    /* unset = absolute --bg; set = sit --lift above --surf-bg */
+@property --surf-bg  { syntax: "<number>"; inherits: true;  initial-value: 0 }  /* a surface publishes its --bg here (the position-twin of --surf-l) */
+/* color — surface constants */
+@property --l-base    { syntax: "<percentage>"; inherits: true; initial-value: 98% }
+@property --l-floor   { syntax: "<percentage>"; inherits: true; initial-value: 85% }
+@property --l-color   { syntax: "<percentage>"; inherits: true; initial-value: 50% }
+@property --c-peak    { syntax: "<number>";     inherits: true; initial-value: 0.08 }
+@property --surf-curve{ syntax: "<number>";     inherits: true; initial-value: 1 }
+@property --c-tint    { syntax: "<number>";     inherits: true; initial-value: 0.03 }
+/* color — ink constants */
+@property --fg-flip   { syntax: "<percentage>"; inherits: true; initial-value: 60% }
+@property --fg-ink-d  { syntax: "<percentage>"; inherits: true; initial-value: 16% }
+@property --fg-ink-l  { syntax: "<percentage>"; inherits: true; initial-value: 96% }
+@property --fg-chr-d  { syntax: "<percentage>"; inherits: true; initial-value: 45% }
+@property --fg-chr-l  { syntax: "<percentage>"; inherits: true; initial-value: 80% }
+@property --fg-chroma { syntax: "<number>";     inherits: true; initial-value: 0.11 }
+/* color — state constants */
+@property --st-hover   { syntax: "<number>"; inherits: true; initial-value: 0.35 }
+@property --st-fg-gain { syntax: "<number>"; inherits: true; initial-value: 0.12 }
+@property --st-neut    { syntax: "<number>"; inherits: true; initial-value: 1 }
+/* color — token constants */
+@property --cfg-dark      { syntax: "<number>";     inherits: true; initial-value: 0 }
+@property --border-step   { syntax: "<percentage>"; inherits: true; initial-value: 20% }
+@property --border-chroma { syntax: "<number>";     inherits: true; initial-value: 0.6 }
+@property --focus-bg      { syntax: "<number>";     inherits: true; initial-value: 0.7 }
+@property --focus-chroma  { syntax: "<number>";     inherits: true; initial-value: 1.75 }
+/* color — intermediates */
+@property --_h     { syntax: "<number>";     inherits: false; initial-value: 255 }
+@property --_sp    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_sn    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_rel   { syntax: "*";            inherits: false }                  /* GI when --lift unset → --_pos falls back to --bg */
+@property --_pos   { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_bgs   { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fgs   { syntax: "<number>";     inherits: false; initial-value: -0.85 }
+@property --_n     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_ne    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_p     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_tint  { syntax: "<number>";     inherits: false; initial-value: 0.012 }
+@property --_bg-l  { syntax: "<percentage>"; inherits: false; initial-value: 98% }
+@property --_bg-c  { syntax: "<number>";     inherits: false; initial-value: 0.012 }
+@property --_bg    { syntax: "<color>";      inherits: true;  initial-value: oklch(98% 0.012 255) }
+@property --surf-l { syntax: "<percentage>"; inherits: true;  initial-value: 98% }
+@property --_fg-up { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-neg{ syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-pos{ syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_ink-l { syntax: "<percentage>"; inherits: false; initial-value: 16% }
+@property --_chr-l { syntax: "<percentage>"; inherits: false; initial-value: 45% }
+@property --_fg-l  { syntax: "<percentage>"; inherits: false; initial-value: 16% }
+@property --_fg-c  { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_brd-l { syntax: "<percentage>"; inherits: false; initial-value: 84% }
+@property --_focus-c{syntax: "<number>";     inherits: false; initial-value: 0.1 }
+/* type */
+@property --type             { syntax: "<number>"; inherits: false; initial-value: 0 }
+@property --scale            { syntax: "<number>"; inherits: true;  initial-value: 1 }
+/* layout — non-inheriting so a field's row share never leaks to siblings/children */
+@property --row-width        { syntax: "<number>"; inherits: false; initial-value: 1 }
+@property --cfg-fluid-min-vp { syntax: "<length>"; inherits: true;  initial-value: 375px }
+@property --cfg-fluid-max-vp { syntax: "<length>"; inherits: true;  initial-value: 1280px }
+@property --cfg-wght-base    { syntax: "<number>"; inherits: true;  initial-value: 400 }
+@property --cfg-wght-step    { syntax: "<number>"; inherits: true;  initial-value: 90 }
+@property --cfg-wght-max     { syntax: "<number>"; inherits: true;  initial-value: 850 }
+/* motion */
+@property --cfg-motion { syntax: "<number>"; inherits: true; initial-value: 1 }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   reset — minimal, modern-only, deferential to the styleAPIs.
+   No font-size / line-height (type owns them). No px/rem spacing.
+   ════════════════════════════════════════════════════════════════════ */
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; background-repeat: no-repeat; }
+  :where(html) { interpolate-size: allow-keywords; -webkit-text-size-adjust: none; text-size-adjust: none; }
+  :where(body, p, h1, h2, h3, h4, h5, h6, figure, blockquote, dl, dd, ul, ol) { margin-block: 0; }
+  :where(img, picture, svg, video, canvas) { display: block; max-inline-size: 100%; block-size: auto; }
+  :where(input, button, textarea, select) { font: inherit; letter-spacing: inherit; color: inherit; background: none; border: 0; }
+  :where(textarea) { resize: vertical; }
+  :where(fieldset) { margin: 0; padding: 0; border: 0; min-inline-size: 0; }  /* min-inline-size:0 → flex children can shrink */
+  :where(legend) { padding: 0; }
+  :where(button, [role="button"], label, summary, input[type="file"]::file-selector-button, .btn) { cursor: pointer; }
+  :where(:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
+  :where(a) { color: inherit; text-decoration: none; }
+  :where(ul, ol):where([role="list"]) { list-style: none; padding: 0; }
+  :where(table) { border-collapse: collapse; }
+  :where(summary) { list-style: none; }
+  :where(:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+  :where(body) { overflow-wrap: break-word; overscroll-behavior: none;}
+  :where(p, li) { text-wrap: pretty; }
+  :where(h1, h2, h3, h4, h5, h6) { text-wrap: balance; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   styleAPI.color — surface (--bg) + ink (--fg) + hue + state, in OKLCH.
+   Derived tokens --border / --focus. See README for the public API.
+   ════════════════════════════════════════════════════════════════════ */
+@layer styleAPI.color {
+  :where(*) {
+    --_h: var(--hue-lock, calc(var(--hue) + var(--hue-shift)));
+
+    /* effective surface position. Absolute --bg by default; when --lift is set,
+       sit that far above the host surface's published position (--surf-bg).
+       --lift unset → --_rel is guaranteed-invalid → --_pos falls back to --bg
+       (same fallback trick as --hue-lock above). Surfaces use absolute --bg and
+       publish it as --surf-bg; controls (button/nav) set --lift and read it. */
+    --_rel: calc(var(--surf-bg) + var(--lift));
+    --_pos: var(--_rel, var(--bg));
+
+    --_sp: clamp(0, var(--_pos), 1);
+    --_sn: clamp(0, calc(-1 * var(--_pos)), 1);
+    --_bgs: calc( var(--_sp)*(1 - var(--state)) - var(--_sn)*(1 - var(--state)*var(--st-neut)) + var(--state)*var(--st-hover) );
+    --_fgs: calc( var(--fg) * (1 + var(--state)*var(--st-fg-gain)) );
+
+    --_n: clamp(0, calc(-1 * var(--_bgs)), 1);
+    --_ne: pow(var(--_n), var(--surf-curve));
+    --_p: clamp(0, var(--_bgs), 1);
+    --_tint: calc(var(--surface-chroma) * var(--c-tint));
+    --_bg-l: calc(var(--l-base) + var(--_p)*(var(--l-color) - var(--l-base)) + var(--_ne)*(var(--l-floor) - var(--l-base)));
+    --_bg-c: calc(var(--_tint) + var(--_p)*(var(--c-peak) - var(--_tint)) + var(--_n)*var(--neg-chroma, 0));
+    --_bg: oklch(var(--_bg-l) calc(var(--_bg-c) * var(--cfg-chroma)) var(--_h));
+
+    --_fg-up: clamp(0, calc((var(--fg-flip) - var(--surf-l)) / 1% * 10), 1);
+    --_fg-neg: clamp(0, calc(-1 * var(--_fgs)), 1);
+    --_fg-pos: clamp(0, var(--_fgs), 1);
+    --_ink-l: calc(var(--fg-ink-d) + var(--_fg-up)*(var(--fg-ink-l) - var(--fg-ink-d)));
+    --_chr-l: calc(var(--fg-chr-d) + var(--_fg-up)*(var(--fg-chr-l) - var(--fg-chr-d)));
+    --_fg-l: calc(var(--surf-l) + var(--_fg-neg)*(var(--_ink-l) - var(--surf-l)) + var(--_fg-pos)*(var(--_chr-l) - var(--surf-l)));
+    --_fg-c: calc(var(--_bg-c) + var(--_fg-neg)*(0 - var(--_bg-c)) + var(--_fg-pos)*(var(--fg-chroma) - var(--_bg-c)));
+    color: oklch(var(--_fg-l) calc(var(--_fg-c) * var(--cfg-chroma)) var(--_h));
+
+    /* derived tokens — always computed, components opt in */
+    --_brd-l: calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * var(--border-step));
+    --border: oklch(var(--_brd-l) calc((var(--_bg-c) + var(--c-peak) * var(--border-chroma) * 0.25) * var(--cfg-chroma)) var(--_h));
+    --_focus-c: calc(var(--c-peak) * var(--focus-chroma) * var(--cfg-chroma));
+    --focus: oklch(calc(var(--l-base) + var(--focus-bg)*(var(--l-color) - var(--l-base))) var(--_focus-c) var(--_h));
+  }
+
+  /* paint a surface + export its lightness as the ink contrast target */
+  .bg { background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg); }
+
+  /* a themed element establishes its own surface, so its subtree re-themes
+    (not just html). Same two declarations as .bg — paint + re-export --surf-l.
+    Class triggers (.light/.dark) establish a surface here too; the bank swap
+    itself lives in @layer theme. */
+  [data-ui-theme], .light, .dark { background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg); }
+
+  /* interactive elements are state islands; reset, then own pointer state */
+  :where(button, a, [role="button"], summary, .clickable, .hoverable, .btn):not([disabled]):not([aria-disabled="true"]) {
+    --state: 0;
+    &:hover  { --state: var(--st-hover); }
+    &:active { --state: calc(-2 * var(--st-hover)); }
+  }
+
+  /* disabled — drain ink toward surface + wash chroma */
+  :where([disabled], [aria-disabled="true"]) { --fg: -0.3; --surface-chroma: 0; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   styleAPI.type — type is the spacing system. Only em/lh downstream.
+     --type  local step (non-inheriting) · --scale regional zoom (inherits)
+   ════════════════════════════════════════════════════════════════════ */
+@layer styleAPI.type {
+  :where(*) {
+    /* modular scale — ONE ratio, applied at BOTH viewport endpoints. Fluidity comes from the
+       min/max BASE sizes growing across the viewport, NOT from differing ratios — so a given
+       --type is a fixed multiple of body at every width (dual-ratio breathing removed on
+       purpose: one number, one meaning). pow() takes the raw step, so -1/-2 fall on the same
+       ratio 0/+1/+2 climb on (geometric both ways). */
+    --_t-min: calc(var(--cfg-type-min) * pow(var(--cfg-ratio), var(--type)));
+    --_t-max: calc(var(--cfg-type-max) * pow(var(--cfg-ratio), var(--type)));
+    --_font-size: calc(
+      clamp( min(var(--_t-min), var(--_t-max)),
+        calc( var(--_t-min) + (var(--_t-max) - var(--_t-min))
+          * (100vi - var(--cfg-fluid-min-vp)) / (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp)) ),
+        max(var(--_t-min), var(--_t-max)) ) * var(--scale) );
+    font-size: var(--_font-size);
+
+    /* THE shared control height — resolved PER CONTROL against its OWN unfloored size, so every
+       set-height control (button, field, select, avatar, icon/dock button, tab tile) lands on
+       ONE height at a given --type, and the 16px input glyph-floor can't inflate it. Height =
+       unfloored font × --cfg-control-lead + 2px border. Consumers set block-size /
+       min-block-size to this and CENTRE their content, so line-height never enters the box
+       math — which is what makes a button and a field match at every step. */
+    --_control-h: calc(var(--_font-size) * var(--cfg-control-lead) + 2px);
+
+    letter-spacing: clamp(-0.04em, calc(0.01em - var(--type) * 0.012em), 0.04em);
+    line-height:    clamp(1.1, calc(1.5 - var(--type) * 0.075), 1.6);
+
+    /* Optical weight — weight is a function of --type, like size. Climbs
+       only above type 0; clamp floor keeps body/small at base weight no
+       matter the step. Display sizes carry more weight gracefully. */
+    font-weight: clamp(
+      var(--cfg-wght-base),
+      calc(var(--cfg-wght-base) + var(--type) * var(--cfg-wght-step)),
+      var(--cfg-wght-max)
+    );
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.pseudo — syntax highlighting for the Custom Highlight API
+   (pairs with highlight.js; tokens registered there as <lang>-<kind>)
+
+   Color strategy — UPDATED for the new color engine:
+   The ::highlight() pseudo only honors color, background-color,
+   text-decoration, text-shadow. Registered custom properties reach a
+   highlight pseudo ONLY if they inherit, so this layer anchors on the
+   engine's *inheriting* signals — --surf-l (the surface lightness,
+   exported by .bg), --cfg-dark (theme), and --hue/--hue-shift — rather
+   than the old relative-color-from(--_bg) trick (--_bg is now
+   inherits:false and would fall back to its initial value here).
+
+   Result: token L/C are pinned to read against any surface; hue shifts
+   per category; comments recede by following --surf-l, so they track
+   surface depth and theme automatically.
+
+   Two shapes:
+     code ink   L branches on --cfg-dark (dark surface → lighter ink),
+                fixed C per category, hue = base hue + category shift.
+     comment    L pulled toward the surface via --surf-l so it recedes.
+
+   Tune by editing the L pair, the per-category C, and the hue shift.
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.pseudo {
+
+  /* Comments — recede toward the surface. L follows --surf-l (so it
+     tracks surface depth); sign flips with theme so it dims either way. */
+  ::highlight(css-comment),
+  ::highlight(html-comment),
+  ::highlight(python-comment),
+  ::highlight(javascript-comment),
+  ::highlight(go-comment),
+  ::highlight(sqlite-comment) {
+    color: oklch(
+      calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * 45%)
+      calc(var(--c-tint) - 0.01)
+      calc(var(--hue) + var(--hue-shift))
+    );
+  }
+
+  /* Strings — warm shift */
+  ::highlight(css-string),
+  ::highlight(html-value),
+  ::highlight(python-string),
+  ::highlight(javascript-string),
+  ::highlight(go-string),
+  ::highlight(sqlite-string) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(var(--hue) + var(--hue-shift) - 36)
+    );
+  }
+
+  /* Numbers / units */
+  ::highlight(css-number),
+  ::highlight(css-unit),
+  ::highlight(python-number),
+  ::highlight(javascript-number),
+  ::highlight(go-number),
+  ::highlight(sqlite-number) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(var(--hue) + var(--hue-shift) - 24)
+    );
+  }
+
+  /* Punctuation / operators / brackets */
+  ::highlight(css-punctuation),
+  ::highlight(html-bracket),
+  ::highlight(python-operator),
+  ::highlight(python-punctuation),
+  ::highlight(javascript-operator),
+  ::highlight(javascript-punctuation),
+  ::highlight(go-operator),
+  ::highlight(go-punctuation),
+  ::highlight(sqlite-operator),
+  ::highlight(sqlite-punctuation) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.09
+      calc(var(--hue) + var(--hue-shift) - 12)
+    );
+  }
+
+  /* Identifiers — properties, vars, selectors, tags, attributes */
+  ::highlight(css-property),
+  ::highlight(css-var-name),
+  ::highlight(css-selector),
+  ::highlight(html-tag),
+  ::highlight(html-attribute),
+  ::highlight(html-doctype),
+  ::highlight(html-entity),
+  ::highlight(sqlite-identifier),
+  ::highlight(sqlite-parameter) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(var(--hue) + var(--hue-shift) + 12)
+    );
+  }
+
+  /* Functions, classes, builtins / primitive types */
+  ::highlight(python-function),
+  ::highlight(python-class),
+  ::highlight(python-builtin),
+  ::highlight(javascript-function),
+  ::highlight(javascript-class),
+  ::highlight(javascript-builtin),
+  ::highlight(go-function),
+  ::highlight(go-class),
+  ::highlight(go-builtin),
+  ::highlight(sqlite-function),
+  ::highlight(sqlite-type) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.14
+      calc(var(--hue) + var(--hue-shift) + 24)
+    );
+  }
+
+  /* Keywords / atrules / decorators — strongest cool shift */
+  ::highlight(css-atrule),
+  ::highlight(python-keyword),
+  ::highlight(python-decorator),
+  ::highlight(javascript-keyword),
+  ::highlight(javascript-decorator),
+  ::highlight(go-keyword),
+  ::highlight(sqlite-keyword) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.15
+      calc(var(--hue) + var(--hue-shift) + 36)
+    );
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   theme — project config (values only). Each styleAPI also ships its
+   own theme block; this layer holds the cross-cutting tokens + switches.
+   Switches (set on <html>/<body>):
+     data-ui-theme  = light | dark   (unset → OS)
+     data-ui-size   = sm | md | lg
+     data-ui-motion = off | on | debug
+   ════════════════════════════════════════════════════════════════════ */
+@layer theme {
+  :root {
+    /* color foundations — BOTH banks as named sources (--lt-/--dk-); the live
+       vars default to the light bank. The dark remap, and a .light/.dark island
+       nested in the opposite bank, restore their bank by re-reading these
+       sources — so a theme island flips fully, not half-way. A skin retints a
+       source per bank. */
+    --cfg-dark: 0;
+    --c-tint: 0.03;
+    --surf-l: var(--_bg-l);
+    --lt-l-base: 99%; --lt-l-floor: 80%; --lt-l-color: 50%; --lt-c-peak: 0.14; --lt-surf-curve: 1.05; --lt-st-neut: 1; --lt-neg-chroma: 0.008; --lt-fg-flip: 66%;   /* default = Vivid: punchy, wide light */
+    --dk-l-base: 22%; --dk-l-floor: 5%;  --dk-l-color: 70%; --dk-c-peak: 0.17; --dk-surf-curve: 0.9; --dk-st-neut: 3; --dk-neg-chroma: 0.05; --dk-fg-flip: 92%;   /* default dark: lifted base + wide range + chroma so EVERY neutral surface step is visible (near-black L steps are not) */
+    --l-base: var(--lt-l-base); --l-floor: var(--lt-l-floor); --l-color: var(--lt-l-color); --c-peak: var(--lt-c-peak); --surf-curve: var(--lt-surf-curve); --st-neut: var(--lt-st-neut); --neg-chroma: var(--lt-neg-chroma);
+    --fg-flip: var(--lt-fg-flip, 60%);   /* contrast-flip point — bank-sourced (--lt-/--dk-fg-flip), default 60% in both banks */
+
+    /* type foundations — rem-valued, so plain (not registrable). Default = the
+       "md" Med step: type 0 (body/UI/controls) ≈ 14.5px phone / 15.5px desktop —
+       a comfortable mid default. Just under 16px, so editable fields lean on the
+       input-only font floor to dodge iOS focus-zoom (buttons don't need it). */
+    --cfg-type-min: 0.90625rem;            /* base size at the min viewport (phone) */
+    --cfg-type-max: 0.96875rem;            /* base size at the max viewport (desktop) */
+    --cfg-ratio: 1.2;                      /* the ONE modular ratio for the whole scale */
+    --cfg-control-lead: 2.06;              /* control height = unfloored font × this + 2px border (2.06 = line-box 1.5 + 2×0.28 vertical padding) */
+    /* optical weight — climbs above type 0 (registered, so listed for tuning) */
+    --cfg-wght-base: 400; --cfg-wght-step: 90; --cfg-wght-max: 850;
+
+    /* geometry & fonts */
+    --cfg-radius: 9px;                                  /* 0 sharp … ~16px soft; 4–10 typical */
+    --cfg-chroma: 1;                                    /* master colourfulness · data-ui-color drives it (0 = black & white) */
+
+    /* semantic hues — one home; .suc/.inf/.wrn/.dgr helpers + state rules consume these */
+    --hue-suc: 145;   /* success */
+    --hue-inf: 255;   /* info    */
+    --hue-wrn: 75;    /* warning */
+    --hue-dgr: 25;    /* danger  */
+
+    --font-ui:      "Roboto", system-ui, sans-serif;
+    --font-mono:    "Roboto Mono", ui-monospace, monospace;
+    --font-display: "Roboto", system-ui, sans-serif;
+
+    color-scheme: light-dark;
+  }
+
+  /* ── color theme switch ───────────────────────────────────────────
+     Three ways to pick a bank, in priority order:
+       1. default — no trigger: follow the OS via prefers-color-scheme.
+       2. data-ui-theme="dark|light" — the runtime toggle (state).
+       3. .dark / .light — a static theme island (identity), e.g. an always-
+          dark hero. Same effect: swaps the bank all the way down the subtree
+          (bank vars inherit; every surface re-reads them).
+     The engine reads --l-base/--l-floor/etc directly (styleAPI.color), so each
+     trigger just remaps the light bank to the *-dark bank.
+     The OS-dark rule is guarded against EVERY explicit trigger (attribute OR
+     class), so a manual light choice on :root wins over prefers-color-scheme:
+     dark — that's the bit that wasn't holding before.
+     The dark remap is stated twice (a media query can't join a selector list
+     with attribute/class selectors); kept verbatim identical — change both. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-ui-theme]):not(.light):not(.dark) { color-scheme: dark; --cfg-dark: 1;
+      --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut); --neg-chroma: var(--dk-neg-chroma); --fg-flip: var(--dk-fg-flip, 60%); }
+  }
+  [data-ui-theme="dark"], .dark { color-scheme: dark; --cfg-dark: 1;
+    --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut); --neg-chroma: var(--dk-neg-chroma); --fg-flip: var(--dk-fg-flip, 60%); }
+  [data-ui-theme="light"], .light { color-scheme: light; --cfg-dark: 0;
+    --l-base: var(--lt-l-base); --l-floor: var(--lt-l-floor); --l-color: var(--lt-l-color); --c-peak: var(--lt-c-peak); --surf-curve: var(--lt-surf-curve); --st-neut: var(--lt-st-neut); --neg-chroma: var(--lt-neg-chroma); --fg-flip: var(--lt-fg-flip, 60%); }
+
+  /* ── size switch — reconfigures the scale shape (base + ratio) ── */
+  /* sm/md/lg: dense SaaS sizes. Each is a real fluid range on NAMED intervals, so
+     both type contrast AND the spacing derived from it shift across the viewport.
+     xl is NOT a uniform scale-up — it's Utopia's marketing scale (much larger base). */
+  [data-ui-size="sm"] { --cfg-type-min: 0.780rem; --cfg-type-max: 0.840rem; --cfg-ratio: 1.125; }  /* dense · Major2nd */
+  [data-ui-size="md"] { --cfg-type-min: 0.840rem; --cfg-type-max: 0.920rem; --cfg-ratio: 1.125; }  /* default (denser) · Major2nd */
+  [data-ui-size="lg"] { --cfg-type-min: 0.920rem; --cfg-type-max: 1.000rem; --cfg-ratio: 1.200; }  /* roomy · Minor3rd */
+  [data-ui-size="xl"] { --cfg-type-min: 1.125rem; --cfg-type-max: 1.250rem; --cfg-ratio: 1.250; }  /* marketing · Major3rd (Utopia 18→20px) */
+
+  /* ── colour switch — master chroma multiplier, orthogonal to hue & theme.
+     0 = pure black & white (mono / print preview; also zeroes the chroma SOURCES
+     so hardcoded accents go grey too), 1 quiet · 2 default · 3 boldest. ── */
+  [data-ui-color="0"] { --cfg-chroma: 0; --c-peak: 0; --lt-c-peak: 0; --dk-c-peak: 0; --c-tint: 0; --neg-chroma: 0; --fg-chroma: 0; }   /* black & white */
+  [data-ui-color="1"] { --cfg-chroma: 0.4; --neg-chroma: 0; }   /* neutral — pure-neutral surfaces, muted accents (carbon-like) */
+  [data-ui-color="2"] { --cfg-chroma: 1; }                       /* default */
+  [data-ui-color="3"] { --cfg-chroma: 1.7; }                     /* material — richer chroma + tint, both modes */
+  [data-ui-color="4"] { --cfg-chroma: 2.3; }                     /* neon — boldest */
+
+  /* ── radius switch — corner roundness, orthogonal to everything else. ── */
+  [data-ui-radius="0"] { --cfg-radius: 0px; }
+  [data-ui-radius="1"] { --cfg-radius: 6px; }
+  [data-ui-radius="2"] { --cfg-radius: 12px; }
+  [data-ui-radius="3"] { --cfg-radius: 22px; }
+
+  /* iOS focus-zoom is handled the honest way — an input-only 16px floor (see the input
+     rule). No whole-scale coarse lift: body/UI text stays as dense as the config asks. */
+
+  /* ── motion switch — scales every transition duration ── */
+  [data-ui-motion="off"]   { --cfg-motion: 0  }
+  [data-ui-motion="on"]    { --cfg-motion: 1  }
+  [data-ui-motion="debug"] { --cfg-motion: 10 }
+  @media (prefers-reduced-motion: reduce) { :root, [data-ui-motion] { --cfg-motion: 0 } }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   base — bare-element defaults that consume the substrate.
+   Unclassed HTML should already look right.
+   ════════════════════════════════════════════════════════════════════ */
+@layer base {
+  :where(html) { font-family: var(--font-ui); font-size: 100%; }   /* PIN the root: the scale drives everything BELOW html; html stays a fixed 16px so `rem` never shifts and cfg-type-min is applied ONCE (was base²·16 — the compounding bug). */
+  /* --_control-h now lives in styleAPI.type (resolved PER control against its own unfloored
+     font), so every set-height control — buttons INCLUDED — shares one height at a given
+     --type. Nothing to declare here anymore. */
+  :where(body) { --bg: -0.5; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg); min-block-size: 100svh; }
+
+  :where(svg) { color: currentColor; }   /* the bridge: SVG ink = engine ink (fill/stroke use currentColor) */
+  :where(hr)  { border: 0; block-size: 1px; background: var(--border); margin-block: 1lh; }
+
+  /* scrollbars — thin, transparent track, themed thumb. The standard
+     properties cover Firefox + modern engines; the webkit pseudos give the
+     same look where those aren't honoured. Thumb is --border (the quiet line),
+     so it tracks hue + theme; it brightens toward --focus on hover. */
+  :where(*) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  :where(*)::-webkit-scrollbar { inline-size: 0.6em; block-size: 0.6em; }
+  :where(*)::-webkit-scrollbar-track { background: transparent; }
+  :where(*)::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+  }
+  :where(*)::-webkit-scrollbar-thumb:hover { background: var(--focus); }
+  :where(*)::-webkit-scrollbar-corner { background: transparent; }
+
+  :where(h1) { --type: 5 } :where(h2) { --type: 4 } :where(h3) { --type: 3 }
+  :where(h4) { --type: 2 } :where(h5) { --type: 1 } :where(h6) { --type: 0 }
+  /* h1–h5 weight comes from the engine (optical, via --type). h6 sits at
+     type 0 so the engine gives it body weight — nudge it just enough to
+     read as a heading. */
+  :where(h6) { font-weight: 600; }
+  :where(small) { --type: -1 }
+  /* code / kbd / samp / pre — monospace family. The font is shared; each then
+     takes its own surface treatment below. */
+  :where(code, kbd, samp, pre) { font-family: var(--font-mono); }
+
+  /* inline <code> — a quiet recessed chip. Tinted surface, small em padding so
+     it scales with the surrounding text, slightly down in size. */
+  :where(code) {
+    --lift: -0.09;
+    --type: -0.5;
+    padding: 0.1em 0.35em;
+    border-radius: max(2px, calc(var(--cfg-radius) - 3px));
+    border: 1px solid var(--border);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+  }
+  :where(pre) :where(code) { border: 0; }   /* a block listing frames itself; the inline chip's border would double up */
+
+  /* <kbd> — a keycap. Like inline code but with a defining border (the key
+     edge) and a touch of weight, so it reads as a physical key. */
+  :where(kbd) {
+    --lift: -0.06;
+    --type: -0.5;
+    padding: 0.1em 0.4em;
+    border-radius: max(2px, calc(var(--cfg-radius) - 3px));
+    border: 1px solid var(--border);
+    border-block-end-width: 2px;                 /* a hint of keycap depth */
+    font-weight: 600;
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+  }
+
+  /* <pre> — a code block panel. A larger recessed surface that scrolls
+     horizontally for long lines; the child <code> inherits the block's type
+     and drops its inline-chip treatment (it's already inside the panel). */
+  :where(pre) {
+    --bg: 0.08;
+    --type: -0.5;
+    padding: 0.5lh 0.7em;
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    overflow-x: auto;
+    & > :where(code) {
+      --type: inherit;                           /* scale with the block, not its own step */
+      padding: 0;
+      border-radius: 0;
+      background: none;                          /* no nested chip — the panel is the surface */
+    }
+  }
+
+  :where(a:not([class])) {
+    --fg: 0.85; text-decoration: underline; text-underline-offset: 0.15em;
+    transition:
+      --fg        calc(var(--cfg-motion) * 0.2s) ease-out,
+      --hue-shift calc(var(--cfg-motion) * 0.2s) ease-out;
+  }
+  /* link hover — engine-native feedback: full chroma + a uniform hue rotation.
+     Works in light/dark automatically (it just rotates hue), and is consistent
+     across every link in the system. Eases via the motion-gated transition above. */
+  :where(a:not([class])):hover { --fg: 1; --hue-shift: 30; }
+  :where(b, strong) { font-weight: 700; }
+
+  /* native form controls get a surface + border so unstyled forms are usable, and
+     match the button via --_control-h (its line-box + padding + border), so a field
+     and a button resolve to exactly one height at every --type. box-sizing is border-box,
+     so the 1px border sits inside every control's box — outer heights match.
+     The 16px floor is the honest iOS focus-zoom guard: it caps ONLY the glyph, never the
+     box — control height reads the unfloored scale (--_control-h) — so body/UI text stays
+     dense and the field stays locked to buttons. */
+  :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select) {
+    --bg: 0; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    border: 1px solid var(--border); border-radius: var(--cfg-radius);
+    font-size: max(16px, var(--_font-size));   /* iOS focus-zoom guard — floor the editable glyph ONLY */
+    padding-inline: 0.8em;
+  }
+  /* single-line fields: fixed to --_control-h with NO vertical padding, so the box height IS
+     the shared control height regardless of the (possibly 16px-floored) glyph — the browser
+     centres the single line inside. This is what keeps a field exactly button-height at every
+     --type (no line-height:1 juggling needed anymore). */
+  :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select:not([multiple])) {
+    block-size: var(--_control-h); padding-block: 0;
+  }
+  :where(textarea) { min-block-size: var(--_control-h); padding-block: 0.28em; }
+  /* native <select multiple> is a listbox (row-driven height): it shares the family
+     surface/border above and floors to one control-height. A true single-height
+     multi-select needs a custom token-trigger widget (not native). */
+  :where(select[multiple]) { padding: 0.2em 0.4em; min-block-size: var(--_control-h); }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.page — full-viewport application shells.
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.page {
+  /* the viewport lock is BOUND to .page (was a global html,body rule that clipped bare
+     documents): a .page fills the viewport and lets .pg-main scroll — the shell never does;
+     a non-.page document scrolls like a normal web page. */
+  :where(html:has(.page), body:has(.page)) { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  /* .page — 10-slot app grid; slots opt-in via pg-* children, empty
+     tracks collapse. Only nav/main/aside scroll; the shell never does. */
+  :where(.page) {
+    display: grid;
+    grid-template:
+      "b  b  b  b" auto
+      "h  h  h  h" auto
+      "s  s  s  s" auto
+      "n  mh mh a" auto
+      "n  t  m  a" 1fr
+      "n  t  mf a" auto
+      "f  f  f  f" auto /
+      auto auto 1fr auto;
+    height: 100svh; overflow: hidden; overscroll-behavior: none;
+
+    &:where(.centered) { max-inline-size: 1200px; margin-inline: auto; }
+
+    /* regions paint their own surface — set --bg on any pg-* child and it
+       renders (the engine sets ink on every element; only the surface opts in,
+       via the painter: paint --_bg + export --surf-l so descendants resolve
+       their ink contrast against this surface). */
+    & > :where([class^="pg-"], [class*=" pg-"]) {
+      background-color: var(--_bg);
+      --surf-l: var(--_bg-l);
+      --surf-bg: var(--bg);
+    }
+
+    & > :where(.pg-banner)      { grid-area: b  }
+    & > :where(.pg-header)      { grid-area: h  }
+    & > :where(.pg-subheader)   { grid-area: s  }
+    & > :where(.pg-navigation)  { grid-area: n;  overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
+    & > :where(.pg-toolbar)     { grid-area: t;  overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
+    & > :where(.pg-main-header) { grid-area: mh; padding: .25lh .5lh; }
+    & > :where(.pg-main)        { grid-area: m;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; overscroll-behavior: contain; }
+    & > :where(.pg-main-footer) { grid-area: mf }
+    & > :where(.pg-aside)       { grid-area: a;  overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
+    & > :where(.pg-footer)      { grid-area: f  }
+  }
+
+  /* .drawer — edge-anchored overlay (<dialog> or popover), composite-only slide */
+  :where(.drawer) {
+    --_dur: calc(var(--cfg-motion) * 0.25s);
+    position: fixed; inset: auto; margin: 0; padding: 0; border: 0;
+    max-block-size: none; max-inline-size: none;
+    --bg: 0.08; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);   /* engine surface (was falling back to UA canvas) — themes with --hue/light-dark/skins */
+    transition: translate var(--_dur) ease-out, opacity var(--_dur) ease-out,
+                display var(--_dur) allow-discrete, overlay var(--_dur) allow-discrete;
+    translate: 0 0; opacity: 1;
+
+    &:not(:is([open], :popover-open)) { opacity: 0; translate: var(--_translate-closed); }
+    @starting-style { &:is([open], :popover-open) { opacity: 0; translate: var(--_translate-closed); } }
+
+    &:where(.left)   { --_translate-closed: -100% 0; inset: 0 auto 0 0; inline-size: min(85vw,320px); block-size: 100svh; border-radius: 0 var(--cfg-radius) var(--cfg-radius) 0; }
+    &:where(.right)  { --_translate-closed: 100% 0;  inset: 0 0 0 auto; inline-size: min(85vw,320px); block-size: 100svh; border-radius: var(--cfg-radius) 0 0 var(--cfg-radius); }
+    &:where(.top)    { --_translate-closed: 0 -100%; inset: 0 0 auto 0; inline-size: 100vw; block-size: min(85svh,240px); border-radius: 0 0 var(--cfg-radius) var(--cfg-radius); }
+    &:where(.bottom) { --_translate-closed: 0 100%;  inset: auto 0 0 0; inline-size: 100vw; block-size: min(85svh,240px); border-radius: var(--cfg-radius) var(--cfg-radius) 0 0; }
+  }
+  :where(dialog.drawer) {
+    --_dur: calc(var(--cfg-motion) * 0.25s);
+    &::backdrop { background: oklch(0% 0 0 / 0.5);
+      transition: background-color var(--_dur) ease-out, display var(--_dur) allow-discrete, overlay var(--_dur) allow-discrete; }
+    &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
+    @starting-style { &[open]::backdrop { background: oklch(0% 0 0 / 0); } }
+  }
+
+  /* .modal — centered overlay card. Open a <dialog> with showModal() and the
+     browser gives you the focus trap, Esc-to-close, an inert background, and
+     top-layer stacking for free — no z-index. The box scales + fades in
+     (composite-only, motion-gated); dialog.modal also dims the backdrop. Width
+     defaults to ~32rem; override inline-size at the call site. Add the
+     `closedby="any"` attribute for click-outside dismissal.
+
+       <dialog class="modal"> … <button onclick="this.closest('dialog').close()">Close</button> </dialog>
+       <button onclick="document.querySelector('.modal').showModal()">Open</button>  */
+  :where(.modal) {
+    --_dur: calc(var(--cfg-motion) * 0.2s);
+    position: fixed; inset: 0; margin: auto;            /* centre in the viewport */
+    inline-size: min(92vw, 32rem); max-block-size: min(85svh, 44rem);
+    overflow: auto; overscroll-behavior: contain;
+    padding: 0.75lh 1em; border: 0; border-radius: var(--cfg-radius);
+    --bg: 0.1; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    transition: opacity var(--_dur) ease-out, scale var(--_dur) ease-out,
+                display var(--_dur) allow-discrete, overlay var(--_dur) allow-discrete;
+    opacity: 1; scale: 1;
+
+    &:not(:is([open], :popover-open)) { opacity: 0; scale: 0.96; }
+    @starting-style { &:is([open], :popover-open) { opacity: 0; scale: 0.96; } }
+  }
+  :where(dialog.modal) {
+    --_dur: calc(var(--cfg-motion) * 0.2s);
+    &::backdrop { background: oklch(0% 0 0 / 0.5);
+      transition: background-color var(--_dur) ease-out, display var(--_dur) allow-discrete, overlay var(--_dur) allow-discrete; }
+    &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
+    @starting-style { &[open]::backdrop { background: oklch(0% 0 0 / 0); } }
+  }
+
+  /* .menu — anchored popover. The popovertarget button is the popover's IMPLICIT anchor,
+     so no per-instance anchor-name is needed: CSS anchor positioning opens it just below the
+     trigger and flips it up near the viewport edge. Top layer + light-dismiss (no z-index).
+     Items are flat full-width rows. Fades/slides on :popover-open (composite-only, motion-
+     gated). Chromium 125+ for the anchoring; the @supports guard keeps it a plain popover
+     where unsupported.
+       <button popovertarget="m">Menu ▾</button>
+       <menu id="m" popover class="menu"> <button>…</button> … </menu>  */
+  :where(.menu) {
+    --_dur: calc(var(--cfg-motion) * 0.14s);
+    position: fixed; inset: auto; margin: 0;
+    display: flex; flex-direction: column;
+    min-inline-size: 11rem; padding: 0.25lh; list-style: none;
+    border-radius: var(--cfg-radius);
+    --bg: 0.12; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    border: 1px solid var(--border);
+    transition: opacity var(--_dur) ease-out, translate var(--_dur) ease-out,
+                display var(--_dur) allow-discrete, overlay var(--_dur) allow-discrete;
+    opacity: 1; translate: 0 0;
+
+    &:not(:popover-open) { opacity: 0; translate: 0 -0.3lh; }
+    @starting-style { &:popover-open { opacity: 0; translate: 0 -0.3lh; } }
+  }
+  /* flat full-width rows are overridden in classAPI.utility — the button paint lives in the
+     later classAPI.components layer, so the override has to sit in a layer after it. */
+  @supports (top: anchor(bottom)) {
+    :where(.menu) {
+      top: anchor(bottom); left: anchor(left);
+      margin-block: 0.3lh;                 /* gap on both block sides so it survives flip-block */
+      min-inline-size: max(11rem, anchor-size(width));
+      /* try below-right first, then flip up, then flip to the left, then the opposite corner —
+         the browser picks the first that fits, so the menu stays on-screen at any edge/corner. */
+      position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    }
+  }
+
+  /* .hud — full-viewport overlay; click-through container, interactive
+     children. Slot classes: t/c/b row × l/c/r column. */
+  :where(.hud) {
+    position: fixed; inset: 0; display: grid; grid-template-areas: "hud";
+    pointer-events: none; z-index: 1;
+    & > :where(*) { grid-area: hud; justify-self: center; align-self: center; pointer-events: auto; }
+    & > :where(.tl) { justify-self: start;  align-self: start  }
+    & > :where(.tc) { justify-self: center; align-self: start  }
+    & > :where(.tr) { justify-self: end;    align-self: start  }
+    & > :where(.cl) { justify-self: start;  align-self: center }
+    & > :where(.cc) { justify-self: center; align-self: center }
+    & > :where(.cr) { justify-self: end;    align-self: center }
+    & > :where(.bl) { justify-self: start;  align-self: end    }
+    & > :where(.bc) { justify-self: center; align-self: end    }
+    & > :where(.br) { justify-self: end;    align-self: end    }
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.layout — composition primitives. Zero specificity, pure
+   geometry. Gap = calc(0.25 * 1lh): spacing derives from line-height.
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.layout {
+  :where(.column) { display: flex; flex-direction: column; gap: calc(0.25 * 1lh); }
+  :where(.row)    { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: calc(0.25 * 1lh); }
+  :where(.split)  { display: grid; grid-template-columns: 1fr 1fr; gap: calc(0.25 * 1lh); }
+  :where(.spread) { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: calc(0.25 * 1lh); }
+  :where(.spread-column) { display: flex; flex-direction: column; justify-content: space-between; gap: calc(0.25 * 1lh); }
+
+  :where(.lcr) {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: calc(0.25 * 1lh);
+    & > :where(:first-child:not(style):not(script))      { justify-self: start  }
+    & > :where(:nth-child(2 of :not(style):not(script))) { justify-self: center }
+    & > :where(:last-child:not(style):not(script))       { justify-self: end    }
+  }
+
+  :where(.flank, .flank-start) {
+    display: flex; flex-direction: row; align-items: center; gap: calc(0.25 * 1lh);
+    & > :where(:first-child:not(style):not(script)) { flex: 0 0 auto }
+    & > :where(:last-child:not(style):not(script))  { flex: 1 1 auto; min-inline-size: 0 }
+  }
+  :where(.flank-end) {
+    display: flex; flex-direction: row; align-items: center; gap: calc(0.25 * 1lh);
+    & > :where(:first-child:not(style):not(script)) { flex: 1 1 auto; min-inline-size: 0 }
+    & > :where(:last-child:not(style):not(script))  { flex: 0 0 auto }
+  }
+
+  :where(.frame) { aspect-ratio: 16 / 9; overflow: hidden; & > * { inline-size: 100%; block-size: 100%; object-fit: cover } }
+  :where(.grid)  { display: grid; gap: calc(0.25 * 1lh); grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr)); }
+  :where(.ngrid) { display: grid; gap: calc(0.25 * 1lh); grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); grid-auto-rows: auto; }
+  :where(.stack) { display: grid; grid-template-areas: "stack"; & > * { grid-area: stack } }
+  :where(.track) { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(var(--track-min, 6rem), max-content); gap: calc(0.25 * 1lh); overflow-x: auto; }
+
+  :where(.hero) {
+    display: grid;
+    grid-template: "t t t" auto "l m r" 1fr "b b b" auto / auto 1fr auto;
+    height: 100%; overflow: hidden;
+    & > :where(.top)    { grid-area: t }
+    & > :where(.bottom) { grid-area: b }
+    & > :where(.left)   { grid-area: l; overflow-y: auto; min-height: 0 }
+    & > :where(.main)   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0 }
+    & > :where(.right)  { grid-area: r; overflow-y: auto; min-height: 0 }
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.components — populated next (buttons, cards, fields)
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.components {
+
+/* ── button ──────────────────────────────────────────────────────
+     Bare <button> is the component — no class needed. The default carries
+     only a relative --lift (a step off whatever surface hosts it), NOT an
+     absolute --bg, so it stays legible on any surface; theme per instance
+     with --hue / --bg / --type. Emphasis is the .pri/.sec family (project
+     layer): .pri = full-blast scale position, .sec = frosted glass.
+
+     Auto-shapes by content via :has():
+       <svg> only        → square icon button
+       <svg> + <small>   → square, icon stacked over tiny caption (dock)
+       <svg> + text      → inline icon + label (the normal labeled button)
+       text only         → default text button
+
+     Shared height: a button locks its block-size to --_control-h (the ONE control height,
+     resolved per --type), so button / field / select / avatar all match exactly at every step.
+     Width still hugs content; min- (not fixed) lets .btn-touch raise it and long labels grow.
+     Finger targets are opt-in via .btn-touch.
+
+     .btn — the same recipe on a non-<button>. Put it on an <a href> (or any
+     element) to get the full button surface, ink, height and shapes with real
+     link semantics (middle-click, open-in-new-tab, right-click copy). It joins
+     every rule below via :where(button, .btn); hover/active come free on <a>
+     (a is a state island already) — on a non-anchor add .clickable for state. */
+  :where(button, .btn) {
+    text-decoration: none;                           /* .btn on an <a>: drop the underline */
+    --lift: 0.2;                                     /* the default's ONLY surface decision: a relative step above the host — no pinned --bg, so a button keeps its contrast on any surface. .pri/.sec opt out and pin an absolute --bg. */
+    --fg: var(--_sem-ink, -0.85);                    /* resting ink; a semantic lock flips --_sem-ink to 1, committing the ink to the chroma pole */
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 0.45em;
+    /* share the field height: lock to --_control-h, padding is inline-only, content centres —
+       so a labelled button === an input at the same --type. min- keeps .btn-touch / long
+       labels able to grow. */
+    min-block-size: var(--_control-h);
+    padding: 0 0.8em;
+    border-radius: var(--cfg-radius);
+    border: 1px solid var(--border);                 /* engine-derived edge off the button's own surface; .sec overrides with its chroma rim, .pri inherits it, nav items strip it */
+    font-weight: var(--cfg-btn-weight);
+    user-select: none; -webkit-user-select: none;   /* label not selectable */
+
+    & > svg { inline-size: 1.15em; block-size: 1.15em; flex: 0 0 auto; }
+  }
+
+  /* solid fill — paint the engine-resolved surface and re-target ink to it.
+     EVERY button except the glass .sec, which stays translucent and must keep
+     the HOST's --surf-l so its label contrasts what shows through, not its own
+     faint fill. (.pri is :not(.sec), so it paints here and re-targets ink to
+     its loud surface — that's how the label goes light.) */
+  :where(button, .btn):not(.sec) { background-color: var(--_bg); --surf-l: var(--_bg-l); }
+
+  @media (pointer: coarse) {
+    /* Buttons never trigger iOS focus-zoom — you don't type in them — so they
+       take NO 16px font floor. Flooring an lh-sized box is exactly what bloated
+       them; without it they size from the base type scale (now ~16px at md, so
+       already touch-comfortable). The glyph just steps up to match the nav dock. */
+    :where(button, .btn) > svg { inline-size: 1.25em; block-size: 1.25em; }
+  }
+
+
+  /* toggle state — aria-pressed="true" paints the button "on" (Law 7: state
+     rides real ARIA). Mirrors the nav-item/nav-icon live paint. Covers filter
+     toggles, mute/bold/pin buttons, etc. The "live in a set" accent (no ARIA
+     home) is data-ui-state="on" — defined once in classAPI.utility. */
+  :where(button[aria-pressed="true"], .btn[aria-pressed="true"]) { --lift: 0.55; --fg: 1; }
+
+
+  /* icon-only: an accessible label + svg, no caption → square.
+     keyed on [aria-label] because :only-child can't see the text node
+     in <button><svg/>label</button>, and an icon-only button needs the
+     label anyway. svg + text (no aria-label) falls through to inline. */
+  :where(button[aria-label]:has(> svg):not(:has(> small)), .btn[aria-label]:has(> svg):not(:has(> small))) {
+    min-block-size: var(--_control-h); min-inline-size: var(--_control-h); padding: 0; aspect-ratio: 1;
+  }
+
+  /* dock button: svg + <small> → icon over a tiny caption. Explicit caps on BOTH axes (not
+     aspect-ratio, which let the caption bully the width). Icon shrinks and rides the top so a
+     real ~12-char label fits below; anything longer ellipsises rather than growing the box. */
+  :where(button:has(> svg):has(> small), .btn:has(> svg):has(> small)) {
+    flex-direction: column; justify-content: flex-start; gap: 0.1em;
+    inline-size: 6.8em; block-size: 3.4em;             /* the caps — width fits a real ~12ch caption */
+    padding: 0.4em 0.3em 0.3em; overflow: hidden;
+    & > svg   { inline-size: 1em; block-size: 1em; }    /* smaller icon, nudged up by justify-content */
+    & > small {
+      --type: -2; font-weight: 600; line-height: 1.1; text-align: center;
+      max-inline-size: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+  }
+
+  /* .btn-touch — opt-in finger-sized icon button: a REAL 44px box (the box you see
+     IS the tap target; no invisible hit-slop to silently overlap a neighbour). Reach
+     for it in toolbars / nav / app chrome where an icon gets tapped. 44px is the lone
+     literal here (WCAG 2.5.5 target); promote to a token if a context needs another. */
+  :where(button, .btn).btn-touch {
+    min-block-size:  max(44px, var(--_control-h));
+    min-inline-size: max(44px, var(--_control-h));
+    aspect-ratio: 1; padding: 0;
+  }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   nav items — REPLACES the old .nav / .nav-toolbar block in
+   classAPI.components. Two shapes, nothing else. The LIST is not the
+   item's job: compose with .column / .spread-column / .row at the call
+   site. The fine/coarse SWAP is not the item's job either: gate it.
+
+   ONE item = ONE shape = ONE purpose:
+     .nav-item  → inline: leading icon · label · trailing tag
+     .nav-icon  → square: icon over an optional tiny caption (app style)
+
+   Both go on an <a> (a destination) or a <button> (an action / toggle) —
+   the element is irrelevant, a button sheds its native chrome and reads as
+   a peer. State rides ARIA (Law 7): aria-current="page" (a link) or
+   aria-pressed="true" (a toggle) paints the live item; hover/active come
+   free from the --state engine. Both READ --lift to sit a step off their
+   surface, so — like <button> — they must NOT publish --surf-bg; painting
+   it would form the --bg ↔ --surf-bg self-cycle the engine warns about.
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.components {
+
+  /* shared resting paint — the one tuning knob is --lift */
+  :where(.nav-item, .nav-icon) {
+    --lift: 0.06; --fg: -0.5;                 /* quiet at rest, lifts off the rail */
+    margin: 0; border: 0; background: none;   /* a <button> joins as a peer of <a> */
+    border-radius: var(--cfg-radius);
+    font: inherit; color: inherit; text-decoration: none; cursor: pointer;
+    background-color: var(--_bg); --surf-l: var(--_bg-l);   /* paint + export L; NO --surf-bg (consumer) */
+    & > svg { flex: 0 0 auto; }
+  }
+
+  /* .nav-item — inline row: icon · label · (tag pinned to the far edge) */
+  :where(.nav-item) {
+    display: flex; align-items: center; gap: 0.6em;
+    padding: 0.3lh 0.6em;
+    text-align: start;
+    & > svg          { inline-size: 1.15em; block-size: 1.15em; }
+    & > :where(.tag) { margin-inline-start: auto; }
+  }
+
+  /* .nav-icon — square: icon stacked over an optional <small> caption.
+     Icon-only? give it an aria-label. A count? drop in a .badge child
+     (it auto-anchors to the corner — no extra rule). */
+  :where(.nav-icon) {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0.15em; aspect-ratio: 1;
+    min-block-size: var(--_control-h); min-inline-size: var(--_control-h);
+    padding: 0.3em;
+    & > svg   { inline-size: 1.25em; block-size: 1.25em; }
+    & > small { --type: -2; font-weight: 600; line-height: 1; }
+  }
+
+  /* live = current destination OR pressed toggle — one paint for both shapes */
+  :where(.nav-item, .nav-icon):where([aria-current="page"], [aria-pressed="true"]) {
+    --lift: 0.4; --fg: 1; font-weight: 600;
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.media — pointer gates (sibling of the width gates).
+   Add `classAPI.media` to the @layer spine AFTER classAPI.components so the
+   gate's display out-ranks a component's display. (Or just move these two
+   rules into your existing classAPI.viewport layer.)
+
+   Why display (not visibility/opacity): display:none removes the element
+   from the tab order AND the accessibility tree, so the hidden variant
+   cannot be tabbed into or announced — no duplicate stops, no double
+   reading. That is the answer to "ensure hidden things can't be tabbed
+   into": it's automatic here, and it's exactly why the gate uses display.
+   Don't add aria-hidden / inert / tabindex to the gated copies (redundant
+   on the hidden one, a bug on the shown one), and never set display inline
+   on a gated element — an inline display beats the layer and defeats it.
+   ════════════════════════════════════════════════════════════════════ */
+
+  /* ── badge (corner notification) ───────────────────────────────────
+    A small count or dot straddling the top-right corner of its parent — an
+    icon, an .avatar, a .nav item, a button. The parent becomes the positioning
+    context automatically (the :has rule below — Law 3, detect don't configure).
+    Empty = a bare dot; with a number = a count pill. Defaults to the danger hue
+    (the universal "attention" colour); set --hue to recolour, --type to resize.
+      <a><svg>…</svg> Inbox <span class="badge">3</span></a>     on the item
+      <a><span class="icon"><svg>…</svg><span class="badge"></span></span> …</a>  on the icon */
+  :where(.badge) {
+    --hue: var(--hue-dgr); --bg: 0.5; --fg: -1; --type: -2;
+    position: absolute; inset-block-start: 0; inset-inline-end: 0;
+    translate: 35% -35%;                            /* straddle the corner */
+    display: inline-flex; align-items: center; justify-content: center;
+    min-inline-size: 1.6em; block-size: 1.6em; padding-inline: 0.35em;
+    border-radius: 999px;
+    font-weight: 600;
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    user-select: none; -webkit-user-select: none;
+
+    &:empty { min-inline-size: 0.7em; block-size: 0.7em; padding: 0; }   /* a bare dot */
+  }
+
+  /* any element directly holding a .badge anchors it (zero-specificity, so a
+    genuine position rule on the host still wins). Kept separate — its subject
+    is the parent, not the badge, so it can't nest into the rule above. */
+  :where(:has(> .badge)) { position: relative; }
+
+
+  /* ── card ─────────────────────────────────────────────────────────
+     A painted surface with a defining edge. The author sets --bg to place
+     it in the depth stack (no auto-nesting — the component never guesses
+     hierarchy). Unlike a button it has no interaction to read as an edge,
+     so it carries a quiet border.
+       .card → quiet line (--border)
+       .Card → vibrant line (--focus), for a surface that should stand out */
+  :where(.card, .Card) {
+    --bg: 0;
+    padding: 0.4lh 0.5em;                     /* clears a focused child's ring (2px offset + 2px) on both axes */
+    border-radius: var(--cfg-radius);
+    border: 1px solid var(--border);
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+  }
+  :where(.Card) { border-color: var(--focus); }
+
+  /* Surfaces — a card's tonal body without the edge. Same footprint (padding + radius) as
+     .card, but NO border: separation is a --lift step off the host surface, not a drawn line.
+     Reach for a surface to group content INSIDE a card (e.g. metric tiles) where nesting real
+     cards would stack too many borders. .surface is a gentle step; .Surface a stronger one.
+     They publish their EFFECTIVE (lift-aware) position as --surf-bg, so surfaces can nest and
+     each keeps stepping off the one it sits in. */
+  :where(.surface, .Surface) {
+    --lift: 0.08;
+    padding: 0.4lh 0.5em;
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);   /* publish lightness for child ink; do NOT republish --surf-bg — it would cycle with --_rel (--_rel = --surf-bg + --lift). Surfaces therefore step off the nearest card/absolute surface, not off each other. */
+  }
+  :where(.Surface) { --lift: 0.16; }
+
+  /* ── blockquote ────────────────────────────────────────────────────
+     Bare <blockquote> is the component (Law 1 — no class). Quoted content
+     from a source: a lightly tinted surface, italic chromatic quote ink, and
+     accent quote marks that flow INLINE with the words (generated on the
+     quote <p>, like the crumbs separator — they hug wherever the quote begins
+     and ends, at any length). A trailing <cite> carries the attribution.
+       <blockquote>
+         <p>The quoted sentence.</p>
+         <cite>Author, <cite>Work</cite> (Publisher, year)</cite>
+       </blockquote>
+     The opening mark sits on the first paragraph, the closing on the last, so
+     a multi-paragraph quote isn't littered with marks. NOT a callout — that's
+     .alert.  Recolour with --hue / a semantic helper; rescale with --type. */
+  :where(blockquote) {
+    --bg: 0.1;                                   /* lightly tinted surface */
+    --fg: 0.9;                                   /* chromatic quote ink */
+    --type: -1;                                  /* body one step down — children inherit it, so a
+                                                    --type on the blockquote rescales quote + cite */
+    max-inline-size: 65ch;                       /* readable measure */
+    padding: 0.5lh 0.7em;
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    font-style: italic;
+
+    /* quote paragraphs flow inline so the marks wrap the words; a multi-para
+       quote stacks via a top margin on subsequent paragraphs. Full chromatic
+       quote ink. */
+    & > :where(p) { --type: inherit; --fg: 1; margin: 0; display: inline; }
+    & > :where(p) ~ :where(p) { display: block; margin-block-start: 0.5lh; }
+
+    /* the accent quote marks — generated, inline. Opening on the first
+       paragraph, closing on the last, so they bracket the whole quote once. */
+    & > :where(p:first-of-type)::before { content: "\201C"; color: var(--focus); }
+    & > :where(p:last-of-type)::after   { content: "\201D"; color: var(--focus); }
+
+    /* attribution — the trailing <cite>. Upright (the quote is already italic),
+       quiet neutral ink, em-dashed. A nested <cite> (the work title) gets a
+       touch of weight; everything else stays plain. */
+    & > :where(cite) {
+      display: block;
+      --type: inherit;                           /* match the body's step */
+      --fg: -0.85;                               /* quiet neutral author ink */
+      text-align: end;                           /* pushed to the line end */
+      font-style: normal;                        /* attribution is NOT italic — contrasts the quote */
+      &::before { content: "— "; }
+      & :where(cite) { --type: inherit; font-weight: 600; font-style: normal; }   /* nested work title — inherits the step so it scales too */
+    }
+  }
+
+  /* ── alert ─────────────────────────────────────────────────────────
+     A standing message that carries a semantic hue. Self-contained (it
+     inlines the card frame — padding, paint, border — rather than requiring
+     a separate .card, since that's three trivial lines). Pair with a
+     semantic helper for meaning, and add the ARIA role yourself per urgency:
+       <div class="alert wrn" role="status">Heads up — check your input.</div>
+       <div class="alert dgr" role="alert"><svg>…</svg><div>Couldn't save.</div></div>
+     The tinted --bg lets the semantic hue colour the fill; the border stays
+     quiet (--border). An optional leading icon (first child) is sized and
+     aligned; the content (last child) takes the rest. CSS-only — no dismiss. */
+  :where(.alert) {
+    --bg: 0.12;                                  /* low tinted surface — the hue colours the fill */
+    --fg: -0.85;                                 /* near-neutral ink, legible on the tint */
+    display: flex; align-items: flex-start; gap: calc(0.35 * 1lh);
+    padding: 0.4lh 0.6em;
+    border-radius: var(--cfg-radius);
+    border: 1px solid var(--border);             /* quiet edge — the tinted fill carries the hue */
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+
+    /* optional leading icon — sized to the text, holds its size, hue-inked */
+    & > :where(svg:first-child) {
+      inline-size: 1.15em; block-size: 1.15em; flex: 0 0 auto;
+      margin-block-start: 0.1em;                 /* optical centre with the first line */
+      --fg: 0.8;                                 /* the icon takes chromatic hue ink to pop */
+    }
+    /* content takes the remaining width */
+    & > :where(:last-child) { flex: 1 1 auto; min-inline-size: 0; }
+  }
+
+  /* ── table ─────────────────────────────────────────────────────────
+     Bare <table> is the component (Law 1 — no class needed). Academic /
+     LaTeX booktabs aesthetic: NO vertical rules, NO body row rules — rows
+     are separated by rhythm alone. Only two horizontal rules, both vibrant
+     (--focus): one under the header (the \midrule) and one at the foot (the
+     \bottomrule). The whole table is framed like a .card (quiet --border).
+     Restraint is the point: let whitespace and the two rules do the work.
+
+     Numeric columns: add .num to the cells. (CSS can't propagate text
+     alignment from a <col> to its cells — only the cell class does it — so
+     mark the <th> and <td> cells, not the column.)
+       <table>
+         <thead><tr><th>Method</th><th class="num">Accuracy</th></tr></thead>
+         <tbody>
+           <tr><td>Baseline</td><td class="num">71.4</td></tr>
+           <tr><td>Ours</td><td class="num">92.8</td></tr>
+         </tbody>
+       </table>                                                            */
+  :where(table) {
+    --bg: 0;
+    inline-size: 100%;
+    border-collapse: separate;                  /* not collapse: lets the table box
+                                                   keep a real border + radius (collapse
+                                                   breaks both). spacing 0 = looks flush. */
+    border-spacing: 0;
+    border: 1px solid var(--border);            /* card-style frame */
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+
+    /* cells — tight academic padding (a touch more vertical lead than
+       horizontal, so columns stay close but rows breathe) */
+    & :where(th, td) {
+      --type: var(--table-type, -1);            /* the table owns its density (leaf component sets its own type); --table-type adjusts the whole table in the rare case, no inline per-cell */
+      padding: calc(0.18 * 1lh) 0.7em;
+      text-align: start;
+      vertical-align: baseline;
+    }
+
+    /* header — quiet ink, the label row; its bottom edge is the \midrule.
+       Sticky so that when the table lives in a scroll viewport (a height-capped
+       overflow ancestor, e.g. .table-scroll) the header pins to the top and the
+       body scrolls under it. The cell paints its own surface (--_bg) so rows
+       don't show through; harmless when there's nothing to scroll. */
+    & :where(thead th) {
+      --fg: -0.75;
+      font-weight: 600;
+      border-block-end: 1px solid var(--focus);  /* the vibrant under-header rule */
+      position: sticky; inset-block-start: 0; z-index: 1;
+      background-color: var(--_bg);
+    }
+
+    /* round the header's OWN top corners to the table radius — else the sticky
+       header cell's square background paints over the table's rounded top
+       corners and the border reads as "missing" there. */
+    & :where(thead tr:first-child th:first-child) { border-start-start-radius: var(--cfg-radius); }
+    & :where(thead tr:first-child th:last-child)  { border-start-end-radius:   var(--cfg-radius); }
+
+    /* the \bottomrule — vibrant line closing the table body */
+    & :where(tbody) {
+      border-block-end: 1px solid var(--focus);
+    }
+
+    /* numeric cells — tabular figures, right-aligned so digits stack */
+    & :where(th.num, td.num) {
+      text-align: end;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;          /* belt + suspenders for older UAs */
+    }
+
+    /* optional caption — sits above, quiet and small, like a figure label */
+    & :where(caption) {
+      --type: -1; --fg: -0.7;
+      text-align: start;
+      padding: calc(0.18 * 1lh) 0.7em;
+      caption-side: top;
+    }
+  }
+
+  /* .table-scroll — a height-capped scroll viewport for a <table>, so the body
+     scrolls under the pinned header (see the sticky thead, above). It owns the
+     card frame; the inner table drops its own so there's no double border, and
+     the frame's radius clips the scroll. Cap the height with max-block-size
+     (default 24lh) and it scrolls vertically; wide tables scroll horizontally
+     too. A <caption> stays out of the scroll if you keep it outside, so put any
+     title above the wrapper.
+
+       <div class="table-scroll" style="max-block-size:18lh">
+         <table>…</table>
+       </div>                                                                */
+  :where(.table-scroll) {
+    --bg: 0;
+    overflow: auto; overscroll-behavior: contain;
+    max-block-size: 24lh;
+    border: 1px solid var(--border); border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+
+    & > :where(table) { border: 0; border-radius: 0; }
+  }
+
+  /* ── tag ──────────────────────────────────────────────────────────
+     A small dense label on a <span>. Optional leading and/or trailing
+     <svg> (icons size to the text). Quiet 0.1 surface, vibrant --focus
+     edge, max chromatic ink. State is server-rendered, not interactive.
+       <span class="tag">Label</span>                       default
+       <span class="tag" data-ui-state="off">Offline</span>  greyed, neutral
+       <span class="tag" data-ui-state="on">Live</span>      max ink + focus ring
+       <span class="tag" aria-disabled="true">…</span>       inert            */
+  :where(.tag) {
+    --bg: 0.16;
+    --fg: var(--_sem-ink, -0.85);
+    --type: -2;
+    display: inline-flex; align-items: center; gap: 0.3em;
+    padding: 0.1em 0.4em;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--cfg-radius) / 2);
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    white-space: nowrap;
+    user-select: none; -webkit-user-select: none;   /* label isn't selectable */
+
+    & > svg { inline-size: 1em; block-size: 1em; flex: 0 0 auto; }
+  }
+  :where(.tag[data-ui-state="off"], .tag[aria-disabled="true"]) {
+    --bg: 0.1; --fg: -0.4; --surface-chroma: 0;
+    border: 1px solid var(--border);
+  }
+
+  /* ── avatar ────────────────────────────────────────────────────────
+     A square monogram / icon / image chip. Sized in lh so it scales with
+     the type system. The author colours it by setting --bg / --hue inline.
+     Serif by intent (--font-display) — monograms read better in a serif.
+       <span class="avatar">AL</span>                     monogram
+       <span class="avatar" style="--hue: 145">GH</span>  tinted
+       <span class="avatar"><img src="…" alt="…"></span>  photo (cropped)
+       <span class="avatar"><svg>…</svg></span>           generic face   */
+  :where(.avatar) {
+    --bg: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    block-size: var(--_control-h);
+    aspect-ratio: 1; flex: 0 0 auto; min-inline-size: var(--_control-h);   /* stay square even inside a flex row (e.g. a table cell) */
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    user-select: none; -webkit-user-select: none;   /* monogram isn't selectable text */
+
+    /* an image fills the chip and crops to the rounded shape */
+    & > :where(img) {
+      inline-size: 100%; block-size: 100%;
+      object-fit: cover;
+    }
+    /* an svg (generic face, icon) sits a little inside the chip */
+    & > :where(svg) {
+      inline-size: 70%; block-size: 70%;
+    }
+  }
+  /* clip ONLY when there's an image to crop — an unscoped overflow:hidden
+     would also clip a corner badge, which is meant to straddle the edge.
+     A monogram / face avatar needs no clip. */
+  :where(.avatar:has(> img)) { overflow: hidden; }
+
+  /* ── crumbs (breadcrumb trail) ─────────────────────────────────────
+     A <nav class="crumbs"> of links ending in the current page. Separators
+     are generated (not in the markup) via ::before. Links read as default
+     links (underlined, chromatic) and brighten on hover; the current page is
+     aria-current="page" — a non-link, emphasized.
+       <nav class="crumbs" aria-label="Breadcrumb">
+         <a href="/">Home</a>
+         <a href="/dash">Dashboard</a>
+         <span aria-current="page">Calendar</span>
+       </nav>
+     A crumb may hold an inline icon (svg) alongside or instead of text — the
+     icon sizes to the label (1em) and inherits the crumb's ink:
+       <a href="/"><svg>…</svg> Home</a>     icon + text
+       <a href="/" aria-label="Home"><svg>…</svg></a>   icon-only
+
+     The separator is a masked SVG (a chevron), NOT a text glyph. Why: the
+     separator pseudo lives inside an underlined <a>, and an ancestor's
+     text-decoration is painted through descendants — a text separator can't
+     shed that underline (text-decoration:none and inline-block both fail to
+     stop it). A masked box has no text to underline, so it's immune. The mask
+     is painted with background-color:var(--border) — the system's quiet-line
+     token — so it still tracks hue + theme. Override the glyph per instance:
+       <nav class="crumbs" style="--crumb-sep:url('data:image/svg+xml,…')">   */
+  :where(.crumbs) {
+    /* default separator: a thin chevron. Override with any mask URL. */
+    --crumb-sep: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+    --type: -1;                                  /* the component's type step — set this on an
+                                                    instance to rescale the WHOLE trail (children
+                                                    inherit it below, so all em/lh spacing follows) */
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 0.45em;                                 /* the single spacing knob — sits on both sides
+                                                    of each separator (no separator margin) */
+
+    /* each crumb — a link consumes the chromatic ink position; the engine
+       turns the number into colour. inline-flex so an inline svg sits ON the
+       text row (the reset makes svg display:block, which would otherwise drop
+       the icon to its own line). --type:inherit pulls the wrapper's step down
+       (the registered property is non-inheriting by default) so every crumb,
+       icon, and separator shares one font-size — and one --type on .crumbs
+       rescales them together. */
+    & > :where(a, span) {
+      --type: inherit;
+      --fg: 0.85;                                /* chromatic link ink (same position as a bare link) */
+      display: inline-flex; align-items: center; gap: 0.35em;
+    }
+    & > :where(a, span) > :where(svg) {
+      inline-size: 1em; block-size: 1em; flex: 0 0 auto;   /* size to the label, inherit currentColor */
+    }
+    & > :where([aria-current="page"]) {
+      --fg: -1; font-weight: 600;                /* the current page — neutral ink, emphasized, not a link */
+    }
+
+    /* generated separator before every crumb except the first — a masked box,
+       not text (see header note). Painted with --border, the system's quiet,
+       hue-aware, theme-tracking line token. Sized in lh against the inherited
+       --type, so it scales with the trail. */
+    & > :where(a, span) + :where(a, span)::before {
+      content: "";
+      inline-size: 1lh; block-size: 1lh;         /* ≈ the line height — scales with --type */
+      background-color: var(--border);
+      mask: var(--crumb-sep) center / contain no-repeat;
+      -webkit-mask: var(--crumb-sep) center / contain no-repeat;
+    }
+  }
+
+  /* ── disclosure (details / summary) ────────────────────────────────
+     Bare <details> is the component (Law 1 — no class). Native open/close,
+     no JS. Card-framed like the rest; the <summary> is the clickable header
+     (it's in the interaction state-island selector, so it gets hover/active
+     from the engine); a CSS chevron rotates on open. The body sits below a
+     hairline divider. Open/close height animates when motion is on.
+       <details>
+         <summary>More detail</summary>
+         <p>Hidden until opened…</p>
+       </details>
+       <details open> … </details>   start expanded                       */
+  :where(details) {
+    --bg: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+
+    /* the header — clickable, paints its own surface so hover/active read */
+    & > :where(summary) {
+      display: flex; align-items: center; gap: 0.5em;
+      padding: calc(0.3 * 1lh) 0.7em;
+      border-radius: var(--cfg-radius);          /* round all corners when closed */
+      transition: border-radius calc(var(--cfg-motion) * 0.2s) ease;   /* the corners un-round as it opens — motion-gated */
+      font-weight: 600;
+      list-style: none;                          /* belt: also kill the marker */
+      user-select: none; -webkit-user-select: none;   /* the click target shouldn't highlight */
+      background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+
+      &::-webkit-details-marker { display: none; }   /* suspenders: Safari marker */
+
+      /* CSS chevron — a rotated corner that points right (closed), down (open).
+         Drawn in em so it tracks the type system; no SVG dependency. */
+      &::after {
+        content: "";
+        inline-size: 0.5em; block-size: 0.5em;
+        margin-inline-start: auto;               /* push the chevron to the end */
+        border: 0.12em solid currentColor;
+        border-block-start: 0; border-inline-start: 0;   /* keep right + bottom edges → ⌟ */
+        rotate: -45deg;                          /* points right when closed */
+        translate: 0 -0.1em;                     /* optical centering */
+        transition: rotate calc(var(--cfg-motion) * 0.18s) ease;
+        opacity: 0.6;
+      }
+    }
+    /* open: chevron points down; summary becomes the top section (round only
+       its top corners) and grows a divider below it */
+    &[open] > :where(summary) {
+      border-end-start-radius: 0; border-end-end-radius: 0;
+      border-block-end: 1px solid var(--border);
+    }
+    &[open] > :where(summary)::after { rotate: 45deg; }
+
+    /* the body wrapper. Closed = zero height AND zero padding so it fully
+       collapses (box-sizing:border-box doesn't reliably apply to this pseudo,
+       so padding must be zeroed explicitly, not just clipped). Both block-size
+       and padding-block transition together, so opening doesn't pop. */
+    &::details-content {
+      overflow: hidden;
+      block-size: 0;
+      padding: 0 0.7em;
+      transition:
+        block-size    calc(var(--cfg-motion) * 0.2s) ease,
+        padding-block calc(var(--cfg-motion) * 0.2s) ease,
+        content-visibility calc(var(--cfg-motion) * 0.2s) allow-discrete;
+    }
+    &[open]::details-content {
+      block-size: auto;
+      padding-block: calc(0.3 * 1lh);
+    }
+  }
+
+  /* ── form surface ─────────────────────────────────────────────────
+     A form is a recessed panel (--bg: -0.8). Controls inside sit RAISED
+     against it (--bg: 0.1), so surface difference alone defines them — the
+     base border is dropped (transparent, not removed, so the border-box
+     height stays identical and the line can return for states). Controls
+     OUTSIDE a form keep the base border: with no form surface to sit
+     against, the line is what defines them. */
+  :where(form, [role="form"]) {
+    --bg: -0.8; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    padding: 0.4lh 0.5em;                     /* same as .card — clears a focused child's ring */
+    border-radius: var(--cfg-radius);         /* same as .card */
+
+    & :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select) {
+      --bg: 0.1;
+      border-color: transparent;              /* raised surface defines it; line returns for states */
+    }
+  }
+
+  /* ── field ────────────────────────────────────────────────────────
+     No class — a <label> inside a form IS a field. Shape:
+       <label>
+         <span>Label text</span>
+         <small>feedback</small>   ← always present, between label & input
+         <input>                   ← or select / textarea
+       </label>
+     The <small> sits ABOVE the control (reading flow: label → problem →
+     field) and is ALWAYS in the DOM at a fixed 1lh, so showing/hiding its
+     text causes zero layout shift. Everything below nests under the label
+     so rules target by structure. Validation rides aria-invalid; a green
+     "valid" cue is just the .suc helper (no ARIA backing to justify a state). */
+  /* ── form ─────────────────────────────────────────────────────────
+     A bare <form> reads as a bounded card: one 1px engine border (which is
+     lighter than its own surface in dark), so the whole form separates from
+     the page even where near-black tonal steps are imperceptible. Inputs
+     inside are deliberately left alone — tonal separation only, no border. */
+  :where(form) {
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    padding: calc(0.5 * 1lh) 0.7em;
+  }
+
+  :where(form, [role="form"]) :where(label):has(> input, > select, > textarea):not(:has(> input:is([type="checkbox"], [type="radio"]))) {
+    display: grid;
+    grid-template-columns: auto 1fr;          /* label | feedback, both left, packed */
+    grid-template-rows: 1lh auto;             /* row 1 fixed → feedback text can't shift the input */
+    align-items: baseline;                    /* span + small on one baseline */
+    column-gap: 0.5em;                         /* breathing room between label and feedback */
+
+    & > :where(span) {
+      --type: 0; --fg: -0.75;                 /* label text — neutral */
+      grid-column: 1;
+    }
+
+    & > :where(small) {
+      --type: -1; --fg: -0.8;                 /* feedback — neutral at rest, left of the gap */
+      grid-column: 2; justify-self: start;
+      /* reserved slot → zero shift: a FIXED 1lh box (not just a min) so the
+         empty and filled states are the exact same height. Content is laid
+         out inside via inline-flex so an empty <small> can't fall back to
+         box-edge baseline alignment and nudge the row. */
+      block-size: 1lh; display: inline-flex; align-items: center; line-height: 1;
+    }
+
+    & > :where(input, select, textarea) {
+      grid-column: 1 / -1; inline-size: 100%; /* control spans both, row 2 */
+    }
+
+    /* required → asterisk on the label, danger hue */
+    &:has(:where(input, select, textarea):required) > :where(span)::after {
+      content: " *"; --hue-lock: var(--hue-dgr); --fg: 0.8;
+    }
+
+    /* invalid → danger hue on feedback + control, and the border returns:
+       in-form controls are borderless by default (transparent), so the line
+       is reinstated here to carry the state — using the loud --focus (already
+       at the danger hue from --hue-lock) so the error edge reads strongly. */
+    &:has([aria-invalid="true"]) {
+      & > :where(small) { --hue-lock: var(--hue-dgr); }
+      & > :where([aria-invalid="true"]) { --hue-lock: var(--hue-dgr); border-color: var(--focus); }
+    }
+
+    /* feedback goes chromatic only when a semantic hue is in play — a
+       helper on the field, or an invalid control. Otherwise it stays neutral. */
+    &:is(.suc, .inf, .wrn, .dgr) > :where(small),
+    &:has([aria-invalid="true"]) > :where(small) {
+      --fg: 1;
+    }
+
+    /* a semantic hue on the field also returns the control's border so the
+       state reads on the input edge, not just the feedback text — loud --focus */
+    &:is(.suc, .inf, .wrn, .dgr) > :where(input, select, textarea) {
+      border-color: var(--focus);
+    }
+  }
+
+  /* ── field group ──────────────────────────────────────────────────
+     A <fieldset> forces its child fields onto one row. Each field's share
+     of the row is its --row-width (a flex ratio, default 1 → equal split).
+       <fieldset>
+         <label style="--row-width: 2">…</label>   ← 2/3 of the row
+         <label>…</label>                           ← 1/3
+       </fieldset>
+     With a <legend>, the group gets a field-style header: the legend is the
+     group label and an optional <small> right after it is the group feedback
+     (same look + no-shift as a single field). Legend and small span full
+     width; the controls wrap to a row beneath.
+       <fieldset>
+         <legend>Card type</legend>
+         <small>Pick one.</small>
+         <label><input type="radio" …><span>Visa</span></label> …
+       </fieldset>
+     Scoped to the fieldset so the share rule targets only its own fields. */
+  @scope (fieldset) {
+    :scope {
+      display: flex; flex-wrap: wrap;
+      gap: calc(0.25 * 1lh);
+      align-items: start;                     /* fields with differing feedback line up at the top */
+    }
+    :scope > * { flex: var(--row-width); min-inline-size: 0; }
+
+    /* a group with a legend is a radio/checkbox set: its option labels size to
+       content and pack/wrap (don't stretch to equal shares like field-row inputs) */
+    :scope:has(> legend) > label { flex: 0 0 auto; min-inline-size: max-content; }
+
+    /* legend = the group's header line. It claims the full width (flex
+       1 0 100%) so the control row always wraps beneath it. A <small> placed
+       INSIDE the legend is the group feedback and rides the same line —
+       structurally the legend IS the label, the small its annotation. */
+    :scope > legend {
+      display: flex; align-items: baseline; gap: 0.5em;
+      flex: 1 0 100%;
+      --type: 0; --fg: -0.75;                 /* matches the field label <span> */
+
+      & > small {
+        --type: -1; --fg: -0.8;
+        block-size: 1lh; display: flex; align-items: center; line-height: 1;
+      }
+    }
+  }
+
+  /* group validation — a danger hue on the fieldset colors its header, same
+     as a field. (Set .dgr on the fieldset, or aria-invalid on a control.) */
+  :where(fieldset:is(.suc, .inf, .wrn, .dgr), fieldset:has([aria-invalid="true"])) > :where(legend) > :where(small) {
+    --fg: 1;
+  }
+  :where(fieldset:has([aria-invalid="true"])) { --hue-lock: var(--hue-dgr); }
+
+  /* ── segmented radio (.tabs) ───────────────────────────────────────
+     Opt-in: a radio group rendered as a segmented control. The radios are
+     REAL native inputs (keyboard, form, AT intact), shown beside each label.
+     The track is a full-width recessed groove (same surface + height as a text
+     input); the label breaks out ABOVE it; each option is a tile that fills the
+     track height and centers its content; the selected tile lifts subtly (like
+     a selected tag), not a loud fill. Best for 2–5 short options; long/many →
+     use a plain radio list instead.
+
+     WHY A DIV, NOT A FIELDSET: <fieldset> has a magic internal anonymous
+     content box that breaks the flex/grid formatting context — children can't
+     receive align-items/align-self:stretch through it, so tiles refused to fill
+     the track height (proven by isolation test: identical CSS fills on a div,
+     not on a fieldset, in both flex and grid). So the track is a
+     <div role="group"> with an aria-labelledby pointing at its .legend — same
+     "named group of radios" semantics to AT, without the fieldset quirk.
+       <div role="group" class="tabs" aria-labelledby="cc-lbl">
+         <span class="legend" id="cc-lbl">Card type <small>Pick one.</small></span>
+         <label><input type="radio" name="cc" checked><span>Visa</span></label>
+         <label><input type="radio" name="cc"><span>Mastercard</span></label>
+       </div>
+     Works anywhere — in a form, a toolbar, a card header. The .legend is
+     optional; omit it (or visually-hide it with .vh) when a nearby heading
+     already names the group. The top-margin that reserves the breakout space
+     is only applied when a .legend is actually present.                      */
+  :where(.tabs) {
+    /* the track — a recessed groove matching the form inputs.
+       wraps to rows on narrow screens rather than overflowing. */
+    display: flex; flex-wrap: wrap;
+    align-items: stretch;                       /* tiles fill the track height (single row) */
+    gap: calc(0.1 * 1lh);
+    --bg: 0.1; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    border-radius: var(--cfg-radius);
+    padding: calc(0.15 * 1lh);
+    min-block-size: var(--_control-h);   /* the ONE height decision; tiles inherit it */
+    position: relative;                         /* anchor for the label breakout */
+
+    /* reserve breakout space ONLY when there's a legend to lift above the track */
+    &:has(> .legend) { margin-block-start: 1lh; }
+
+    /* group label breaks out ABOVE the groove (out of flow) so it sits on the
+       surface above, like a field label — not on the track. */
+    & > :where(.legend) {
+      position: absolute;
+      inset-block-end: 100%; inset-inline-start: 0;
+      inline-size: 100%;
+      display: flex; align-items: baseline; gap: 0.5em;
+      padding: 0; background: none;
+      --type: inherit; --fg: -0.75;            /* scale with the group; its <small> stays one fixed step down */
+      & > :where(small) {
+        --type: -1; --fg: -0.8;
+        block-size: 1lh; display: flex; align-items: center; line-height: 1;
+      }
+    }
+
+    /* a tile — decisionless: content-width, fills the track height, centers */
+    & > :where(label) {
+      --type: inherit;                          /* take the .tabs step so a --type on the group rescales every tile (text + radio + height) */
+      flex: 0 0 auto;                           /* content-width segments (pack, don't stretch wide) */
+      align-self: stretch;                      /* fill the track height on a single row */
+      min-block-size: var(--_control-h);   /* keep comfortable height when wrapped to rows too */
+      display: flex; align-items: center; justify-content: center; gap: 0.4em;
+      padding-inline: 0.8em;
+      border-radius: calc(var(--cfg-radius) - 0.15lh);
+      user-select: none; -webkit-user-select: none;
+      transition: background-color calc(var(--cfg-motion) * 0.12s) ease;
+
+      & > :where(span) {
+        --type: inherit;                        /* scale with the tile (and thus the group's --type) */
+        --fg: -0.6;                             /* quiet label until selected */
+      }
+      & > :where(input[type="radio"]) {
+        margin: 0; flex: 0 0 auto;              /* visible, left of the text */
+        outline: none;                          /* the segment carries focus, not the radio */
+      }
+
+      &:has(:checked) {                         /* selected — subtle lift, chromatic label */
+        --bg: 0.3;
+        background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+        border-radius: var(--cfg-radius);       /* full config radius — rounder than resting tiles */
+        & > :where(span) { --fg: 1; }
+      }
+      &:has(:focus-visible) {                    /* focus rides the whole segment */
+        outline: 2px solid var(--focus); outline-offset: -2px;
+      }
+    }
+  }
+
+  /* ── underline tabs ────────────────────────────────────────────────
+     A nav strip that sits ON a bottom line; the active tab is marked by a
+     --focus underline riding that line, continuous with the header border.
+     Resting tabs are de-emphasised (--fg:-0.6) and take a surface on hover;
+     icons ride currentColor, counts are engine pills.
+
+       <nav class="tabs-underline">
+         <a href="…" aria-current="page">Overview</a>
+         <a href="…"><svg>…</svg>Events <span class="count">12</span></a>
+       </nav>
+     aria-current for navigation, aria-selected for in-page tab panels;
+     a/button/role=tab are treated alike by the reset. */
+  :where(.tabs-underline) {
+    display: flex; align-items: stretch; gap: 0.1em;
+    border-block-end: 1px solid var(--border);
+
+    & > :where(a, button, [role="tab"]) {
+      appearance: none; margin: 0; border: 0; background: none;   /* a <button> joins as a peer of <a> */
+      font: inherit; text-decoration: none; cursor: pointer;        /* NO color:inherit — let --fg drive the ink (text + currentColor icon together) */
+      display: inline-flex; align-items: center; gap: 0.45em;
+      padding: 0.4lh 0.8em;
+      --fg: -0.6;                                     /* resting: quiet, well under the active label */
+      border-block-end: 2px solid transparent;        /* the indicator slot */
+      margin-block-end: -1px;                          /* pull the 2px slot over the track's 1px line */
+      border-radius: calc(var(--cfg-radius) - 0.1lh) calc(var(--cfg-radius) - 0.1lh) 0 0;
+      transition: color            calc(var(--cfg-motion) * 0.12s) ease,
+                  border-color     calc(var(--cfg-motion) * 0.12s) ease,
+                  background-color calc(var(--cfg-motion) * 0.12s) ease;
+      & > svg { flex: 0 0 auto; inline-size: 1.05em; block-size: 1.05em; }
+
+      &:hover { --fg: -1; }                             /* hover: ink lifts to max neutral contrast (no surface) */
+
+      &:where([aria-selected="true"], [aria-current]:not([aria-current="false"])) {
+        --fg: -1;                                     /* active commits to full ink */
+        border-block-end-color: var(--focus);          /* the accent underline, on the line */
+      }
+      &:focus-visible { outline: 2px solid var(--focus); outline-offset: -3px; }
+    }
+
+    & :where(.count) {                                 /* trailing count — a quiet engine pill */
+      --type: -1; --bg: 0.14; background-color: var(--_bg); --surf-l: var(--_bg-l);
+      --fg: -0.65; padding: 0 0.5em; border-radius: 999px; align-self: center;
+    }
+  }
+
+  /* ── button group ──────────────────────────────────────────────────
+     A connected row of toggles. Collapses the shared 1px borders, rounds only
+     the outer ends; each <button> carries its own on/off via aria-pressed —
+     multi-select as written, or wire the markup for single-select. Pressed = a
+     lifted, hue-committed surface (semantic locks still apply).
+
+       <div class="button-group" role="group" aria-label="Status">
+         <button aria-pressed="true">Live</button>
+         <button aria-pressed="false">Draft</button>
+       </div>  */
+  :where(.button-group) {
+    display: inline-flex;
+
+    & > :where(button) {
+      --lift: 0.2; --fg: -0.4;                         /* normal-button lift; muted resting ink so the pressed one pops */
+      border-radius: 0;
+      margin-inline-start: -1px;                       /* collapse the shared border with the previous button */
+
+      &[aria-pressed="true"] {                         /* on: MAX-chroma surface + readable ink */
+        --bg: 1; --fg: var(--_sem-ink, -1);
+        background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+        position: relative; z-index: 1;                /* keep its full border above the neighbours */
+      }
+    }
+    & > :where(button):first-child { border-start-start-radius: var(--cfg-radius); border-end-start-radius: var(--cfg-radius); margin-inline-start: 0; }
+    & > :where(button):last-child  { border-start-end-radius: var(--cfg-radius);  border-end-end-radius: var(--cfg-radius); }
+  }
+
+  /* ── carousel ──────────────────────────────────────────────────────
+     EXPERIMENTAL — gated by @supports; NOT part of the stable API and may be
+     removed. Baseline (swipe/scroll-snap) is safe; the generated arrows/dots
+     rely on bleeding-edge CSS. Don't build load-bearing UI on it yet.
+     Native CSS carousel (CSS Overflow 5). A scroll-snap flex track whose
+     prev/next arrows and pagination dots are BROWSER-generated and engine-
+     themed — zero JS; scroll position stays native browser state (no client
+     store). Baseline everywhere: a swipeable scroll-snap track. Enhanced
+     (Chromium now; Firefox/Safari in progress, gated by @supports): generated
+     ::scroll-button arrows + a ::scroll-marker dot group, keyboard- and AT-
+     accessible for free (tablist semantics; :disabled at the ends;
+     :target-current on the live dot).
+
+       <ul class="carousel">              <!-- <ul>/<li> reads best to AT -->
+         <li class="card">…</li> <li class="card">…</li> …
+       </ul>
+
+     Item width = --peek (default 100% → one per view; set e.g. 80% to reveal
+     neighbours). Snap edge = --snap (default center). Arrows/dots paint from
+     the inherited engine ink (currentColor), so they track --hue + theme. */
+  :where(.carousel) {
+    display: flex; gap: calc(0.25 * 1lh);
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    list-style: none; margin: 0; padding: 0;
+
+    & > :where(*) {
+      flex: 0 0 var(--peek, 100%);
+      min-inline-size: 0;
+      scroll-snap-align: var(--snap, center);
+    }
+  }
+
+  /* Enhancements — only where the native carousel pseudos exist; without them
+     the markup above is still a usable swipe / scroll-snap track. */
+  @supports (scroll-marker-group: after) {
+    :where(.carousel) {
+      scroll-marker-group: after;            /* dot group trails the track in tab order */
+      anchor-name: --carousel;               /* arrows/dots anchor to this box ... */
+      anchor-scope: --carousel;              /* ... scoped, so multiple carousels don't collide */
+      margin-block-end: 1.4lh;               /* reserve room for the dot row below */
+      scrollbar-width: none;                 /* arrows + dots replace the bar */
+      &::-webkit-scrollbar { display: none; }
+    }
+
+    /* prev / next — generated buttons; a translucent ink chip that reads on
+       any surface, overlaid just inside each edge and vertically centred. The
+       second content value is the accessible label. */
+    :where(.carousel)::scroll-button(*) {
+      position: absolute; position-anchor: --carousel; z-index: 1;
+      top: anchor(center); translate: 0 -50%;
+      inline-size: 1.9lh; block-size: 1.9lh; padding: 0;
+      border: 0; border-radius: 50%; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.2em; line-height: 1; color: currentColor;
+      background: color-mix(in oklch, currentColor 12%, transparent);
+      transition: background-color calc(var(--cfg-motion) * 0.12s) ease;
+    }
+    :where(.carousel)::scroll-button(*):hover         { background: color-mix(in oklch, currentColor 20%, transparent); }
+    :where(.carousel)::scroll-button(*):disabled      { opacity: 0.3; cursor: default; }
+    :where(.carousel)::scroll-button(*):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    :where(.carousel)::scroll-button(left)  { content: "\2039" / "Previous"; left:  calc(anchor(left)  + 0.4lh); }
+    :where(.carousel)::scroll-button(right) { content: "\203A" / "Next";     right: calc(anchor(right) + 0.4lh); }
+
+    /* dot group — centred just below the track */
+    :where(.carousel)::scroll-marker-group {
+      position: absolute; position-anchor: --carousel;
+      top: calc(anchor(bottom) + 0.4lh); justify-self: anchor-center;
+      display: flex; gap: 0.45em; align-items: center;
+    }
+    :where(.carousel) > :where(*)::scroll-marker {
+      content: ""; inline-size: 0.5lh; block-size: 0.5lh; border-radius: 50%;
+      background: color-mix(in oklch, currentColor 28%, transparent); cursor: pointer;
+      transition: background-color calc(var(--cfg-motion) * 0.12s) ease;
+    }
+    :where(.carousel) > :where(*)::scroll-marker:hover          { background: color-mix(in oklch, currentColor 45%, transparent); }
+    :where(.carousel) > :where(*)::scroll-marker:target-current { background: currentColor; }
+    :where(.carousel) > :where(*)::scroll-marker:focus-visible  { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    /* mouse gets arrows; touch swipes (arrows hidden, dots remain). On a fine
+       pointer, inset the track by --rail so the overlaid arrows sit in a gutter
+       rather than on top of content; touch stays full-bleed. */
+    @media (pointer: fine) {
+      :where(.carousel) {
+        padding-inline: var(--rail, 2.8lh);
+        scroll-padding-inline: var(--rail, 2.8lh);   /* keep snap centred within the gutter */
+      }
+    }
+    @media (pointer: coarse) {
+      :where(.carousel)::scroll-button(*) { display: none; }
+    }
+  }
+
+  /* ── checkbox / radio ─────────────────────────────────────────────
+     Bare <input type="checkbox|radio"> — no class, no appearance:none, no
+     reskin. The browser's native control is excellent (and on iOS often
+     nicer than anything we'd draw); we only theme it. accent-color takes
+     the engine's resolved ink so a checked box matches the page hue, and a
+     semantic hue (.suc / aria-invalid) recolors it for free. */
+  :where(input[type="checkbox"], input[type="radio"]) {
+    --fg: 0.8;                                  /* checked fill = chromatic engine ink */
+    accent-color: currentColor;                 /* currentColor = the engine-resolved --fg ink */
+    inline-size: 1.15em; block-size: 1.15em; flex: 0 0 auto;
+
+    /* touch: bump the font-size so the em-sized box grows into a comfortable
+       target (type and control scale together — no separate size bump needed). */
+    @media (pointer: coarse) { font-size: max(1.4rem, var(--_font-size)); }
+  }
+  :where(input[type="radio"]) { border-radius: 50%; }   /* round box → round focus ring */
+
+  /* ── checkbox / radio field ───────────────────────────────────────
+     A <label> wrapping a checkbox/radio is a HORIZONTAL field: control
+     beside the label text, with the same no-shift <small> feedback slot
+     (e.g. "you must accept the terms"). Validation rides aria-invalid:
+     a danger hue recolors both the feedback and the control's accent. */
+  :where(form, [role="form"]) :where(label):has(> input:is([type="checkbox"], [type="radio"])):not(:where(.tabs *)) {
+    display: grid;
+    grid-template-columns: auto 1fr;            /* control | (label text + feedback) */
+    column-gap: 0.5em;
+    align-items: start;
+
+    & > :where(input) { grid-row: 1; align-self: center; }
+    & > :where(span)  { --fg: -0.75; grid-column: 2; }
+    & > :where(small) {
+      --type: -1; --fg: -0.8; grid-column: 2;
+      block-size: 1lh; display: inline-flex; align-items: center; line-height: 1;  /* reserved → zero shift */
+    }
+
+    /* invalid → danger hue on feedback + the control's accent */
+    &:has([aria-invalid="true"]) {
+      & > :where(small) { --hue-lock: var(--hue-dgr); }
+      & > :where([aria-invalid="true"]) { --hue-lock: var(--hue-dgr); }
+    }
+    &:is(.suc, .inf, .wrn, .dgr) > :where(small),
+    &:has([aria-invalid="true"]) > :where(small) { --fg: 1; }
+  }
+
+  /* ── progress / meter / range — the track+fill family ──────────────
+     Three native elements that share ONE visual language (a pill track
+     with a hue-driven fill at the system's 0.5lh control-line height) but
+     need separate pseudo-element plumbing because the browser exposes
+     each differently. All bare elements (Law 1), all painted from the
+     engine so they theme for free. Fill colour follows --hue; set it at
+     the call site to recolour.
+
+       <progress value="0.6"></progress>      task filling up (0–1 or value/max)
+       <progress></progress>                  indeterminate (animated)
+       <meter value="284" min="0" max="320"></meter>   a measurement in a range
+       <input type="range" min="0" max="100" value="40">   user-set slider
+
+     SHARED TRACK GEOMETRY — one set of tokens both readouts use. */
+  :where(progress, meter) {
+    --bg: 0.15;                                 /* track surface (quiet) */
+    --_fill: 0.6;                               /* fill surface (loud) */
+    appearance: none; -webkit-appearance: none;
+    inline-size: 100%; block-size: calc(0.5 * 1lh);
+    border: 0; border-radius: 999px;
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    overflow: hidden;
+  }
+  /* progress fill (determinate) — value bar painted at the loud surface */
+  :where(progress)::-webkit-progress-bar { background: var(--_bg); border-radius: 999px; }
+  :where(progress)::-webkit-progress-value {
+    background-color: oklch(
+      calc(50% + var(--_fill) * 20%)
+      calc(var(--_fill) * 0.18)
+      var(--hue));
+    border-radius: 999px;
+  }
+  :where(progress)::-moz-progress-bar {
+    background-color: oklch(
+      calc(50% + var(--_fill) * 20%)
+      calc(var(--_fill) * 0.18)
+      var(--hue));
+    border-radius: 999px;
+  }
+  /* indeterminate progress — animated sheen, motion-gated */
+  /* indeterminate progress — a soft sheen drifting across at a calm, constant
+     pace. Linear timing (no acceleration), slow (~5.5s), and the gradient is
+     wide and soft so the loop reset is imperceptible — reads as "working",
+     not "racing". */
+  :where(progress:indeterminate) {
+    background:
+      linear-gradient(90deg,
+        transparent 0%,
+        oklch(calc(50% + var(--_fill) * 20%) calc(var(--_fill) * 0.18) var(--hue) / 0.85) 50%,
+        transparent 100%) no-repeat,
+      var(--_bg);
+    background-size: 65% 100%;
+    animation: progress-slide calc(var(--cfg-motion) * 5.5s) linear infinite;
+  }
+  :where(progress:indeterminate)::-webkit-progress-bar { background: transparent; }
+  @keyframes progress-slide {
+    0%   { background-position: -65% 0; }
+    100% { background-position: 165% 0; }
+  }
+
+  /* meter fill — manual hue by default. The fill colour is computed onto the
+     meter element itself (custom props reach the value pseudo reliably this
+     way; referencing var(--hue) directly inside the pseudo can fall back to
+     the UA default in some engines). Same formula as progress → same look. */
+  :where(meter) {
+    --_fill-color: oklch(
+      calc(50% + var(--_fill) * 20%)
+      calc(var(--_fill) * 0.18)
+      var(--hue));
+  }
+  :where(meter)::-webkit-meter-bar {
+    background: var(--_bg); border-radius: 999px;
+    block-size: calc(0.5 * 1lh);                /* full track height, no UA inset */
+  }
+  :where(meter)::-webkit-meter-optimum-value,
+  :where(meter)::-webkit-meter-suboptimum-value,
+  :where(meter)::-webkit-meter-even-less-good-value {
+    background: var(--_fill-color); border-radius: 999px;
+    block-size: 100%;                           /* fill the bar's full thickness (Chrome
+                                                   otherwise renders the value thinner) */
+  }
+  :where(meter)::-moz-meter-bar { background: var(--_fill-color); border-radius: 999px; }
+
+  /* OPT-IN semantic colouring (.smart) — the meter's own low/high/optimum
+     bands drive the hue: in range = success, sub-optimum = warning, far =
+     danger. Reach for this when the measurement has a "good/bad" meaning. */
+  :where(meter.smart) {
+    --_c-opt:  oklch(58% 0.16 var(--hue-suc));
+    --_c-sub:  oklch(64% 0.15 var(--hue-wrn));
+    --_c-bad:  oklch(56% 0.18 var(--hue-dgr));
+  }
+  :where(meter.smart)::-webkit-meter-optimum-value       { background: var(--_c-opt); }
+  :where(meter.smart)::-webkit-meter-suboptimum-value    { background: var(--_c-sub); }
+  :where(meter.smart)::-webkit-meter-even-less-good-value { background: var(--_c-bad); }
+  :where(meter.smart):-moz-meter-optimum::-moz-meter-bar        { background: var(--_c-opt); }
+  :where(meter.smart):-moz-meter-sub-optimum::-moz-meter-bar    { background: var(--_c-sub); }
+  :where(meter.smart):-moz-meter-sub-sub-optimum::-moz-meter-bar { background: var(--_c-bad); }
+
+  /* ── range slider — interactive track+thumb, same family ──────────── */
+  :where(input[type="range"]) {
+    --bg: 0.15;                                 /* track */
+    --_fill: 0.6;                               /* thumb / active */
+    appearance: none; -webkit-appearance: none;
+    inline-size: 100%; block-size: calc(0.5 * 1lh);
+    background: transparent; cursor: pointer; margin-block: calc(0.4 * 1lh);
+  }
+  /* track */
+  :where(input[type="range"])::-webkit-slider-runnable-track {
+    block-size: calc(0.5 * 1lh); border-radius: 999px;
+    background-color: var(--_bg);
+  }
+  :where(input[type="range"])::-moz-range-track {
+    block-size: calc(0.5 * 1lh); border-radius: 999px;
+    background-color: var(--_bg);
+  }
+  :where(input[type="range"])::-moz-range-progress {
+    block-size: calc(0.5 * 1lh); border-radius: 999px;
+    background-color: oklch(calc(50% + var(--_fill) * 20%) calc(var(--_fill) * 0.18) var(--hue));
+  }
+  /* thumb — a round handle at the loud fill colour, centered on the track */
+  :where(input[type="range"])::-webkit-slider-thumb {
+    appearance: none; -webkit-appearance: none;
+    inline-size: 1.1lh; block-size: 1.1lh; border-radius: 50%;
+    background-color: oklch(calc(50% + var(--_fill) * 20%) calc(var(--_fill) * 0.18) var(--hue));
+    border: 2px solid var(--_bg);
+    margin-block-start: calc((0.5lh - 1.1lh) / 2);   /* center on the track */
+    cursor: grab;
+  }
+  :where(input[type="range"])::-moz-range-thumb {
+    inline-size: 1.1lh; block-size: 1.1lh; border-radius: 50%;
+    background-color: oklch(calc(50% + var(--_fill) * 20%) calc(var(--_fill) * 0.18) var(--hue));
+    border: 2px solid var(--_bg);
+    cursor: grab;
+  }
+  :where(input[type="range"]):focus-visible::-webkit-slider-thumb { outline: 2px solid var(--focus); outline-offset: 2px; }
+  :where(input[type="range"]):focus-visible::-moz-range-thumb     { outline: 2px solid var(--focus); outline-offset: 2px; }
+  :where(input[type="range"]):active::-webkit-slider-thumb { cursor: grabbing; }
+  :where(input[type="range"]) { @media (pointer: coarse) { block-size: calc(0.6 * 1lh); } }
+
+
+  /* ── select (customizable) ────────────────────────────────────────
+     Plain <select> + <option> — NO <button>/<selectedcontent> ceremony.
+     Those are optional; without them the browser renders the selected
+     value itself, exactly like a classic select (the author button is just
+     an inert display:contents placeholder, so styling it fought the clone).
+     We opt into base-select and style the picker + options from the engine.
+     The closed control keeps base's input styling. Native fallback where
+     unsupported. */
+  @supports (appearance: base-select) {
+    :where(select), :where(select)::picker(select) { appearance: base-select; }
+
+    :where(select) {
+      display: inline-flex; align-items: center;   /* center the value like other inputs */
+      &::picker-icon {
+        --fg: -0.5; margin-inline-start: auto;      /* arrow to the end */
+        transition: rotate calc(var(--cfg-motion) * 0.15s) ease;
+      }
+      &:open::picker-icon { rotate: 180deg; }
+      &:open { border-color: var(--focus); }
+      &:focus-visible { outline-offset: -2px; }   /* keep the ring inside the control, off the neighbours */
+    }
+
+    ::picker(select) {
+      background-color: var(--_bg);   /* dark surface inherits via --_bg. NO --surf-l here: on this pseudo --_bg-l is the 98% initial, which would clobber the 24% the picker inherits from the select and flip resting option ink dark. */
+      border: 1px solid var(--border);
+      border-radius: var(--cfg-radius);
+      margin-block-start: calc(0.25 * 1lh);
+      padding: calc(0.2 * 1lh);
+      /* open like .menu — fade + drop, discrete display/overlay so it animates both ways */
+      --_dur: calc(var(--cfg-motion) * 0.14s);
+      transition: opacity var(--_dur) ease-out, translate var(--_dur) ease-out,
+                  display var(--_dur) allow-discrete, overlay var(--_dur) allow-discrete;
+      opacity: 1; translate: 0 0;
+    }
+    :where(select):not(:open)::picker(select) { opacity: 0; translate: 0 -0.3lh; }
+    @starting-style { :where(select):open::picker(select) { opacity: 0; translate: 0 -0.3lh; } }
+
+    :where(select) option {
+      display: flex; align-items: center; gap: 0.5em;
+      padding: calc(0.2 * 1lh) 0.6em;
+      border-radius: max(0px, calc(var(--cfg-radius) - 0.2lh));
+      --fg: -0.6;                                  /* unselected item */
+      &:hover, &:focus { --bg: 0.28; background-color: var(--_bg); }
+      &:focus-visible { outline-offset: -2px; }    /* ring inside the picker, not spilling onto neighbours */
+      &:checked { --fg: -1; font-weight: 600; }    /* selected → brightest neutral ink + the checkmark */
+      & svg { inline-size: 1.1em; block-size: 1.1em; flex: 0 0 auto; }
+    }
+  }
+
+  /* ── floating action buttons — graduated into the component layer (semantic ink now
+     flows via --_sem-ink, so no project-layer override is needed to drive it) ── */
+  /* Floating action buttons — .fab-1 (content-first) · .fab-2 (frost pill) · .fab-3
+     (beacon), in ASCENDING prominence. Glass, so the content behind reads through; quiet
+     at rest, more present as you reach. Default ink --fg:0.7 (hue-tinted); a semantic lock
+     (.suc/.inf/.wrn/.dgr) flows through --_sem-ink + --hue-lock to re-hue AND commit ink +
+     rim + glow together; resting ink is the 0.7 tint, a lock takes it to full chroma.
+     SHAPE follows content (Law 3): a labelled .fab is a pill, an icon-only one (aria-label,
+     no text) is a circle via the icon-only rule + this 999px radius. PLACE with .stack/.hud
+     as a SIBLING of the scrolling content — place-self:end corners it (override for another
+     corner); being a sibling, not a child, it never scrolls away. SHADOWS are intentional
+     here (FABs float by definition) but kept restrained and confined to .fab — the rest of
+     the system stays shadowless; the .fab-3 glow is the loudest the system goes, so reserve
+     it for the one always-available primary action. */
+  .fab-1, .fab-2, .fab-3 {
+    --lift: initial; --bg: 0.4; --fg: var(--_sem-ink, 0.7);
+    border-radius: 999px; font-weight: 650;
+    place-self: end; margin: 1.1lh;
+    position: relative;                              /* anchor for the static hit-pad */
+    transition:
+      translate        calc(var(--cfg-motion) * 0.12s) ease,
+      background-color calc(var(--cfg-motion) * 0.12s) ease,
+      box-shadow       calc(var(--cfg-motion) * 0.12s) ease,
+      border-color     calc(var(--cfg-motion) * 0.12s) ease,
+      backdrop-filter  calc(var(--cfg-motion) * 0.12s) ease,
+      filter           calc(var(--cfg-motion) * 0.12s) ease;
+    & > svg { inline-size: 1.2em; block-size: 1.2em; }
+    &::before { content: ""; position: absolute; inset: -4px; }   /* static hit-pad — overhangs the button enough to keep the pointer inside as it lifts, so hover never drops. no moving parts */
+    &:hover  { translate: 0 -2px; }
+    &:active { translate: 0 0; }
+  }
+  /* 1 · content-first — only the glyph/label at rest: no shadow, no box (a resting drop-shadow
+        read as distracting on dark). Fill, rim, and blur are absent at rest and fade in on
+        hover — a backing only when you reach for it. */
+  .fab-1 {
+    --fg: var(--_sem-ink, 1);                         /* content-first: ink at full chroma even at rest */
+    background-color: oklch(var(--_bg-l) var(--_bg-c) var(--_h) / calc(var(--state) * 0.5));
+    border-color: oklch(calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * 16%) 0.12 var(--_h) / calc(var(--state) * 0.75));
+    -webkit-backdrop-filter: blur(calc(var(--state) * 0.7lh));
+    backdrop-filter: blur(calc(var(--state) * 0.7lh));
+  }
+  /* 2 · frost pill — persistent glass + a restrained neutral elevation shadow */
+  .fab-2 {
+    background-color: oklch(var(--_bg-l) var(--_bg-c) var(--_h) / clamp(0.24, calc(0.32 + var(--state) * 0.5), 0.62));
+    border: 1px solid oklch(calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * 16%) 0.12 var(--_h) / clamp(0.4, calc(0.5 + var(--state) * 0.4), 0.9));
+    box-shadow: 0 0.3lh 1lh oklch(0 0 0 / calc(0.26 * (1 - var(--cfg-dark)))),
+                0 0.3lh 1.2lh oklch(var(--l-color) 0 0 / calc(0.22 * var(--cfg-dark))),
+                inset 0 1px 0 oklch(var(--l-color) 0 0 / calc(0.16 * var(--cfg-dark)));
+    -webkit-backdrop-filter: blur(0.7lh) saturate(1.5);
+    backdrop-filter: blur(0.7lh) saturate(1.5);
+  }
+  /* 3 · beacon — glass + a soft hue GLOW (reads --_h) so it's findable in a busy HUD, still translucent */
+  .fab-3 {
+    background-color: oklch(var(--_bg-l) var(--_bg-c) var(--_h) / clamp(0.3, calc(0.38 + var(--state) * 0.45), 0.64));
+    border: 1px solid oklch(var(--l-color) 0.14 var(--_h) / clamp(0.5, calc(0.6 + var(--state) * 0.35), 0.95));
+    box-shadow: 0 0.2lh 1.3lh oklch(var(--l-color) 0.16 var(--_h) / 0.42), 0 0.25lh 0.5lh oklch(0 0 0 / 0.2);
+    -webkit-backdrop-filter: blur(0.7lh) saturate(1.6);
+    backdrop-filter: blur(0.7lh) saturate(1.6);
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.utility — single-purpose overrides. Last meaningful = wins.
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.utility {
+  :where(.nowrap)   { white-space: nowrap; }
+  /* .menu rows — flat full-width items. Lives here (not with the .menu surface in
+     classAPI.page) because it must override the button paint/border from the later
+     classAPI.components layer; :is() carries the 0,1,1 to beat the paint within this layer. */
+  .menu > :is(button, a) {
+    justify-content: flex-start; gap: 0.5em;
+    min-block-size: calc(1.7 * 1lh);
+    border: 0; --lift: initial; --bg: initial; background: transparent; box-shadow: none;
+    text-decoration: none; --fg: var(--_sem-ink, -0.85);
+    border-radius: max(0px, calc(var(--cfg-radius) - 3px));
+  }
+  .menu > :is(button, a):hover { --bg: 0.16; background-color: var(--_bg); }
+  :where(.truncate) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-inline-size: 0; }
+  :where(.center)   { text-align: center; }
+  :where(.read)     { max-inline-size: 65ch; margin-inline: auto; }
+  :where(.fill)     { inline-size: 100%; }
+  :where(.bw)       { --cfg-chroma: 0; --c-peak: 0; --lt-c-peak: 0; --dk-c-peak: 0; --c-tint: 0; --neg-chroma: 0; --fg-chroma: 0; }   /* black & white — zero every chroma source (same as data-ui-color="0", as a class) */
+  @media print { :where(.np) { display: none !important; } }   /* .np — no-print: omit from the printed page */
+  :where(.vh) { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  /* scroll viewports — the axis scrolls; pair with a constrained size (a flex/grid track,
+     a max-block-size, etc.) since something must bound the box for it to scroll. min-*-size:0
+     defeats the flex/grid auto-min so it can actually shrink-and-scroll inside a parent;
+     overscroll-behavior:contain stops scroll-chaining to the page. */
+  :where(.scroll-x) { overflow-x: auto; overscroll-behavior: contain; min-inline-size: 0; }
+  :where(.scroll-y) { overflow-y: auto; overscroll-behavior: contain; min-block-size: 0; scrollbar-gutter: stable; }
+  :where(.scroll-x) { overflow-x: auto; overscroll-behavior: contain; min-inline-size: 0; }
+
+  /* data-ui-state="on" — the "live in a set" accent (no ARIA home; for a real
+     on/off TOGGLE prefer aria-pressed). Max-contrast ink via --fg:-1 — pushes ink
+     to the NEUTRAL contrast pole (not the chroma pole), so it reads in either bank
+     and doesn't depend on the focus hue being vivid (which fails on small tags).
+     The accent is a THICKER border in the focus colour, done as an inset ring on
+     top of the 1px border (border stays 1px → zero layout shift, and it doesn't
+     read as a focus outline). Works on bordered (tag, input) and borderless
+     (button) elements alike. Lives here, after the components, so it overrides. */
+  :where([data-ui-state="on"]) {
+    border-color: var(--focus);
+    box-shadow: inset 0 0 0 1px var(--focus);
+  }
+  /* data-ui-state="off" — greyed / inert for ANY element (the .tag override
+     earlier keeps its own recipe). Desaturate + dim so an "off" region recedes
+     while its neighbours are accented; pairs with data-ui-state="on". */
+  :where([data-ui-state="off"]:not(.tag)) { filter: grayscale(1) opacity(0.5); }
+
+  /* frosted surface — re-tint the engine's resolved surface translucent and
+     blur what sits behind it. Built from the engine's OWN --_bg-l / --_bg-c /
+     --_h, so it stays on the colour model (no literal colour); only the alpha
+     and blur radius are knobs (--glass-alpha / --glass-blur). Set --bg to pick
+     the tint depth as on any surface. Publishes --surf-l / --surf-bg like .bg,
+     so descendant ink and lift resolve against the (opaque-equivalent)
+     lightness. Needs content BEHIND it to read as glass — over an opaque
+     sibling it's just a tint. Best on an overlay: a .drawer, a .hud child, a
+     sticky header. */
+  :where(.glass) {
+    background-color: oklch(var(--_bg-l) var(--_bg-c) var(--_h) / var(--glass-alpha, 0.65));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 0.5lh));
+    backdrop-filter: blur(var(--glass-blur, 0.5lh));
+    --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+  }
+
+  /* semantic hue helpers — lock an element to a semantic hue (tokens in theme).
+     Four-letter names align in markup. */
+  :where(.suc) { --hue-lock: var(--hue-suc); --_sem-ink: 1 }
+  :where(.inf) { --hue-lock: var(--hue-inf); --_sem-ink: 1 }
+  :where(.wrn) { --hue-lock: var(--hue-wrn); --_sem-ink: 1 }
+  :where(.dgr) { --hue-lock: var(--hue-dgr); --_sem-ink: 1 }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.media — responsive show/hide via revert-layer.
+   Last layer, so it out-ranks component display. (Inline display still
+   wins — don't set display inline on a gated element.)
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.media{
+  /* Popover display is the browser's job (UA: [popover]:not(:popover-open){display:none}),
+     but author CSS beats the UA sheet, so .menu's own display:flex — or a layout class
+     like .column/.row stacked on it — overrides that and leaves the CLOSED panel laid
+     out, where it can sit over its trigger and eat the opening click. Re-assert the
+     collapse here in the last layer: one central guard that wins over the layout layer,
+     so popovers can carry any composition class without per-class guards or a bare-wrapper
+     rule. Scoped to [popover] so in-flow .menu specimens are untouched. */
+  :where(.menu[popover]):not(:popover-open) { display: none }
+
+  .mobile, .tablet, .desktop           { display: none }
+  @media (width < 768px)               { .mobile  { display: revert-layer } }
+  @media (768px <= width < 1024px)     { .tablet  { display: revert-layer } }
+  @media (width >= 1024px)             { .desktop { display: revert-layer } }
+
+  .small, .medium, .large              { display: none }
+  @container (width < 320px)           { .small  { display: revert-layer } }
+  @container (320px <= width < 560px)  { .medium { display: revert-layer } }
+  @container (width >= 560px)          { .large  { display: revert-layer } }
+
+  .fine, .coarse                       { display: none }
+  @media (pointer: fine)               { .fine   {display: revert-layer;} }
+  @media (pointer: coarse)             { .coarse {display: revert-layer;} }
+}
+
+/* project shorthands — put these in their own @layer AFTER the system layers
+   so they always win and live in one findable place:
+   @layer project { … } and add `project` to the @layer statement at the top.
+
+   ── Changelog ─────────────────────────────────────────────────────────────
+   Private beta · adopt incrementally. Everything in this layer is a convenience
+   over the primitives, not load-bearing — migrate to it gradually.
+     · type: collapsed to a single --cfg-ratio (was per-endpoint min/max ratios)
+     · controls: --_control-h resolves per-control off its own unfloored size;
+       buttons adopt it, so button / field / select / avatar share one height
+     · deprecated: .muted (→ style="--fg:-0.6"), .quiet (→ style="--bg:0.08")
+   ────────────────────────────────────────────────────────────────────────── */
+@layer project {
+  /* button emphasis family — conveniences over the bare <button>. Both opt out
+     of the button's default --lift (--lift:initial → the engine falls back to an
+     absolute --bg) to pin a fixed surface. They compose with .suc/.inf/.wrn/.dgr
+     and --type. */
+  .pri {                                 /* primary — just the full-blast POSITION on the scale (--bg:1) + max-contrast ink. No pinned peak/flip: how saturated it gets, and whether the label commits to the light pole, are the ACTIVE theme/skin's call (--c-peak, --fg-flip). So primaries are muted on the base theme and turn vivid under data-ui-skin="vivid" — not a parallel colour system baked into the class. Paints via :not(.sec). */
+    --lift: initial; --bg: 1; --fg: -1;
+  }
+  .sec {                                 /* secondary — frosted glass. Engine-resolved translucent fill (no literal colour). Frost alpha + a backdrop brightness lift ride --state (hover thickens+brightens, press dims). The rim is a HUE-TINTED chroma edge: it reads --_h, so a plain .sec edges in --hue and a .suc/.inf/.wrn/.dgr one edges in its semantic hue — and it sharpens on hover. Sets no --surf-l → label contrasts what shows through. Needs content behind it to read as glass. */
+    --lift: initial; --bg: 0.4; --fg: var(--_sem-ink, -0.9);
+    background-color: oklch(var(--_bg-l) var(--_bg-c) var(--_h) / clamp(0.12, calc(0.2 + var(--state) * 0.55), 0.55));
+    -webkit-backdrop-filter: blur(0.6lh) saturate(1.5) brightness(calc(1 + var(--state) * 0.1));
+    backdrop-filter: blur(0.6lh) saturate(1.5) brightness(calc(1 + var(--state) * 0.1));
+    border: 1px solid oklch(calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * 14%) 0.12 var(--_h) / clamp(0.25, calc(0.45 + var(--state) * 0.45), 0.85));
+  }
+  /* Semantic ink is intrinsic now — the old override rule is gone. The .suc/.inf/.wrn/.dgr
+     helpers set --_sem-ink:1 beside --hue-lock, and every component reads
+     var(--_sem-ink, «its own resting --fg»), so a lock commits the ink to the chroma pole
+     LAYER-INDEPENDENTLY — which is what lets .fab live down in classAPI.components. .pri
+     opts out by setting --fg literally (-1), so its label stays max-contrast neutral. */
+  /* ── DEPRECATED aliases — kept working so existing markup doesn't break; migrate off them.
+     Both are one-declaration jobs that read clearer as an inline style than as a class:
+       .muted  →  style="--fg:-0.6"    a one-off quiet caption (ink one notch down)
+       .quiet  →  style="--bg:0.08"    a low-emphasis button (just a quieter surface)
+     Scheduled for removal once call sites are migrated. No new usage. */
+  .muted { --fg: -0.6; }
+  .quiet { --bg: 0.08; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg); }
+
+  /* disabled keeps its drained ink even though components now declare --fg: this 0,1,1
+     selector beats the component reads and the .pri/.sec literals. --surface-chroma:0 /
+     not-allowed / no-hover already come from the reset + colour layers. */
+  button:disabled, button[aria-disabled="true"], .btn[aria-disabled="true"] { --fg: -0.3; }
+
+  .pg-banner      { --bg:  0.4; padding: 0.25lh; }
+  .pg-header      { --bg: -0.8; padding: 0.25lh; }
+  .pg-subheader   { --bg: -0.8; padding: 0; }
+  .pg-navigation  { --bg: -0.8; padding: 0.25lh; }
+  .pg-toolbar     { --bg: -0.3; padding: 0.25lh; }
+  .pg-main-header { --bg: -0.3; padding: 0.25lh; } 
+  .pg-main        { --bg: -0.3; padding-inline: 0.25lh; } 
+  .pg-main-footer { --bg: -0.3; padding: 0.25lh; } 
+  .pg-aside       { --bg: -0.3; padding: 0.25lh; } 
+  .pg-footer      { --bg:  0.03; padding: 0.25lh; }
+  :where(.pg-main, .pg-navigation, .pg-aside, .pg-toolbar) { overscroll-behavior: none; }
+  [data-ui-skin="material"]{ --lt-c-peak:0.13; --dk-c-peak:0.16;
+    --dk-l-base:21%; --dk-l-floor:5%; --dk-surf-curve:0.9; --dk-neg-chroma:0.07; --lt-l-base:99%; --lt-l-floor:88%; --lt-surf-curve:1.05; --lt-neg-chroma:0.03;   /* Material — tonal (visible surface tint), elevated, rounded */
+    --c-tint:0.08; --cfg-radius:16px; }
+  [data-ui-skin="carbon"]{ --lt-c-peak:0.08; --dk-c-peak:0.10;
+    --dk-l-base:24%; --dk-l-floor:3%; --dk-surf-curve:1; --dk-neg-chroma:0; --lt-l-base:98%; --lt-l-floor:80%; --lt-surf-curve:1; --lt-neg-chroma:0;   /* Carbon — near-neutral cool grays, muted accents, sharp corners */
+    --c-tint:0.003; --cfg-radius:0px; }
+
+  /* vivid — pure colour tuning, no fonts: a louder colour peak + a biased
+     contrast flip, so loud surfaces saturate harder and their ink commits to the
+     light pole earlier. Drives the BANK SOURCES (not the resolved values), so it
+     survives a nested data-ui-theme and stays correct per bank at any depth.
+     Opt in with data-ui-skin="vivid" on <html> or any subtree; nothing changes
+     unless set (non-vivid falls back to 0.08/0.07 peak, 60% flip). */
+  [data-ui-skin="vivid"] { --lt-c-peak:0.15; --dk-c-peak:0.19; --lt-fg-flip:66%; --dk-fg-flip:92%;
+    --dk-l-base:6%; --dk-l-floor:34%; --dk-surf-curve:0.85; --dk-neg-chroma:0.06; --lt-l-base:99%; --lt-l-floor:80%; --lt-surf-curve:1.05; --lt-neg-chroma:0.012;   /* Vivid — neon on near-black (inverted dark elevation) */
+    --cfg-radius:5px; }
+
+  /* ── font switch — swap UI + display + mono faces, orthogonal to skin.
+     Opt-in: unset keeps the skin/default faces. Consumers load the webfonts. ── */
+  [data-ui-font="grotesk"]  { --font-ui:"Hanken Grotesk",system-ui,sans-serif; --font-display:"Hanken Grotesk",sans-serif; --font-mono:"Spline Sans Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-font="neo"]      { --font-ui:"Inter",system-ui,sans-serif; --font-display:"Inter",sans-serif; --font-mono:"JetBrains Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-font="serif"]    { --font-ui:"Newsreader",Georgia,serif; --font-display:"Newsreader",Georgia,serif; --font-mono:"Spline Sans Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-font="techno"]   { --font-ui:"Space Grotesk",system-ui,sans-serif; --font-display:"Space Grotesk",sans-serif; --font-mono:"Space Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-font="humanist"] { --font-ui:"IBM Plex Sans",system-ui,sans-serif; --font-display:"IBM Plex Sans",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+
+  /* ── dark-elevation invert (experimental) — flips the dark neutral ramp so
+     bg 0 sits at near-black and receding surfaces get LIGHTER. Dark-only (it
+     only overrides the dark bank base/floor, which light mode never reads).
+     Pairs well with a colourful data-ui-color for a neon-on-black look. ── */
+  [data-ui-invert="1"] { --dk-l-base: 6%; --dk-l-floor: 34%; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   view transitions — motion helpers on top of the View Transitions API.
+   These pseudos only take effect DURING a transition, which you start with
+   document.startViewTransition(update) (same-document) — nothing here runs
+   otherwise, so it's inert until you opt in. Direction is chosen by setting
+   data-vt on <html> right before starting: "fade" (default) · "slide-left" ·
+   "slide-right" · "scale" (subtle) · "zoom" (pronounced). Duration rides --cfg-motion, so data-ui-motion
+   (off/on/debug) and prefers-reduced-motion already govern it — at motion 0
+   the animation is 0s (an instant swap). @keyframes live outside @layer (they
+   are global by name); the pseudos are on the document root.
+
+   Cross-DOCUMENT transitions (between same-origin page loads, zero JS) are one
+   line away — add `@view-transition { navigation: auto; }` — left off by
+   default so multi-page sites opt in deliberately.
+   ════════════════════════════════════════════════════════════════════ */
+@keyframes vt-fade-in    { from { opacity: 0 } }
+@keyframes vt-fade-out   { to   { opacity: 0 } }
+@keyframes vt-in-right   { from { opacity: 0; transform: translateX(2.5%) } }
+@keyframes vt-out-left   { to   { opacity: 0; transform: translateX(-2.5%) } }
+@keyframes vt-in-left    { from { opacity: 0; transform: translateX(-2.5%) } }
+@keyframes vt-out-right  { to   { opacity: 0; transform: translateX(2.5%) } }
+@keyframes vt-in-scale   { from { opacity: 0; transform: scale(0.99) } }
+@keyframes vt-out-scale  { to   { opacity: 0; transform: scale(1.01) } }
+@keyframes vt-in-zoom    { from { opacity: 0; transform: scale(0.9) } }
+@keyframes vt-out-zoom   { to   { opacity: 0; transform: scale(1.06) } }
+
+::view-transition-group(*) {
+  animation-duration: calc(var(--cfg-motion) * 0.28s);
+  animation-timing-function: ease;
+}
+/* default = crossfade */
+::view-transition-old(root) { animation-name: vt-fade-out; }
+::view-transition-new(root) { animation-name: vt-fade-in; }
+/* directional helpers — set data-vt on <html> before startViewTransition */
+:root[data-vt="slide-left"]::view-transition-old(root)  { animation-name: vt-out-left; }
+:root[data-vt="slide-left"]::view-transition-new(root)  { animation-name: vt-in-right; }
+:root[data-vt="slide-right"]::view-transition-old(root) { animation-name: vt-out-right; }
+:root[data-vt="slide-right"]::view-transition-new(root) { animation-name: vt-in-left; }
+:root[data-vt="scale"]::view-transition-old(root)       { animation-name: vt-out-scale; }
+:root[data-vt="scale"]::view-transition-new(root)       { animation-name: vt-in-scale; }
+:root[data-vt="zoom"]::view-transition-old(root)        { animation-name: vt-out-zoom; }
+:root[data-vt="zoom"]::view-transition-new(root)        { animation-name: vt-in-zoom; }

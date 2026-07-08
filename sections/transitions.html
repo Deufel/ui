@@ -1,0 +1,100 @@
+<main class="pg-main" id="main" data-init="afterNav('transitions'); $vtsupport = !!document.startViewTransition" data-signals="{vtn: 1, vtdir: 'slide-left', vtsupport: true}">
+  <div class="doc">
+
+    <header class="column" style="gap: 0.4lh">
+      <span class="tag inf" style="align-self:start">layout · motion</span>
+      <h1 style="--type: 6">View transitions</h1>
+      <p style="--type:1; --fg:-0.7; max-inline-size: 54ch">A plain CSS <code>transition</code> animates one property on one element that stays put. The <strong>View Transitions API</strong> generalizes that to a whole DOM change — elements that appear, move, or leave — by snapshotting before &amp; after and animating between them. <code>system.css</code> wraps it in four direction helpers, gated by your motion switch.</p>
+    </header>
+
+    <section class="Card column" style="--bg:0.05; gap:0.5lh; padding:0.7lh 0.8em">
+      <div class="spread"><h2 style="--type:3">Try it</h2><span data-attr:class="$vtsupport ? 'tag suc' : 'tag wrn'" data-text="$vtsupport ? 'supported in this browser' : 'not supported — swaps instantly'"></span></div>
+      <p style="--fg:-0.6; --type:-0.5">Pick a direction, then swap the panel. Set the header's motion to <strong>Debug</strong> to watch it in slow motion — the duration rides <code>--cfg-motion</code>.</p>
+      <div class="vt-stage" style="--bg:0">
+        <div class="vt-panel" data-style="{'--hue': $vtn === 1 ? 255 : $vtn === 2 ? 25 : $vtn === 3 ? 150 : 285}" style="--bg:0.12; background-color: var(--_bg)">
+          <span class="vt-big" data-text="$vtn"></span>
+          <small style="--fg:-0.6" data-text="$vtn === 1 ? 'Panel one' : $vtn === 2 ? 'Panel two' : $vtn === 3 ? 'Panel three' : 'Panel four'"></small>
+        </div>
+      </div>
+      <div class="spread" style="gap:0.6em; flex-wrap:wrap">
+        <div class="button-group" role="group" aria-label="Direction">
+          <button data-attr:aria-pressed="$vtdir === 'fade' ? 'true' : 'false'" data-on:click="$vtdir = 'fade'">fade</button>
+          <button data-attr:aria-pressed="$vtdir === 'slide-left' ? 'true' : 'false'" data-on:click="$vtdir = 'slide-left'">slide-left</button>
+          <button data-attr:aria-pressed="$vtdir === 'slide-right' ? 'true' : 'false'" data-on:click="$vtdir = 'slide-right'">slide-right</button>
+          <button data-attr:aria-pressed="$vtdir === 'scale' ? 'true' : 'false'" data-on:click="$vtdir = 'scale'">scale</button>
+        </div>
+        <button class="pri nowrap" data-on:click__viewtransition="document.documentElement.dataset.vt = $vtdir; $vtn = ($vtn % 4) + 1">Swap panel →</button>
+      </div>
+    </section>
+
+    <section class="split" style="gap:0.7lh; align-items:start">
+      <div class="column" style="gap:0.4lh">
+        <h2 style="--type:3">The whole API is one call</h2>
+        <p style="--fg:-0.6">Wrap any state change. The browser freezes the old frame, runs your callback, then crossfades to the new frame. No library, no manual FLIP math.</p>
+        <pre><code class="js">document.documentElement.dataset.vt = "slide-left";
+document.startViewTransition(() =&gt; {
+  // any DOM mutation — swap a route, re-render a list…
+  render(nextState);
+});</code></pre>
+        <p style="--fg:-0.6; --type:-0.5">Unsupported browsers just run the callback with no animation — so it's safe to ship today.</p>
+      </div>
+      <div class="column" style="gap:0.4lh">
+        <h2 style="--type:3">Directions ship as helpers</h2>
+        <p style="--fg:-0.6">Set <code>data-vt</code> on <code>&lt;html&gt;</code> before you start; <code>system.css</code> keys the keyframes off it.</p>
+        <div class="table-scroll" style="--bg:0">
+          <table>
+            <thead><tr><th><code>data-vt</code></th><th>motion</th></tr></thead>
+            <tbody>
+              <tr><td><code>fade</code></td><td>Crossfade (the default if unset)</td></tr>
+              <tr><td><code>slide-left</code></td><td>New content enters from the right</td></tr>
+              <tr><td><code>slide-right</code></td><td>New content enters from the left</td></tr>
+              <tr><td><code>scale</code></td><td>Subtle zoom crossfade</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="alert inf" role="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+      <div class="column" style="gap:0.15lh">
+        <strong>It obeys the motion switch — for free.</strong>
+        <small style="--fg:-0.75">Duration is <code>calc(var(--cfg-motion) * 0.28s)</code>, so <code>data-ui-motion</code> off → instant swap, debug → 10× slow, and <code>prefers-reduced-motion</code> zeroes it. Because the transition pseudo-elements live on <code>:root</code>, set <code>data-ui-motion</code> on <code>&lt;html&gt;</code> (not just an inner wrapper) so the value reaches them.</small>
+      </div>
+    </section>
+
+    <section class="split" style="gap:0.7lh; align-items:start">
+      <div class="column" style="gap:0.4lh">
+        <h2 style="--type:3">Morph a shared element</h2>
+        <p style="--fg:-0.6">Give an element a unique <code>view-transition-name</code> and it becomes its own group — the browser tweens its old and new size/position, so a list card grows into a detail view. This page's demo panel is named <code>vt-demo</code>; the docs shell names its header/nav/footer so they stay put while the content slides.</p>
+        <pre><code class="css">.card-hero { view-transition-name: hero; }
+/* must be UNIQUE per snapshot */</code></pre>
+      </div>
+      <div class="column" style="gap:0.4lh">
+        <h2 style="--type:3">Across separate pages, zero JS</h2>
+        <p style="--fg:-0.6">For multi-page sites, one at-rule opts every same-origin navigation into a transition — no script at all. Style it with the same pseudo-elements.</p>
+        <pre><code class="css">@view-transition { navigation: auto; }</code></pre>
+        <p style="--fg:-0.6; --type:-0.5">Left off by default in <code>system.css</code> so multi-page sites opt in deliberately.</p>
+      </div>
+    </section>
+
+    <section class="column" style="gap:0.4lh">
+      <h2 style="--type:3">What the stylesheet defines</h2>
+      <p style="--fg:-0.6">The helper block at the end of <code>system.css</code> — pseudo-elements on the document root, keyframes keyed to <code>data-vt</code>:</p>
+      <pre><code class="css">::view-transition-group(*) {
+  animation-duration: calc(var(--cfg-motion) * 0.28s);
+}
+::view-transition-old(root) { animation-name: vt-fade-out; }  /* default */
+::view-transition-new(root) { animation-name: vt-fade-in; }
+:root[data-vt="slide-left"]::view-transition-old(root) { animation-name: vt-out-left; }
+:root[data-vt="slide-left"]::view-transition-new(root) { animation-name: vt-in-right; }
+/* …slide-right, scale… */</code></pre>
+    </section>
+
+    <footer class="column" style="gap:0.3lh; --fg:-0.6">
+      <hr>
+      <p style="--type:-0.5">Support: Chromium (same- &amp; cross-document), Safari (recent), Firefox (partial) — and a graceful instant swap everywhere else. Only one transition runs at a time.</p>
+    </footer>
+
+  </div>
+</main>

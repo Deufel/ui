@@ -1,0 +1,108 @@
+<main class="pg-main" id="main" data-init="afterNav('controls')">
+  <div class="doc column" style="gap: 1.2lh">
+
+    <header class="column" style="gap: 0.4lh">
+      <div class="spread">
+        <span class="tag suc">system.css · edited</span>
+        <span class="tag" style="--bg:0.1">dogfooded on the fixed stylesheet</span>
+      </div>
+      <h1 style="--type: 6; margin-block-start: 0.2lh">Control-height lab</h1>
+      <p style="--type: 1; --fg: -0.7; max-inline-size: 46ch">One height per <code>--type</code>, shared by every control — the unified UI you described. Numbers below are measured live from the rendered DOM.</p>
+    </header>
+
+    <section class="alert suc" role="status">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      <div class="column" style="gap:0.2lh">
+        <strong>Three edits, live in <code>system.css</code></strong>
+        <small style="--fg:-0.75"><strong>1</strong> <code>--_control-h</code> now resolves per-control off its own unfloored size (was frozen at type 0 on <code>html</code>). <strong>2</strong> buttons adopt it (<code>min-block-size</code>, no vertical padding) so they match fields exactly. <strong>3</strong> dual ratio collapsed to one <code>--cfg-ratio</code>. <code>--scale</code> and <code>data-ui-size</code> untouched.</small>
+      </div>
+    </section>
+
+    <section class="card column" style="--bg:0.03; gap:0.5lh">
+      <div class="spread">
+        <h2 style="--type:3">The unified row</h2>
+        <span class="tag" id="row-readout">measuring…</span>
+      </div>
+      <p style="--fg:-0.6">Search field, select, primary button, icon button, avatar — dropped side by side, nothing sized by hand. They line up because they read the same <code>--_control-h</code>.</p>
+      <div class="famrow" data-fam="default" style="--bg:0">
+        <input type="search" placeholder="Search…" style="inline-size:14em" data-ctl>
+        <select data-ctl><option>Filter</option><option>Recent</option></select>
+        <button class="pri inf" data-ctl>Save</button>
+        <button aria-label="More" data-ctl><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+        <span class="avatar" style="--hue:145" data-ctl>AL</span>
+      </div>
+    </section>
+
+    <section class="column" style="gap:0.6lh">
+      <h2 style="--type:3">Locked across the scale</h2>
+      <p style="--fg:-0.6; max-inline-size:58ch">Each row bumps <code>--type</code>. Button, input, select and avatar stay equal — measured heights on the right. Before the fix, only the button grew; fields were frozen at 33px.</p>
+      <div class="column" style="gap:0.6lh">
+        <div class="famrow rule" style="padding-block-end:0.5lh">
+          <code class="steplbl">type -2</code>
+          <input placeholder="Field" style="inline-size:9em; --type:-2" data-step="-2">
+          <select style="--type:-2" data-step="-2"><option>Select</option></select>
+          <button style="--type:-2" data-step="-2">Button</button>
+          <span class="avatar" style="--type:-2" data-step="-2">AL</span>
+          <span class="tag" data-step-readout="-2" style="margin-inline-start:auto; --type:-1">…</span>
+        </div>
+        <div class="famrow rule" style="padding-block-end:0.5lh">
+          <code class="steplbl">type -1</code>
+          <input placeholder="Field" style="inline-size:9em; --type:-1" data-step="-1">
+          <select style="--type:-1" data-step="-1"><option>Select</option></select>
+          <button style="--type:-1" data-step="-1">Button</button>
+          <span class="avatar" style="--type:-1" data-step="-1">AL</span>
+          <span class="tag" data-step-readout="-1" style="margin-inline-start:auto; --type:-1">…</span>
+        </div>
+        <div class="famrow rule" style="padding-block-end:0.5lh">
+          <code class="steplbl">type 0</code>
+          <input placeholder="Field" style="inline-size:9em; --type:0" data-step="0">
+          <select style="--type:0" data-step="0"><option>Select</option></select>
+          <button style="--type:0" data-step="0">Button</button>
+          <span class="avatar" style="--type:0" data-step="0">AL</span>
+          <span class="tag" data-step-readout="0" style="margin-inline-start:auto; --type:-1">…</span>
+        </div>
+        <div class="famrow rule" style="padding-block-end:0.5lh">
+          <code class="steplbl">type 1</code>
+          <input placeholder="Field" style="inline-size:9em; --type:1" data-step="1">
+          <select style="--type:1" data-step="1"><option>Select</option></select>
+          <button style="--type:1" data-step="1">Button</button>
+          <span class="avatar" style="--type:1" data-step="1">AL</span>
+          <span class="tag" data-step-readout="1" style="margin-inline-start:auto; --type:-1">…</span>
+        </div>
+        <div class="famrow rule" style="padding-block-end:0.5lh">
+          <code class="steplbl">type 2</code>
+          <input placeholder="Field" style="inline-size:9em; --type:2" data-step="2">
+          <select style="--type:2" data-step="2"><option>Select</option></select>
+          <button style="--type:2" data-step="2">Button</button>
+          <span class="avatar" style="--type:2" data-step="2">AL</span>
+          <span class="tag" data-step-readout="2" style="margin-inline-start:auto; --type:-1">…</span>
+        </div>
+        <div class="famrow rule" style="padding-block-end:0.5lh">
+          <code class="steplbl">type 3</code>
+          <input placeholder="Field" style="inline-size:9em; --type:3" data-step="3">
+          <select style="--type:3" data-step="3"><option>Select</option></select>
+          <button style="--type:3" data-step="3">Button</button>
+          <span class="avatar" style="--type:3" data-step="3">AL</span>
+          <span class="tag" data-step-readout="3" style="margin-inline-start:auto; --type:-1">…</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="split" style="gap:0.7lh; align-items:start">
+      <div class="Surface column" style="gap:0.35lh">
+        <strong>The iOS zoom guard still works</strong>
+        <small style="--fg:-0.7">Fields keep <code>font-size: max(16px, …)</code> so focusing them on iOS never zooms. Because the box height is now the shared token (not derived from the glyph), the floored 16px text just centers — it can't push the field taller than its button. That's the knot you couldn't untie: the floor and the matched height stopped fighting once height stopped depending on the glyph.</small>
+      </div>
+      <div class="Surface column" style="gap:0.35lh">
+        <strong>On <code>--scale</code> (kept)</strong>
+        <small style="--fg:-0.7">Still the cheap regional zoom — because everything is <code>em</code>/<code>lh</code> off type, one multiplier shrinks a whole region to a faithful mini. <code>transform: scale()</code> is the alternative for a <em>pure visual</em> thumbnail (no reflow, may overflow); <code>--scale</code> actually reflows the layout smaller. Keep <code>--scale</code> for real mini-UIs, reach for <code>transform</code> for a frozen preview.</small>
+      </div>
+    </section>
+
+    <footer class="column" style="gap:0.3lh; --fg:-0.6">
+      <hr>
+      <p style="--type:-0.5">Type system is now: single ratio, per-control shared height, <code>--scale</code> + <code>data-ui-size</code> intact.</p>
+    </footer>
+
+  </div>
+</main>
